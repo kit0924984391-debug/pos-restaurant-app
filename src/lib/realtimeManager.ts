@@ -73,11 +73,21 @@ export function subscribeRealtime(slug: string, callback: EventCallback): () => 
 
     const handleVisibilityChange = () => {
       const c = connections.get(slug);
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible' && c && c.subscribers.size > 0) {
-        // If connection is stale or disconnected while tab was inactive, reconnect immediately
-        if (Date.now() - c.lastHeartbeat > HEARTBEAT_TIMEOUT_MS || c.status !== 'connected') {
+      if (typeof document !== 'undefined') {
+        if (document.visibilityState === 'hidden') {
+          // Tab/screen inactive: close connection and pause reconnects to save serverless execution quota
+          if (c) {
+            clearTimeout(c.reconnectTimeout);
+            if (c.eventSource) {
+              try { c.eventSource.close(); } catch (e) {}
+              c.eventSource = null;
+            }
+            notifyStatus(c, 'idle');
+          }
+        } else if (document.visibilityState === 'visible' && c && c.subscribers.size > 0) {
+          // User returned to tab: reconnect immediately
           c.retryAttempt = 0;
-          scheduleReconnect(slug, 300);
+          scheduleReconnect(slug, 100);
         }
       }
     };
@@ -103,6 +113,12 @@ export function subscribeRealtime(slug: string, callback: EventCallback): () => 
         c.eventSource.close();
       } catch (e) {}
       c.eventSource = null;
+    }
+
+    // Do not reconnect in background/hidden tab to prevent wasting Serverless GB-Hours
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+      notifyStatus(c, 'idle');
+      return;
     }
 
     const delay = explicitDelay !== undefined ? explicitDelay : calculateBackoff(c.retryAttempt);
@@ -144,6 +160,12 @@ export function subscribeRealtime(slug: string, callback: EventCallback): () => 
       // Handle custom ping event from stream
       es.addEventListener('ping', () => {
         c.lastHeartbeat = Date.now();
+      });
+
+      // Handle graceful stream rotation from server
+      es.addEventListener('reconnect', () => {
+        c.retryAttempt = 0;
+        scheduleReconnect(targetSlug, 300);
       });
 
       es.onerror = () => {

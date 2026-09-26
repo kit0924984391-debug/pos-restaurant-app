@@ -53,7 +53,16 @@ export async function GET(
     sendEvent('ping', { timestamp: Date.now() });
   }, 15000);
 
+  // Auto-close gracefully at 25s so serverless function never hangs or burns GB-hours
+  const autoCloseTimeout = setTimeout(() => {
+    sendEvent('reconnect', { timestamp: Date.now() });
+    clearInterval(interval);
+    eventBus.off('pos-event', onPosEvent);
+    writer.close().catch(() => {});
+  }, 25000);
+
   request.signal.addEventListener('abort', () => {
+    clearTimeout(autoCloseTimeout);
     clearInterval(interval);
     eventBus.off('pos-event', onPosEvent);
     writer.close().catch(() => {});
