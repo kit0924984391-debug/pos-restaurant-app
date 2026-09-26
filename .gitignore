@@ -38,3 +38,6 @@ Thumbs.db
 
 .vercel
 .env*
+
+.open-next/
+.wrangler/
