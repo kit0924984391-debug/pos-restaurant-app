@@ -24,7 +24,12 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      let data: any;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        throw new Error(`การเชื่อมต่อเซิร์ฟเวอร์ขัดข้อง (${res.status} ${res.statusText}) กรุณาลองใหม่อีกครั้ง`);
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'เข้าสู่ระบบไม่สำเร็จ');

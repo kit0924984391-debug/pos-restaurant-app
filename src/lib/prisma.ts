@@ -5,34 +5,50 @@ import { PrismaPg } from '@prisma/adapter-pg';
 const DEFAULT_DATABASE_URL =
   'postgresql://postgres.koutohveoioovtlylphm:11072526%23Kit@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true&schema=pos_restaurant';
 
-function getDatabaseUrl(): string {
-  if (process.env.DATABASE_URL) {
-    return process.env.DATABASE_URL;
-  }
+
+function getDatabaseConfig(): { connectionString: string; ssl?: any } {
   try {
     // Attempt to load from Cloudflare OpenNext request context if available
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { getCloudflareContext } = require('@opennextjs/cloudflare');
     const ctx = getCloudflareContext();
+    if (ctx?.env?.HYPERDRIVE?.connectionString) {
+      return {
+        connectionString: ctx.env.HYPERDRIVE.connectionString,
+      };
+    }
     if (ctx?.env?.DATABASE_URL) {
-      return ctx.env.DATABASE_URL;
+      return {
+        connectionString: ctx.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+      };
     }
   } catch {
     // ignore
   }
-  return DEFAULT_DATABASE_URL;
+
+  const rawUrl = process.env.DATABASE_URL || DEFAULT_DATABASE_URL;
+  return {
+    connectionString: rawUrl,
+    ssl: { rejectUnauthorized: false },
+  };
 }
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+let cachedPrisma: PrismaClient | null = null;
+let currentConnKey: string | null = null;
 
-function createPrismaClient(): PrismaClient {
-  const connectionString = getDatabaseUrl();
+function createPrismaInstance(connectionString: string, ssl?: any): PrismaClient {
   const pool = new Pool({
     connectionString,
     options: '-c search_path=pos_restaurant',
-    max: 5,
+    ssl: ssl || undefined,
+    max: 10,
+    maxUses: 1, // Destroy connection after use so frozen worker isolates never reuse dead sockets
+    idleTimeoutMillis: 100,
+    connectionTimeoutMillis: 5000,
+  });
+  pool.on('error', (err) => {
+    console.error('Database pool error:', err);
   });
   const adapter = new PrismaPg(pool, { schema: 'pos_restaurant' });
 
@@ -43,10 +59,14 @@ function createPrismaClient(): PrismaClient {
 }
 
 function getPrisma(): PrismaClient {
-  if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = createPrismaClient();
+  const { connectionString, ssl } = getDatabaseConfig();
+  const connKey = `${connectionString}_${!!ssl}`;
+
+  if (!cachedPrisma || currentConnKey !== connKey) {
+    cachedPrisma = createPrismaInstance(connectionString, ssl);
+    currentConnKey = connKey;
   }
-  return globalForPrisma.prisma;
+  return cachedPrisma;
 }
 
 export const prisma = new Proxy({} as PrismaClient, {

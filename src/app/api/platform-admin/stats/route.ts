@@ -8,26 +8,16 @@ export async function GET() {
 
     const now = new Date();
 
-    const [
-      totalStores,
-      activeStores,
-      trialStores,
-      pendingStores,
-      totalUsers,
-      totalOrders,
-      subscriptions,
-    ] = await Promise.all([
-      prisma.store.count(),
-      prisma.store.count({ where: { status: 'ACTIVE' } }),
-      prisma.store.count({ where: { status: 'TRIAL' } }),
-      prisma.subscriptionHistory.count({ where: { status: 'PENDING' } }),
-      prisma.user.count(),
-      prisma.order.count(),
-      prisma.subscriptionHistory.aggregate({
-        where: { status: 'APPROVED' },
-        _sum: { amount: true },
-      }),
-    ]);
+    const totalStores = await prisma.store.count();
+    const activeStores = await prisma.store.count({ where: { status: 'ACTIVE' } });
+    const trialStores = await prisma.store.count({ where: { status: 'TRIAL' } });
+    const pendingStores = await prisma.subscriptionHistory.count({ where: { status: 'PENDING' } });
+    const totalUsers = await prisma.user.count();
+    const totalOrders = await prisma.order.count();
+    const subscriptions = await prisma.subscriptionHistory.aggregate({
+      where: { status: 'APPROVED' },
+      _sum: { amount: true },
+    });
 
     const totalRevenue = subscriptions._sum.amount || 0;
 
