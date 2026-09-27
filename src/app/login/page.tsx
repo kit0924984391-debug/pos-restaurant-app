@@ -67,7 +67,7 @@ export default function LoginPage() {
               <Store className="w-6 h-6" />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-black text-white tracking-tight">ORDEO POS</span>
+              <span className="text-2xl font-black text-white tracking-tight">Order Pos</span>
               <span className="text-[11px] text-orange-400 font-bold uppercase tracking-wider">Multi-Tenant Platform</span>
             </div>
           </Link>

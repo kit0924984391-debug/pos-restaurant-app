@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'ORDEO POS — ระบบร้านอาหารตามสั่ง',
-    short_name: 'ORDEO POS',
+    name: 'Order Pos — ระบบร้านอาหารตามสั่ง',
+    short_name: 'Order Pos',
     description: 'ระบบ POS ร้านอาหารตามสั่ง สแกนสั่งอาหาร สต็อกวัตถุดิบ และสะสมแต้มครบวงจร',
     start_url: '/pos',
     display: 'standalone',

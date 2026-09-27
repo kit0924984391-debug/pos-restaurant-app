@@ -107,7 +107,7 @@ export default function PlatformAdminLayout({
                   </div>
                   <div>
                     <span className="font-black text-white text-sm block">SUPER ADMIN</span>
-                    <span className="text-[10px] text-orange-400 font-bold uppercase block">ORDEO Platform</span>
+                    <span className="text-[10px] text-orange-400 font-bold uppercase block">Order Pos Platform</span>
                   </div>
                 </div>
                 <button
@@ -171,7 +171,7 @@ export default function PlatformAdminLayout({
             </div>
             <div>
               <span className="font-extrabold text-white text-base tracking-tight block">SUPER ADMIN</span>
-              <span className="text-[10px] text-orange-400 font-bold uppercase tracking-wider block">ORDEO Platform</span>
+              <span className="text-[10px] text-orange-400 font-bold uppercase tracking-wider block">Order Pos Platform</span>
             </div>
           </div>
 

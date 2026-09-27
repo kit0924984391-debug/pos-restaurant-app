@@ -14,7 +14,7 @@ export async function GET() {
       setting = await prisma.platformSetting.create({
         data: {
           id: 'default',
-          platformName: 'ORDEO SaaS POS Platform',
+          platformName: 'Order Pos Platform',
           bankName: 'ธนาคารกสิกรไทย (KBANK)',
           bankAccountNo: '123-4-56789-0',
           bankAccountName: 'บจก. ออร์เดียโอ โซลูชั่นส์',

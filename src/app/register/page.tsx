@@ -64,7 +64,7 @@ export default function RegisterPage() {
               <Store className="w-6 h-6" />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-black text-white tracking-tight">ORDEO POS</span>
+              <span className="text-2xl font-black text-white tracking-tight">Order Pos</span>
               <span className="text-[11px] text-orange-400 font-bold uppercase tracking-wider">Multi-Tenant Platform</span>
             </div>
           </Link>
@@ -76,7 +76,7 @@ export default function RegisterPage() {
             <span>สมัครเปิดร้านใหม่ ทดลองใช้งานฟรี ไม่ต้องผูกบัตร</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-            เปิดร้านใหม่กับ ORDEO POS
+            เปิดร้านใหม่กับ Order Pos
           </h2>
           <p className="mt-1 text-xs sm:text-sm text-slate-400">
             มีบัญชีร้านค้าแล้ว?{' '}

@@ -1,4 +1,4 @@
-# 🍳 ORDEO POS — ระบบ Multi-Tenant POS & Unified Delivery Hub
+# 🍳 Order Pos — ระบบ Multi-Tenant POS & Unified Delivery Hub
 
 ระบบ POS และจัดการร้านอาหารตามสั่งยุคใหม่ พัฒนาด้วย **Next.js 14 (App Router), TypeScript, Tailwind CSS, Prisma ORM, และ PostgreSQL (Supabase)** รองรับระบบร้านค้าแบบ Multi-Tenant พร้อมเชื่อมต่อกับระบบรับออเดอร์เดลิเวอรีทุกค่าย (LINE MAN, GrabFood, ShopeeFood, Robinhood) ผ่าน **ระบบเครื่องพิมพ์เสมือน (Virtual Print Proxy)** ปลอดภัย 100% ฟรีตลอดชีพ ไร้ค่าธรรมเนียมรายเดือน
 

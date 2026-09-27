@@ -59,7 +59,7 @@ export default function BoardLayout({ children }: { children: React.ReactNode })
             <Link
               href="/"
               className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
-              title="กลับหน้าหลักเว็บ ORDEO POS"
+              title="กลับหน้าหลักเว็บ Order Pos"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
@@ -71,7 +71,7 @@ export default function BoardLayout({ children }: { children: React.ReactNode })
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center space-x-1.5">
                   <span className="text-base sm:text-lg font-black text-white tracking-tight whitespace-nowrap">
-                    ORDEO Board
+                    Order Pos Board
                   </span>
                   <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-500/20 text-orange-400 border border-orange-500/30">
                     Community &amp; Feedback
@@ -134,7 +134,7 @@ export default function BoardLayout({ children }: { children: React.ReactNode })
 
       {/* Board Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-8 px-4 text-center text-xs text-slate-500">
-        <p>© 2026 ORDEO POS Community Board. ร่วมสร้างและพัฒนาเพื่อร้านอาหารตามสั่งไทยทุกร้าน</p>
+        <p>© 2026 Order Pos Community Board. ร่วมสร้างและพัฒนาเพื่อร้านอาหารตามสั่งไทยทุกร้าน</p>
       </footer>
 
       {/* Auth Modal Trigger */}

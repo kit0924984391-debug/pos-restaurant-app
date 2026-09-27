@@ -30,14 +30,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'ORDEO POS — ระบบจัดการร้านอาหารตามสั่ง & สแกนสั่งอาหาร',
+  title: 'Order Pos — ระบบจัดการร้านอาหารตามสั่ง & สแกนสั่งอาหาร',
   description: 'ระบบ POS ร้านอาหารตามสั่งขนาดเล็ก พร้อมสแกนสั่งอาหาร สต็อก และสะสมแต้มครบวงจร',
   manifest: '/manifest.json',
-  applicationName: 'ORDEO POS',
+  applicationName: 'Order Pos',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'ORDEO POS',
+    title: 'Order Pos',
   },
   formatDetection: {
     telephone: false,

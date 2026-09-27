@@ -12,10 +12,10 @@ export function UserRoleBadge({ role, storeName, className = '' }: UserBadgeProp
     return (
       <span
         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-black bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 ${className}`}
-        title="ผู้ดูแลระบบ ORDEO POS"
+        title="ผู้ดูแลระบบ Order Pos"
       >
         <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-        <span>ทีมงาน ORDEO 🛡️</span>
+        <span>ทีมงาน Order Pos 🛡️</span>
       </span>
     );
   }

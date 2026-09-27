@@ -85,7 +85,7 @@ export default function PwaInstallPrompt() {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <h4 className="font-black text-sm text-white tracking-tight truncate">ติดตั้ง ORDEO POS</h4>
+                <h4 className="font-black text-sm text-white tracking-tight truncate">ติดตั้ง Order Pos</h4>
                 <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-orange-500/20 text-orange-400 border border-orange-500/30">
                   PWA APP
                 </span>

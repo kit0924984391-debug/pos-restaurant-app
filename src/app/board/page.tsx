@@ -100,7 +100,7 @@ export default function BoardHomePage() {
       if (res.status === 401) {
         setAuthModalMessage({
           title: 'เข้าสู่ระบบเพื่อโหวต',
-          subtitle: 'ร่วมเป็นส่วนหนึ่งในการโหวตฟีเจอร์ที่อยากให้มีในระบบ ORDEO POS',
+          subtitle: 'ร่วมเป็นส่วนหนึ่งในการโหวตฟีเจอร์ที่อยากให้มีในระบบ Order Pos',
         });
         setAuthModalOpen(true);
         return;
@@ -139,7 +139,7 @@ export default function BoardHomePage() {
         <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-orange-500/10 text-orange-400 border border-orange-500/30 mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>ORDEO POS Community &amp; Roadmap</span>
+            <span>Order Pos Community &amp; Roadmap</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
             ชุมชนพูดคุย &amp; โหวตฟีเจอร์ใหม่

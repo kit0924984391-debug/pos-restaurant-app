@@ -47,7 +47,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-col min-w-0">
               <div className="flex items-center space-x-1.5">
-                <span className="text-base sm:text-xl font-black text-white tracking-tight whitespace-nowrap">ORDEO POS</span>
+                <span className="text-base sm:text-xl font-black text-white tracking-tight whitespace-nowrap">Order Pos</span>
                 <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-500/20 text-orange-400 border border-orange-500/30 uppercase tracking-wider whitespace-nowrap">
                   SaaS Multi-Tenant
                 </span>
@@ -311,7 +311,7 @@ export default function HomePage() {
             สมัครเปิดร้านใหม่
           </Link>
         </div>
-        <p>© 2026 ORDEO POS Platform — ระบบบริหารจัดการร้านอาหารตามสั่งแบบ Multi-Tenant สงวนลิขสิทธิ์</p>
+        <p>© 2026 Order Pos — ระบบบริหารจัดการร้านอาหารตามสั่งแบบ Multi-Tenant สงวนลิขสิทธิ์</p>
       </footer>
     </div>
   );

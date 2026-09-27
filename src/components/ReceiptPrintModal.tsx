@@ -313,7 +313,7 @@ export default function ReceiptPrintModal({ isOpen, onClose, order, store, autoP
             {/* Footer */}
             <div className="text-center pt-2.5 text-[10px] text-slate-500 space-y-0.5">
               <p>{storeInfo?.receiptFooter || 'ขอบคุณที่มาอุดหนุนครับ 🙏'}</p>
-              <p className="text-[8px] text-slate-400">Powered by ORDEO POS</p>
+              <p className="text-[8px] text-slate-400">Powered by Order Pos</p>
             </div>
           </div>
         </div>

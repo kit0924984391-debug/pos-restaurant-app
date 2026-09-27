@@ -91,7 +91,7 @@ export default function AdminQrCodesView({ slug = 'lung-pa' }: { slug?: string }
             >
               <div className="space-y-1">
                 <span className="text-[11px] font-black text-orange-600 uppercase tracking-widest block">
-                  {store?.storeName || store?.name || 'ORDEO POS'}
+                  {store?.storeName || store?.name || 'Order Pos'}
                 </span>
                 <h3 className="text-2xl font-black text-slate-900 tracking-tight">
                   {table.name || `โต๊ะ ${tNo}`}
