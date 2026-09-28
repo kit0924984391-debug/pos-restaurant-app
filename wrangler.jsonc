@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pos-restaurant-app",
+  "account_id": "392e2aeb2648effccebd585e5c29611b",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": [
@@ -20,7 +21,7 @@
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
-      "id": "6e732c3de2f84cf79fcff2fe50a8b423",
+      "id": "cfd44d9b858f4b218df26fa95925327a",
       "localConnectionString": "postgresql://postgres.koutohveoioovtlylphm:11072526%23Kit@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
     }
   ],
