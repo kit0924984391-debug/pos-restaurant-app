@@ -21,6 +21,16 @@ export async function GET(
       include: {
         table: true,
         items: true,
+        store: {
+          select: {
+            name: true,
+            phone: true,
+            address: true,
+            promptPayId: true,
+            promptPayName: true,
+            receiptFooter: true,
+          },
+        },
       },
     });
 

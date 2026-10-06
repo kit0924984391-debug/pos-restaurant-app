@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { formatPrice, formatDateTime } from '@/lib/utils';
-import { Printer, X, Bluetooth, Usb, Zap, CheckCircle2 } from 'lucide-react';
+import { Printer, X, Bluetooth, Usb, Zap, CheckCircle2, ExternalLink } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { generatePromptPayPayload } from '@/lib/promptpay';
 import { printThermalElement } from '@/lib/thermalPrinter';
@@ -127,6 +127,9 @@ export default function ReceiptPrintModal({ isOpen, onClose, order, store, autoP
     order.id ||
     `BILL-${order.tableId || order.tableNo || 'POS'}-${new Date().getTime().toString().slice(-4)}`;
 
+  const tenantSlug = storeInfo?.slug || order?.tenantSlug || order?.storeSlug || 'demo';
+  const eReceiptPath = order?.id ? `/r/${tenantSlug}/receipt/${order.id}` : null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm">
       {/* Thermal Slip Printer Scoped CSS */}
@@ -185,13 +188,27 @@ export default function ReceiptPrintModal({ isOpen, onClose, order, store, autoP
             <Printer className="w-5 h-5 text-orange-500" />
             <span>{isPreCheck ? 'ใบแจ้งค่าอาหาร / ใบเช็คบิล' : 'ใบเสร็จรับเงิน'}</span>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center space-x-2">
+            {eReceiptPath && (
+              <a
+                href={eReceiptPath}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-700 text-xs font-bold inline-flex items-center space-x-1 transition-colors"
+                title="เปิดใบเสร็จดิจิทัล E-Receipt"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>E-Receipt</span>
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Receipt Body */}

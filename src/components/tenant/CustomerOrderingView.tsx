@@ -34,12 +34,15 @@ import {
   Camera,
   ShieldCheck,
   UploadCloud,
+  Users,
+  Share2,
 } from 'lucide-react';
 import { formatPrice, formatTime, formatImageUrl } from '@/lib/utils';
 import { playSuccessChime, playOrderChime, speakThaiVoice } from '@/lib/sound';
 import { generatePromptPayPayload } from '@/lib/promptpay';
 import { scanSlipQrClient } from '@/lib/slip-scanner-client';
 import { useToast } from '@/context/ToastContext';
+import { getUpsellingRecommendations } from '@/lib/aiUpselling';
 
 const QUICK_NOTES = [
   'ไม่ใส่ผงชูรส',
@@ -79,6 +82,18 @@ export default function CustomerOrderingView({
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [customerName, setCustomerName] = useState('');
+  const [clientUuid] = useState(() => {
+    if (typeof window !== 'undefined') {
+      let id = sessionStorage.getItem('pos_client_uuid');
+      if (!id) {
+        id = `c_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+        sessionStorage.setItem('pos_client_uuid', id);
+      }
+      return id;
+    }
+    return 'client';
+  });
+  const [viewingReceiptOrder, setViewingReceiptOrder] = useState<any | null>(null);
   
   // Enterprise Loyalty & Reward States
   const [memberPhone, setMemberPhone] = useState('');
@@ -373,6 +388,16 @@ export default function CustomerOrderingView({
         eventSource.onmessage = (event) => {
           try {
             const payload = JSON.parse(event.data);
+            if (payload.type === 'TABLE_CART_UPDATED') {
+              const d = payload.data || {};
+              if (Number(d.tableId) === Number(tableId) && d.clientUuid !== clientUuid) {
+                setCart(Array.isArray(d.cart) ? d.cart : []);
+                if (Array.isArray(d.cart) && d.cart.length > 0) {
+                  showInfo(`🛒 ${d.updatedBy || 'เพื่อนที่โต๊ะ'} อัปเดตตะกร้าเรียลไทม์`);
+                }
+              }
+            }
+
             if (
               payload.type === 'ORDER_CREATED' ||
               payload.type === 'ORDER_UPDATED' ||
@@ -426,22 +451,42 @@ export default function CustomerOrderingView({
       clearInterval(pollInterval);
       eventSource?.close();
     };
+  }, [slug, tableId, clientUuid]);
+
+  // Load initial shared table cart from server
+  useEffect(() => {
+    fetch(`/api/r/${slug}/tables/${tableId}/cart`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && Array.isArray(data.cart) && data.cart.length > 0) {
+          setCart(data.cart);
+        } else if (typeof window !== 'undefined') {
+          try {
+            const saved = localStorage.getItem(`pos_cart_${slug}_t${tableId}`);
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setCart(parsed);
+              }
+            }
+          } catch (e) {}
+        }
+      })
+      .catch(() => {});
   }, [slug, tableId]);
 
-  // Load persisted cart from localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem(`pos_cart_${slug}_t${tableId}`);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setCart(parsed);
-          }
-        }
-      } catch (e) {}
-    }
-  }, [slug, tableId]);
+  // Broadcast cart update to all phones sitting at this table
+  const broadcastCartChange = (newCart: any[]) => {
+    fetch(`/api/r/${slug}/tables/${tableId}/cart`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cart: newCart,
+        clientUuid,
+        updatedBy: customerName || 'เพื่อนที่โต๊ะ',
+      }),
+    }).catch(() => {});
+  };
 
   // Save cart to localStorage on change
   useEffect(() => {
@@ -586,16 +631,44 @@ export default function CustomerOrderingView({
       specialNote: specialNote.trim() || undefined,
     };
 
-    setCart([...cart, cartItem]);
+    const newCart = [...cart, cartItem];
+    setCart(newCart);
+    broadcastCartChange(newCart);
     showSuccess('เพิ่มลงตะกร้าแล้ว 🛒', `${dishQuantity}x ${selectedMenuItem.name}`);
     setSelectedMenuItem(null);
   };
 
   const handleRemoveCartItem = (idx: number) => {
     const item = cart[idx];
-    setCart(cart.filter((_, i) => i !== idx));
+    const newCart = cart.filter((_, i) => i !== idx);
+    setCart(newCart);
+    broadcastCartChange(newCart);
     if (item) showInfo('นำออกจากตะกร้าแล้ว', item.name);
   };
+
+  const handleAddUpsellToCart = (recItem: any) => {
+    const cartItem = {
+      menuItemId: recItem.id,
+      name: recItem.name,
+      price: recItem.price,
+      quantity: 1,
+      selectedOptions: [],
+    };
+    const newCart = [...cart, cartItem];
+    setCart(newCart);
+    broadcastCartChange(newCart);
+    showSuccess(`เพิ่ม ${recItem.name} ลงตะกร้าแล้ว 🛒`, `+฿${recItem.price}`);
+  };
+
+  const modalUpsellItems = useMemo(() => {
+    if (!selectedMenuItem) return [];
+    return getUpsellingRecommendations([selectedMenuItem], categories, 4);
+  }, [selectedMenuItem, categories]);
+
+  const cartUpsellItems = useMemo(() => {
+    if (cart.length === 0) return [];
+    return getUpsellingRecommendations(cart, categories, 4);
+  }, [cart, categories]);
 
   const handleMemberLookup = async (phone: string) => {
     setMemberPhone(phone);
@@ -647,6 +720,8 @@ export default function CustomerOrderingView({
       if (res.ok) {
         showSuccess('ส่งรายการอาหารเข้าครัวแล้ว! 🍳', `โต๊ะ ${tableId} • ส่งรายการเรียบร้อย`);
         setCart([]);
+        // Clear shared table cart on server
+        fetch(`/api/r/${slug}/tables/${tableId}/cart`, { method: 'DELETE' }).catch(() => {});
         setIsCartOpen(false);
         setActiveTab('status');
         playSuccessChime();
@@ -1102,6 +1177,22 @@ export default function CustomerOrderingView({
                           );
                         })}
                       </div>
+
+                      {/* E-Receipt Link & Subtotal */}
+                      <div className="pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+                        <span className="text-[11px] text-slate-400">
+                          รวมออเดอร์นี้: <strong className="text-orange-400 font-extrabold text-xs">฿{order.totalAmount || order.items?.reduce((s: number, it: any) => s + (it.price * it.quantity), 0)}</strong>
+                        </span>
+                        <a
+                          href={`/r/${slug}/receipt/${order.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[11px] font-bold transition-all active:scale-95"
+                        >
+                          <Receipt className="w-3.5 h-3.5" />
+                          <span>ดู E-Receipt</span>
+                        </a>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1238,6 +1329,39 @@ export default function CustomerOrderingView({
                 />
               </div>
 
+              {/* AI Smart Upsell Suggestions in Item Modal */}
+              {modalUpsellItems.length > 0 && (
+                <div className="pt-2 border-t border-slate-800 space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                    <span>สั่งคู่กันอร่อยยิ่งขึ้น (AI แนะนำ)</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {modalUpsellItems.map((rec) => (
+                      <div
+                        key={rec.id}
+                        className="p-2 rounded-2xl bg-slate-800/90 border border-slate-700/80 flex items-center justify-between gap-2"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
+                            {rec.badge}
+                          </span>
+                          <div className="text-xs font-black text-white truncate mt-0.5">{rec.name}</div>
+                          <div className="text-[10px] text-orange-400 font-bold">+฿{rec.price}</div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleAddUpsellToCart(rec.item)}
+                          className="px-2.5 py-1 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-[10px] font-black shrink-0 transition-all cursor-pointer shadow-xs"
+                        >
+                          + เพิ่ม
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-between pt-3 border-t border-slate-800">
                 <div className="flex items-center space-x-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
                   <button
@@ -1280,6 +1404,15 @@ export default function CustomerOrderingView({
                 </button>
               </div>
 
+              {/* Collaborative Live Table Cart Indicator */}
+              <div className="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700/80 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 text-emerald-400 font-extrabold text-[11px]">
+                  <Users className="w-3.5 h-3.5" />
+                  <span>ตะกร้าร่วมโต๊ะ {tableId}</span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-bold">ซิงค์เรียลไทม์กับเพื่อนทุกคน</span>
+              </div>
+
               <div className="flex-1 overflow-y-auto space-y-2 divide-y divide-slate-800">
                 {cart.map((item, idx) => (
                   <div key={idx} className="pt-2 first:pt-0 flex items-center justify-between text-xs">
@@ -1289,13 +1422,46 @@ export default function CustomerOrderingView({
                     </div>
                     <button
                       onClick={() => handleRemoveCartItem(idx)}
-                      className="text-rose-400 hover:text-rose-300 p-1 text-xs font-bold"
+                      className="text-rose-400 hover:text-rose-300 p-1 text-xs font-bold cursor-pointer"
                     >
                       ลบ
                     </button>
                   </div>
                 ))}
               </div>
+
+              {/* Cart AI Smart Upselling Suggestions */}
+              {cartUpsellItems.length > 0 && (
+                <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                    <span>สั่งเพิ่มคู่กันไหมครับ? (AI แนะนำ)</span>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                    {cartUpsellItems.map((rec) => (
+                      <div
+                        key={rec.id}
+                        className="min-w-[135px] max-w-[145px] p-2.5 rounded-xl bg-slate-900 border border-slate-700/80 flex flex-col justify-between shrink-0"
+                      >
+                        <div>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
+                            {rec.badge}
+                          </span>
+                          <div className="text-[11px] font-black text-white truncate mt-1">{rec.name}</div>
+                          <div className="text-[10px] text-orange-400 font-bold">฿{rec.price}</div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleAddUpsellToCart(rec.item)}
+                          className="mt-2 w-full py-1 rounded-lg bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-[10px] font-black transition-all cursor-pointer text-center shadow-xs"
+                        >
+                          + เพิ่ม ฿{rec.price}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="pt-3 border-t border-slate-800 space-y-3">
                 <div className="flex justify-between font-black text-base text-white">
@@ -1306,7 +1472,7 @@ export default function CustomerOrderingView({
                 <button
                   disabled={isSubmittingOrder}
                   onClick={handleSendOrderToKitchen}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:scale-105 text-white font-black text-sm shadow-xl shadow-orange-500/30 transition-all disabled:opacity-50"
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:scale-105 text-white font-black text-sm shadow-xl shadow-orange-500/30 transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmittingOrder ? 'กำลังส่งเข้าครัว...' : 'ยืนยันส่งออเดอร์เข้าครัว 🍳'}
                 </button>
