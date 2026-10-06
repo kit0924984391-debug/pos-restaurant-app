@@ -14,6 +14,7 @@ import ServeConfirmModal from '@/components/ServeConfirmModal';
 import { useKitchenOrders } from '@/hooks/useKitchenOrders';
 import KitchenBatchBar from './kitchen/KitchenBatchBar';
 import KitchenTicketCard from './kitchen/KitchenTicketCard';
+import { offlineSyncEngine } from '@/lib/offlineSync';
 
 export default function KitchenTerminal({
   slug = 'lung-pa',
@@ -26,6 +27,9 @@ export default function KitchenTerminal({
     loading,
     filterStatus,
     setFilterStatus,
+    stationFilter,
+    changeStationFilter,
+    stationCounts,
     soundEnabled,
     setSoundEnabled,
     showBatchBar,
@@ -48,6 +52,16 @@ export default function KitchenTerminal({
     toggleAutoPrint,
     storeSettings,
   } = useKitchenOrders({ slug });
+
+  const [offlineQueueCount, setOfflineQueueCount] = React.useState(0);
+  const [isOfflineSyncing, setIsOfflineSyncing] = React.useState(false);
+
+  React.useEffect(() => {
+    return offlineSyncEngine.subscribe((count, syncing) => {
+      setOfflineQueueCount(count);
+      setIsOfflineSyncing(syncing);
+    });
+  }, []);
 
   return (
     <div className="flex-1 max-w-[1440px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-3.5 sm:py-6 pb-28 md:pb-8 space-y-3.5 sm:space-y-6">
@@ -72,6 +86,12 @@ export default function KitchenTerminal({
             <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-amber-100 text-amber-900">
               {pendingCount + cookingCount + readyCount} บิลค้าง
             </span>
+            {offlineQueueCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-sky-100 text-sky-800 flex items-center gap-1 animate-pulse">
+                <span>💾 {offlineQueueCount} รอซิงค์</span>
+                {isOfflineSyncing && <RefreshCw className="w-2.5 h-2.5 animate-spin text-sky-600" />}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -162,6 +182,42 @@ export default function KitchenTerminal({
               }`}
             >
               {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* KDS Station Routing Filter */}
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 border-t border-slate-100 flex-wrap sm:flex-nowrap">
+          <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wider pl-1">
+            สเตชั่นครัว:
+          </span>
+          {[
+            { id: 'ALL', label: '🍳 ทุกสเตชั่น', count: null },
+            { id: 'WOK', label: '🔥 ผัด / ทอด', count: stationCounts.wok },
+            { id: 'SOUP', label: '🍲 ต้ม / แกง / ยำ', count: stationCounts.soup },
+            { id: 'BEVERAGE', label: '🥤 เครื่องดื่ม', count: stationCounts.beverage },
+          ].map((st) => (
+            <button
+              key={st.id}
+              type="button"
+              data-sound="pop"
+              onClick={() => changeStationFilter(st.id as any)}
+              className={`py-1 px-2.5 rounded-xl text-[10px] sm:text-[11px] font-extrabold transition-all duration-75 active:scale-95 cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                stationFilter === st.id
+                  ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-500/40'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              <span>{st.label}</span>
+              {st.count !== null && st.count > 0 && (
+                <span
+                  className={`px-1.5 py-0.2 rounded-full text-[9px] font-black ${
+                    stationFilter === st.id ? 'bg-amber-800 text-white' : 'bg-slate-200 text-slate-800'
+                  }`}
+                >
+                  {st.count}
+                </span>
+              )}
             </button>
           ))}
         </div>

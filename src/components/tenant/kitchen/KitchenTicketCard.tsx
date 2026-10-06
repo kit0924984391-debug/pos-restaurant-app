@@ -10,7 +10,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { formatTime } from '@/lib/utils';
-import { KitchenOrder } from '@/hooks/useKitchenOrders';
+import { KitchenOrder, matchItemStation } from '@/hooks/useKitchenOrders';
 
 interface KitchenTicketCardProps {
   order: KitchenOrder;
@@ -258,6 +258,33 @@ export default function KitchenTicketCard({
                       >
                         {item.name}
                       </span>
+
+                      {/* Station Badge */}
+                      {(() => {
+                        const st = matchItemStation(item.name, item.category?.name);
+                        if (st === 'WOK') {
+                          return (
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-orange-100 text-orange-800 border border-orange-200">
+                              🍳 ผัด/ทอด
+                            </span>
+                          );
+                        }
+                        if (st === 'SOUP') {
+                          return (
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-blue-100 text-blue-800 border border-blue-200">
+                              🍲 ต้ม/แกง
+                            </span>
+                          );
+                        }
+                        if (st === 'BEVERAGE') {
+                          return (
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-purple-100 text-purple-800 border border-purple-200">
+                              🥤 น้ำ
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
 
                       {/* Status Indicator Badges */}
                       {isItemCooking && (

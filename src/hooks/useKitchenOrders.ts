@@ -5,6 +5,7 @@ import { playOrderChime, playSuccessChime, playDeliveryChime } from '@/lib/sound
 import { useToast } from '@/context/ToastContext';
 import { subscribeRealtime } from '@/lib/realtimeManager';
 import { printKitchenTicketDirect } from '@/lib/thermalPrinter';
+import { fetchWithOfflineFallback } from '@/lib/offlineSync';
 
 export interface KitchenDishItem {
   id: string;
@@ -40,6 +41,22 @@ export interface BatchCookingDish {
   notes: string[];
 }
 
+export type KitchenStation = 'ALL' | 'WOK' | 'SOUP' | 'BEVERAGE';
+
+export function matchItemStation(itemName: string, categoryName?: string): 'WOK' | 'SOUP' | 'BEVERAGE' | 'OTHER' {
+  const text = `${itemName} ${categoryName || ''}`.toLowerCase();
+  if (/น้ำ|ชา|กาแฟ|นม|โอเลี้ยง|โซดา|หวาน|ปั่น|เย็น|ไอติม|ไอศกรีม|เครื่องดื่ม|beverage|drink|coke|pepsi/i.test(text)) {
+    return 'BEVERAGE';
+  }
+  if (/ต้ม|แกง|ซุป|ยำ|ลาบ|ส้มตำ|เกาเหลา|เล้ง|soup|curry/i.test(text)) {
+    return 'SOUP';
+  }
+  if (/ผัด|กะเพรา|กระเพรา|ทอด|ข้าวผัด|ซีอิ๊ว|คั่ว|กระเทียม|หมูกรอบ|wok|fry|stir/i.test(text)) {
+    return 'WOK';
+  }
+  return 'OTHER';
+}
+
 export interface UseKitchenOrdersOptions {
   slug?: string;
   initialSoundEnabled?: boolean;
@@ -53,6 +70,7 @@ export interface UseKitchenOrdersOptions {
  * - 4-stage cooking pipeline (PENDING -> COOKING -> READY -> SERVED)
  * - Order & item status transitions with automatic rollback on network failure
  * - Batch cooking aggregation across multi-table active tickets
+ * - KDS Station Routing (ผัด/ทอด, ต้ม/แกง, เครื่องดื่ม)
  */
 export function useKitchenOrders({
   slug = 'lung-pa',
@@ -62,6 +80,15 @@ export function useKitchenOrders({
   const [orders, setOrders] = useState<KitchenOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>('ACTIVE'); // 'ACTIVE' | 'PENDING' | 'COOKING' | 'READY' | 'DELIVERY'
+  const [stationFilter, setStationFilter] = useState<KitchenStation>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`kds_station_filter_${slug}`);
+      if (saved && ['ALL', 'WOK', 'SOUP', 'BEVERAGE'].includes(saved)) {
+        return saved as KitchenStation;
+      }
+    }
+    return 'ALL';
+  });
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('pos_voice_enabled');
@@ -333,10 +360,11 @@ export function useKitchenOrders({
         showInfo('ย้อนสถานะเป็นรอทำ ⏳', targetItem?.name || '');
       }
 
-      fetch(`/api/r/${slug}/orders/${orderId}`, {
+      fetchWithOfflineFallback(`/api/r/${slug}/orders/${orderId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itemId, itemStatus: newStatus, status: nextOrderStatus }),
+        body: { itemId, itemStatus: newStatus, status: nextOrderStatus },
+        tenantSlug: slug,
+        description: `เปลี่ยนสถานะรายการอาหารเป็น ${newStatus}`,
       })
         .then((res) => {
           if (!res.ok) {
@@ -349,6 +377,8 @@ export function useKitchenOrders({
             }
             fetchOrders();
             showError('ไม่สามารถอัปเดตสถานะได้');
+          } else if (res.queued) {
+            showInfo('📶 บันทึกออฟไลน์ในเครื่อง', 'ระบบจะซิงค์ให้อัตโนมัติเมื่อต่อเน็ต');
           }
         })
         .catch((err) => {
@@ -403,16 +433,19 @@ export function useKitchenOrders({
         showWarning('ยกเลิกออเดอร์เรียบร้อย');
       }
 
-      fetch(`/api/r/${slug}/orders/${orderId}`, {
+      fetchWithOfflineFallback(`/api/r/${slug}/orders/${orderId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+        body: { status: newStatus },
+        tenantSlug: slug,
+        description: `เปลี่ยนสถานะออเดอร์เป็น ${newStatus}`,
       })
         .then((res) => {
           if (!res.ok) {
             pendingUpdatesRef.current.delete(orderId);
             fetchOrders();
             showError('ไม่สามารถอัปเดตสถานะได้');
+          } else if (res.queued) {
+            showInfo('📶 บันทึกออฟไลน์ในเครื่อง', 'ระบบจะซิงค์ให้อัตโนมัติเมื่อต่อเน็ต');
           }
         })
         .catch((err) => {
@@ -499,16 +532,19 @@ export function useKitchenOrders({
       playSuccessChime();
       showSuccess('เสิร์ฟออเดอร์เรียบร้อย ✨');
 
-      fetch(`/api/r/${slug}/orders/${orderId}`, {
+      fetchWithOfflineFallback(`/api/r/${slug}/orders/${orderId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'SERVED' }),
+        body: { status: 'SERVED' },
+        tenantSlug: slug,
+        description: `เสิร์ฟออเดอร์ #${orderId.slice(-4)}`,
       })
         .then((res) => {
           if (!res.ok) {
             servedOrderIdsRef.current.delete(orderId);
             fetchOrders();
             showError('ไม่สามารถอัปเดตสถานะเสิร์ฟได้');
+          } else if (res.queued) {
+            showInfo('📶 บันทึกออฟไลน์ในเครื่อง', 'ระบบจะซิงค์ให้อัตโนมัติเมื่อต่อเน็ต');
           }
         })
         .catch((err) => {
@@ -518,7 +554,17 @@ export function useKitchenOrders({
           showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
         });
     },
-    [slug, fetchOrders, showSuccess, showError]
+    [slug, fetchOrders, showSuccess, showInfo, showError]
+  );
+
+  const changeStationFilter = useCallback(
+    (station: KitchenStation) => {
+      setStationFilter(station);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`kds_station_filter_${slug}`, station);
+      }
+    },
+    [slug]
   );
 
   const deliveryOrdersCount = useMemo(
@@ -531,20 +577,48 @@ export function useKitchenOrders({
     [orders]
   );
 
+  const stationCounts = useMemo(() => {
+    const active = orders.filter((o) => ['PENDING', 'COOKING'].includes(o.status));
+    let wok = 0;
+    let soup = 0;
+    let beverage = 0;
+    active.forEach((o) => {
+      o.items?.forEach((it) => {
+        if (it.status === 'READY' || it.status === 'SERVED') return;
+        const st = matchItemStation(it.name, it.category?.name);
+        const qty = it.quantity || 1;
+        if (st === 'WOK' || st === 'OTHER') wok += qty;
+        else if (st === 'SOUP') soup += qty;
+        else if (st === 'BEVERAGE') beverage += qty;
+      });
+    });
+    return { wok, soup, beverage };
+  }, [orders]);
+
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
+      // 1. Status Filter
+      let matchesStatus = false;
       if (filterStatus === 'DELIVERY') {
-        return (
+        matchesStatus =
           ['LINEMAN', 'GRAB', 'SHOPEE_FOOD', 'ROBINHOOD', 'FOODPANDA', 'KLIKIT'].includes(order.orderChannel) &&
-          ['PENDING', 'COOKING', 'READY'].includes(order.status)
-        );
+          ['PENDING', 'COOKING', 'READY'].includes(order.status);
+      } else if (filterStatus === 'ACTIVE') {
+        matchesStatus = ['PENDING', 'COOKING', 'READY'].includes(order.status);
+      } else {
+        matchesStatus = order.status === filterStatus;
       }
-      if (filterStatus === 'ACTIVE') {
-        return ['PENDING', 'COOKING', 'READY'].includes(order.status);
-      }
-      return order.status === filterStatus;
+      if (!matchesStatus) return false;
+
+      // 2. KDS Station Routing Filter
+      if (stationFilter === 'ALL') return true;
+      const hasStationItem = order.items?.some((item) => {
+        const itemStation = matchItemStation(item.name, item.category?.name);
+        return itemStation === stationFilter || (stationFilter === 'WOK' && itemStation === 'OTHER');
+      });
+      return hasStationItem;
     });
-  }, [orders, filterStatus]);
+  }, [orders, filterStatus, stationFilter]);
 
   const pendingCount = useMemo(() => orders.filter((o) => o.status === 'PENDING').length, [orders]);
   const cookingCount = useMemo(() => orders.filter((o) => o.status === 'COOKING').length, [orders]);
@@ -558,6 +632,11 @@ export function useKitchenOrders({
       const tableLabel = o.tableNo ? `โต๊ะ ${o.tableNo}` : o.orderChannel !== 'DINE_IN' ? o.orderChannel : 'กลับบ้าน';
       o.items?.forEach((item) => {
         if (item.status === 'READY' || item.status === 'SERVED') return;
+        if (stationFilter !== 'ALL') {
+          const st = matchItemStation(item.name, item.category?.name);
+          const isMatch = st === stationFilter || (stationFilter === 'WOK' && st === 'OTHER');
+          if (!isMatch) return;
+        }
         const key = item.name;
         if (!map.has(key)) {
           map.set(key, { name: item.name, quantity: 0, tables: [], notes: [] });
@@ -574,13 +653,16 @@ export function useKitchenOrders({
     });
 
     return Array.from(map.values()).sort((a, b) => b.quantity - a.quantity);
-  }, [orders]);
+  }, [orders, stationFilter]);
 
   return {
     orders,
     loading,
     filterStatus,
     setFilterStatus,
+    stationFilter,
+    changeStationFilter,
+    stationCounts,
     soundEnabled,
     setSoundEnabled,
     showBatchBar,
