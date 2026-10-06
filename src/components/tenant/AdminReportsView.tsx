@@ -16,6 +16,10 @@ import {
   CheckCircle2,
   Download,
   Eye,
+  Clock,
+  PieChart,
+  Flame,
+  Utensils,
 } from 'lucide-react';
 import { formatPrice, formatDateTime, formatTime } from '@/lib/utils';
 
@@ -180,6 +184,29 @@ export default function AdminReportsView({ slug = 'lung-pa' }: { slug?: string }
       report.topSellingItems.forEach((item: any, idx: number) => {
         rows.push([String(idx + 1), item.name, String(item.quantity), String(item.revenue || 0)]);
       });
+      rows.push([]);
+    }
+
+    // Category Breakdown
+    if (report.categoryBreakdown && report.categoryBreakdown.length > 0) {
+      rows.push(['=== สรุปยอดขายตามหมวดหมู่ (Category Breakdown) ===']);
+      rows.push(['หมวดหมู่อาหาร', 'จำนวนจานที่ขายได้', 'ยอดขายรวม (บาท)', 'สัดส่วนยอดขาย (%)']);
+      report.categoryBreakdown.forEach((cat: any) => {
+        const pct = report.totalSales > 0 ? ((cat.revenue / report.totalSales) * 100).toFixed(1) : '0';
+        rows.push([cat.name, String(cat.quantity), String(cat.revenue), `${pct}%`]);
+      });
+      rows.push([]);
+    }
+
+    // Hourly Peak Hours
+    if (report.hourlyBreakdown && report.hourlyBreakdown.some((h: any) => h.count > 0)) {
+      rows.push(['=== สรุปยอดขายตามช่วงเวลา (Peak Hours 0-23 น.) ===']);
+      rows.push(['ช่วงเวลา', 'จำนวนบิล', 'ยอดขายรวม (บาท)']);
+      report.hourlyBreakdown
+        .filter((h: any) => h.count > 0)
+        .forEach((h: any) => {
+          rows.push([`${h.label} - ${String(h.hour + 1).padStart(2, '0')}:00`, String(h.count), String(h.sales)]);
+        });
       rows.push([]);
     }
 
@@ -357,9 +384,12 @@ export default function AdminReportsView({ slug = 'lung-pa' }: { slug?: string }
               ฿{(report?.totalSales || 0).toLocaleString()}
             </div>
           </div>
-          <span className="text-[11px] sm:text-xs text-emerald-600 font-bold block pt-1.5 border-t border-slate-100">
-            {report?.totalBills || 0} บิลสำเร็จ
-          </span>
+          <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[11px] sm:text-xs">
+            <span className="text-emerald-600 font-bold">{report?.totalBills || 0} บิลสำเร็จ</span>
+            <span className="text-slate-500 font-bold">
+              เฉลี่ย ฿{(report?.averageBillAmount || (report?.totalBills ? Math.round(report.totalSales / report.totalBills) : 0)).toLocaleString()}/บิล
+            </span>
+          </div>
         </div>
 
         <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2 flex flex-col justify-between h-full">
@@ -388,7 +418,7 @@ export default function AdminReportsView({ slug = 'lung-pa' }: { slug?: string }
 
         <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-1.5 sm:space-y-2 flex flex-col justify-between h-full">
           <div>
-            <span className="text-xs font-bold text-slate-400">สัดส่วนช่องทางชำระ</span>
+            <span className="text-xs font-bold text-slate-400">สัดส่วนช่องทางชำระ & สินค้า</span>
             <div className="text-xs space-y-1 mt-1 font-extrabold">
               <div className="flex justify-between text-orange-600">
                 <span>พร้อมเพย์:</span>
@@ -400,6 +430,11 @@ export default function AdminReportsView({ slug = 'lung-pa' }: { slug?: string }
               </div>
             </div>
           </div>
+          <span className="text-[11px] sm:text-xs text-slate-500 font-bold block pt-1.5 border-t border-slate-100">
+            {report?.totalItemsSold > 0
+              ? `จำหน่าย ${report.totalItemsSold} จาน (${report.averageItemsPerBill} จาน/บิล)`
+              : 'ยอดขายและสัดส่วนชำระ'}
+          </span>
         </div>
       </div>
 
@@ -436,6 +471,113 @@ export default function AdminReportsView({ slug = 'lung-pa' }: { slug?: string }
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Peak Hours & Rush Heatmap */}
+      {report?.hourlyBreakdown && (
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-3.5 w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-slate-100">
+            <h3 className="font-extrabold text-sm text-slate-900 flex items-center space-x-2">
+              <Clock className="w-4 h-4 text-orange-500" />
+              <span>⏰ ช่วงเวลาขายดี (Peak Hours & Rush Analysis)</span>
+            </h3>
+            {(() => {
+              const peakHour = [...(report.hourlyBreakdown || [])].sort((a: any, b: any) => b.sales - a.sales)[0];
+              if (peakHour && peakHour.sales > 0) {
+                return (
+                  <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-200">
+                    🔥 ขายดีสุด: {peakHour.label} - {String(peakHour.hour + 1).padStart(2, '0')}:00 น. (฿{peakHour.sales.toLocaleString()})
+                  </span>
+                );
+              }
+              return null;
+            })()}
+          </div>
+
+          {/* Hourly 24-Bar Histogram Chart */}
+          <div className="pt-2">
+            <div className="h-32 flex items-end gap-1 sm:gap-1.5 overflow-x-auto pb-1 pt-6 px-1">
+              {(() => {
+                const maxSales = Math.max(...report.hourlyBreakdown.map((h: any) => h.sales), 1);
+                return report.hourlyBreakdown.map((h: any) => {
+                  const heightPct = Math.max(4, Math.round((h.sales / maxSales) * 100));
+                  const isBusy = h.sales > 0;
+                  return (
+                    <div
+                      key={h.hour}
+                      className="flex-1 min-w-[20px] flex flex-col items-center group relative h-full justify-end"
+                    >
+                      {/* Tooltip */}
+                      <div className="absolute -top-9 bg-slate-900 text-white text-[10px] py-1 px-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-md">
+                        {h.label} น.: ฿{h.sales.toLocaleString()} ({h.count} บิล)
+                      </div>
+
+                      {/* Bar */}
+                      <div
+                        style={{ height: `${heightPct}%` }}
+                        className={`w-full rounded-t-md transition-all duration-300 ${
+                          isBusy
+                            ? 'bg-gradient-to-t from-orange-500 to-amber-400 group-hover:from-orange-600 group-hover:to-amber-500 shadow-sm'
+                            : 'bg-slate-100 group-hover:bg-slate-200'
+                        }`}
+                      />
+
+                      {/* Hour Label */}
+                      <span className={`text-[9px] mt-1.5 ${isBusy ? 'font-bold text-slate-700' : 'text-slate-400'}`}>
+                        {h.hour % 2 === 0 ? h.hour : ''}
+                      </span>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+            <div className="flex justify-between items-center text-[10px] text-slate-400 px-1 pt-1 border-t border-slate-100">
+              <span>00:00 (เที่ยงคืน)</span>
+              <span>12:00 (เที่ยงวัน)</span>
+              <span>23:00 น.</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Breakdown (If categories exist) */}
+      {report?.categoryBreakdown && report.categoryBreakdown.length > 0 && (
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-sm space-y-3 w-full">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 className="font-extrabold text-sm text-slate-900 flex items-center space-x-2">
+              <PieChart className="w-4 h-4 text-emerald-500" />
+              <span>🍲 ยอดขายตามหมวดหมู่อาหาร (Category Share)</span>
+            </h3>
+            <span className="text-[11px] text-slate-500 font-bold">
+              {report.categoryBreakdown.length} หมวดหมู่
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {report.categoryBreakdown.map((cat: any) => {
+              const pct = report.totalSales > 0 ? Math.round((cat.revenue / report.totalSales) * 100) : 0;
+              return (
+                <div key={cat.name} className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-800 truncate">{cat.name}</span>
+                    <span className="text-xs font-extrabold text-emerald-600">{pct}%</span>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                    <span>{cat.quantity} จาน</span>
+                    <span className="font-bold text-slate-700">฿{cat.revenue.toLocaleString()}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

@@ -20,11 +20,16 @@ import {
   ArrowRight,
   LogOut,
   Loader2,
+  PackageCheck,
+  Tag,
+  Receipt,
+  TrendingUp,
 } from 'lucide-react';
 
 export default function StoreOwnerDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [todayReport, setTodayReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,6 +40,14 @@ export default function StoreOwnerDashboard() {
           router.push('/login');
         } else {
           setUser(data.user);
+          if (data.user.store?.slug) {
+            fetch(`/api/r/${data.user.store.slug}/reports/daily`)
+              .then((r) => r.json())
+              .then((rep) => {
+                if (!rep.error) setTodayReport(rep);
+              })
+              .catch(() => {});
+          }
         }
       })
       .catch(() => router.push('/login'))
@@ -90,8 +103,22 @@ export default function StoreOwnerDashboard() {
       color: 'from-emerald-500 to-teal-500',
     },
     {
-      title: 'รายงานยอดขาย & ปิดกะ',
-      desc: 'สรุปยอดขายประจำวัน สัดส่วนเงินสด vs พร้อมเพย์ เมนูขายดี Top 5 และประวัติบิล',
+      title: 'คลังวัตถุดิบ & สูตรอาหาร (COGS)',
+      desc: 'เช็คสต็อกคงเหลือ บันทึกตัดของเสีย และผูกสูตรอาหาร (BOM) คำนวณต้นทุนต่อจานอัตโนมัติ',
+      href: `/r/${slug}/admin/inventory`,
+      icon: PackageCheck,
+      color: 'from-teal-500 to-cyan-500',
+    },
+    {
+      title: 'จัดการโปรโมชั่น & สิทธิพิเศษ',
+      desc: 'สร้างส่วนลด ซื้อ 1 แถม 1 บัตรคูปอง และตั้งค่าแต้มสะสม Loyalty Points แลกรางวัล',
+      href: `/r/${slug}/admin/promotions`,
+      icon: Tag,
+      color: 'from-pink-500 to-rose-500',
+    },
+    {
+      title: 'รายงานยอดขาย & วิเคราะห์ธุรกิจ',
+      desc: 'สรุปยอดขายประจำวัน ช่วงเวลาขายดี Peak Hour สัดส่วนเงินสด vs พร้อมเพย์ และประวัติบิล',
       href: `/r/${slug}/admin/reports`,
       icon: BarChart3,
       color: 'from-indigo-500 to-purple-500',
@@ -102,6 +129,13 @@ export default function StoreOwnerDashboard() {
       href: `/r/${slug}/admin/qr-codes`,
       icon: QrCode,
       color: 'from-purple-500 to-pink-500',
+    },
+    {
+      title: 'ตั้งค่าร้านค้า & เครื่องพิมพ์บิล',
+      desc: 'ตั้งค่าพร้อมเพย์ร้าน สลิปใบเสร็จ เชื่อมต่อเครื่องพิมพ์บลูทูธ/USB และขนาดกระดาษ',
+      href: `/r/${slug}/admin/settings`,
+      icon: Settings,
+      color: 'from-slate-600 to-slate-700',
     },
   ];
 
@@ -178,6 +212,65 @@ export default function StoreOwnerDashboard() {
             </Link>
           </div>
         </div>
+
+        {/* Today Quick Sales Preview Banner */}
+        {todayReport && (
+          <div className="p-4 sm:p-5 rounded-3xl bg-slate-900 border border-slate-800 shadow-md">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
+              <div className="flex items-center space-x-2">
+                <TrendingUp className="w-4 h-4 text-orange-400" />
+                <h3 className="text-sm font-extrabold text-white">ภาพรวมยอดขายวันนี้ (Today's Live Performance)</h3>
+              </div>
+              <Link
+                href={`/r/${slug}/admin/reports`}
+                className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center space-x-1"
+              >
+                <span>ดูรายงานละเอียด</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+              <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/60">
+                <span className="text-[11px] font-bold text-slate-400 block">ยอดขายวันนี้</span>
+                <span className="text-lg sm:text-xl font-black text-white mt-0.5 block">
+                  ฿{(todayReport.totalSales || 0).toLocaleString()}
+                </span>
+                <span className="text-[10px] text-emerald-400 font-bold block mt-0.5">
+                  {todayReport.totalBills || 0} บิลสำเร็จ
+                </span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/60">
+                <span className="text-[11px] font-bold text-slate-400 block">กำไรสุทธิ</span>
+                <span className="text-lg sm:text-xl font-black text-emerald-400 mt-0.5 block">
+                  ฿{(todayReport.grossProfit || 0).toLocaleString()}
+                </span>
+                <span className="text-[10px] text-slate-400 font-bold block mt-0.5">
+                  มาร์จิ้น {todayReport.profitMargin || 0}%
+                </span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/60">
+                <span className="text-[11px] font-bold text-slate-400 block">ยอดเฉลี่ยต่อบิล</span>
+                <span className="text-lg sm:text-xl font-black text-amber-400 mt-0.5 block">
+                  ฿{(todayReport.averageBillAmount || 0).toLocaleString()}
+                </span>
+                <span className="text-[10px] text-slate-400 font-bold block mt-0.5">
+                  {todayReport.averageItemsPerBill || 0} จาน/บิล
+                </span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/60">
+                <span className="text-[11px] font-bold text-slate-400 block">ช่องทางชำระ</span>
+                <div className="text-[11px] font-extrabold mt-1 space-y-0.5">
+                  <span className="text-orange-400 block">QR: ฿{(todayReport.promptPaySales || 0).toLocaleString()}</span>
+                  <span className="text-emerald-400 block">สด: ฿{(todayReport.cashSales || 0).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Modules Grid */}
         <div className="space-y-4">

@@ -16,6 +16,7 @@ import {
   Edit,
   Loader2,
   Sparkles,
+  BarChart3,
 } from 'lucide-react';
 
 export default function PlatformAdminStoresPage() {
@@ -267,6 +268,17 @@ export default function PlatformAdminStoresPage() {
                         >
                           <span>เข้าหน้าร้าน</span>
                           <ExternalLink className="w-3 h-3 ml-1 text-orange-400" />
+                        </Link>
+
+                        {/* Open Store Reports link */}
+                        <Link
+                          href={`/r/${s.slug}/admin/reports`}
+                          target="_blank"
+                          className="inline-flex items-center px-2 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 font-bold text-[11px] border border-indigo-500/20 transition-all"
+                          title="ดูรายงานยอดขายของร้านนี้"
+                        >
+                          <BarChart3 className="w-3 h-3 mr-1" />
+                          <span>รายงาน</span>
                         </Link>
 
                         {/* Extend Days Button */}

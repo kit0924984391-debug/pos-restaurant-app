@@ -41,7 +41,11 @@ export async function GET(
         table: true,
         items: {
           include: {
-            menuItem: true,
+            menuItem: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
       },
@@ -87,6 +91,17 @@ export async function GET(
       };
     } = {};
 
+    // Grouping for Hourly Breakdown (Peak Hours 0-23)
+    const hourlyMap: { hour: number; label: string; count: number; sales: number }[] = Array.from({ length: 24 }, (_, i) => ({
+      hour: i,
+      label: `${String(i).padStart(2, '0')}:00`,
+      count: 0,
+      sales: 0,
+    }));
+
+    // Category Breakdown Map
+    const categoryMap: { [catName: string]: { name: string; quantity: number; revenue: number } } = {};
+
     paidOrders.forEach((order) => {
       const ch = (order.orderChannel || (order.orderType === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN')) as keyof typeof channels;
       if (channels[ch]) {
@@ -102,12 +117,37 @@ export async function GET(
         promptPaySales += order.netAmount;
       }
 
+      // Hourly Heatmap Mapping
+      const orderTime = order.paidAt || order.createdAt;
+      if (orderTime) {
+        try {
+          const bkkHourStr = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Bangkok',
+            hour: 'numeric',
+            hourCycle: 'h23',
+          }).format(new Date(orderTime));
+          const hourNum = parseInt(bkkHourStr, 10);
+          if (!isNaN(hourNum) && hourlyMap[hourNum]) {
+            hourlyMap[hourNum].count += 1;
+            hourlyMap[hourNum].sales += order.netAmount;
+          }
+        } catch (e) {}
+      }
+
       order.items.forEach((item) => {
         if (!itemCounts[item.name]) {
           itemCounts[item.name] = { quantity: 0, revenue: 0 };
         }
         itemCounts[item.name].quantity += item.quantity;
         itemCounts[item.name].revenue += item.price * item.quantity;
+
+        // Category breakdown
+        const catName = (item as any).menuItem?.category?.name || 'อาหารจานหลัก / ทั่วไป';
+        if (!categoryMap[catName]) {
+          categoryMap[catName] = { name: catName, quantity: 0, revenue: 0 };
+        }
+        categoryMap[catName].quantity += item.quantity;
+        categoryMap[catName].revenue += item.price * item.quantity;
       });
 
       // Daily Breakdown
@@ -153,6 +193,14 @@ export async function GET(
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, 10);
 
+    const categoryBreakdown = Object.values(categoryMap).sort(
+      (a, b) => b.revenue - a.revenue
+    );
+
+    const totalItemsSold = Object.values(itemCounts).reduce((acc, curr) => acc + curr.quantity, 0);
+    const averageBillAmount = totalBills > 0 ? Math.round(totalSales / totalBills) : 0;
+    const averageItemsPerBill = totalBills > 0 ? +(totalItemsSold / totalBills).toFixed(1) : 0;
+
     return NextResponse.json({
       startDate: cleanStartDate,
       endDate: cleanEndDate,
@@ -170,9 +218,14 @@ export async function GET(
       totalPointsRedeemed,
       cashSales,
       promptPaySales,
+      averageBillAmount,
+      totalItemsSold,
+      averageItemsPerBill,
       channelBreakdown: channels,
       dailyBreakdown,
       topSellingItems,
+      categoryBreakdown,
+      hourlyBreakdown: hourlyMap,
       orders: paidOrders,
     });
   } catch (error: any) {

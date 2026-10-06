@@ -13,6 +13,8 @@ import {
   AlertCircle,
   ArrowRight,
   Loader2,
+  ExternalLink,
+  Sparkles,
 } from 'lucide-react';
 
 export default function PlatformAdminDashboard() {
@@ -114,18 +116,20 @@ export default function PlatformAdminDashboard() {
         <div className="p-4 sm:p-5 bg-slate-900/90 rounded-2xl border border-slate-800 shadow-sm relative overflow-hidden flex flex-col justify-between h-full">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400">ออเดอร์สะสมทุกร้าน</span>
+              <span className="text-xs font-bold text-slate-400">ยอดขายรวมวันนี้ทุกร้าน</span>
               <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
                 <ShoppingBag className="w-4 h-4" />
               </div>
             </div>
             <div className="mt-3">
-              <span className="text-2xl font-black text-white">{stats?.totalOrders || 0}</span>
-              <span className="text-xs text-slate-400 ml-2">บิล</span>
+              <span className="text-2xl font-black text-white">
+                ฿{(stats?.todayGrossSales || 0).toLocaleString()}
+              </span>
             </div>
           </div>
-          <div className="mt-3 text-[11px] text-slate-400 pt-2 border-t border-slate-800/60">
-            จำนวนออเดอร์ในระบบทั้งหมด
+          <div className="mt-3 text-[11px] text-slate-400 pt-2 border-t border-slate-800/60 flex items-center justify-between">
+            <span>{stats?.todayOrdersCount || 0} บิลวันนี้</span>
+            <span className="text-slate-500">รวม {stats?.totalOrders || 0} บิลสะสม</span>
           </div>
         </div>
       </div>
@@ -195,6 +199,96 @@ export default function PlatformAdminDashboard() {
           </div>
         </Link>
       </div>
+
+      {/* Recent Stores Table */}
+      {stats?.recentStores && stats.recentStores.length > 0 && (
+        <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-5 sm:p-6 shadow-xl space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center space-x-2.5">
+              <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center">
+                <Building2 className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-white">ร้านค้าที่ลงทะเบียนล่าสุด</h3>
+                <p className="text-xs text-slate-400">ร้านค้าสมาชิกล่าสุดที่เริ่มใช้งานระบบ</p>
+              </div>
+            </div>
+
+            <Link
+              href="/platform-admin/stores"
+              className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-orange-400 font-bold text-xs flex items-center space-x-1 transition-all"
+            >
+              <span>ดูทั้งหมด ({stats.totalStores})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[550px]">
+              <thead className="text-slate-400 font-bold border-b border-slate-800/80 bg-slate-800/40">
+                <tr>
+                  <th className="py-2.5 px-3">ชื่อร้านค้า / Slug</th>
+                  <th className="py-2.5 px-3">เจ้าของร้าน</th>
+                  <th className="py-2.5 px-3">สถานะ</th>
+                  <th className="py-2.5 px-3">แพ็กเกจ</th>
+                  <th className="py-2.5 px-3 text-center">ออเดอร์</th>
+                  <th className="py-2.5 px-3 text-right">การจัดการ</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/50 text-slate-300">
+                {stats.recentStores.map((s: any) => {
+                  const owner = s.users?.[0];
+                  const isTrial = s.status === 'TRIAL';
+                  const isActive = s.status === 'ACTIVE';
+
+                  return (
+                    <tr key={s.id} className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-3">
+                        <span className="font-extrabold text-white block">{s.name}</span>
+                        <span className="text-[10px] text-orange-400 font-mono">/r/{s.slug}</span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className="font-bold text-slate-200 block">{owner?.name || '-'}</span>
+                        <span className="text-[10px] text-slate-400">{owner?.email || '-'}</span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                            isActive
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              : isTrial
+                              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                              : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                          }`}
+                        >
+                          {isActive ? '✓ Active' : isTrial ? '✨ Trial' : s.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className="font-bold text-slate-300">{s.plan?.name || 'Standard'}</span>
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <span className="font-black text-white">{s._count?.orders || 0}</span>
+                      </td>
+                      <td className="py-3 px-3 text-right space-x-1.5 whitespace-nowrap">
+                        <Link
+                          href={`/r/${s.slug}/pos`}
+                          target="_blank"
+                          className="inline-flex items-center px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-orange-400 font-bold text-[11px] transition-all"
+                          title="เปิด POS หน้าร้าน"
+                        >
+                          <span>เข้า POS</span>
+                          <ExternalLink className="w-3 h-3 ml-1" />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
