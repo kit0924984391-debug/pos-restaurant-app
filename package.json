@@ -13,7 +13,7 @@
     "prisma:push": "prisma db push",
     "prisma:seed": "node prisma/seed.js",
     "postinstall": "prisma generate",
-    "pages:build": "npx @opennextjs/cloudflare build --dangerouslyUseUnsupportedNextVersion",
+    "pages:build": "npx @opennextjs/cloudflare build --dangerouslyUseUnsupportedNextVersion && node scripts/patch-worker.js",
     "deploy": "npm run pages:build && wrangler deploy",
     "cf:build": "npm run build && npx @opennextjs/cloudflare build"
   },
