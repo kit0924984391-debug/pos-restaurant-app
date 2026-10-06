@@ -11,6 +11,7 @@ import {
   Loader2,
   ShieldCheck,
   Printer,
+  Sparkles,
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 import PrintProxySettingsCard from './settings/PrintProxySettingsCard';
@@ -64,6 +65,7 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
     serviceCallItems: ServiceCallOption[];
     autoPrintKitchenTicket: boolean;
     printerPaperWidth: string;
+    enableAiUpsell: boolean;
   }>({
     storeName: '',
     promptPayId: '',
@@ -88,6 +90,7 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
     serviceCallItems: DEFAULT_SERVICE_ITEMS,
     autoPrintKitchenTicket: false,
     printerPaperWidth: '80mm',
+    enableAiUpsell: true,
   });
 
   const [currentOrigin, setCurrentOrigin] = useState('');
@@ -128,6 +131,7 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
                 : DEFAULT_SERVICE_ITEMS,
             autoPrintKitchenTicket: data.autoPrintKitchenTicket ?? false,
             printerPaperWidth: data.printerPaperWidth || '80mm',
+            enableAiUpsell: data.enableAiUpsell ?? true,
           });
         }
       })
@@ -716,6 +720,38 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
           onUpdate={handleUpdateServiceItem}
           onDelete={handleDeleteServiceItem}
         />
+
+        {/* Section 8: AI Smart Upselling */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2 border-b border-slate-100 pb-2">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            <span>ระบบแนะนำเมนูอัจฉริยะ (AI Smart Upselling)</span>
+          </h3>
+          <p className="text-xs text-slate-500">
+            วิเคราะห์เมนูในตะกร้าของลูกค้าเพื่อแนะนำเมนูทานคู่กัน (เช่น ไข่ดาว, ต้มจืด, เครื่องดื่มเย็น) ช่วยเพิ่มยอดขายเฉลี่ยต่อบิล (AOV) โดยอัตโนมัติ
+          </p>
+
+          <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <label className="font-extrabold text-xs text-slate-900 flex items-center gap-1.5 cursor-pointer">
+                <span>✨ เปิดใช้งานระบบ AI แนะนำเมนูคู่กัน (Smart Upselling &amp; Cross-selling)</span>
+              </label>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                • ทำงานอัตโนมัติในเครื่อง (Local Heuristic Engine) 100% ฟรี ไม่ต้องใช้ API Key<br />
+                • หากปิดใช้งาน: หน้าสั่งอาหารของลูกค้าจะไม่แสดงแถบเมนูแนะนำในหน้าเลือกอาหารและในตะกร้า
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+              <input
+                type="checkbox"
+                checked={form.enableAiUpsell}
+                onChange={(e) => setForm({ ...form, enableAiUpsell: e.target.checked })}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+            </label>
+          </div>
+        </div>
 
         {/* Submit Button */}
         <div className="pt-4 border-t border-slate-100 flex justify-end">

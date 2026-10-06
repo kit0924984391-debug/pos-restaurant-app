@@ -647,28 +647,31 @@ export default function CustomerOrderingView({
   };
 
   const handleAddUpsellToCart = (recItem: any) => {
+    const itemPrice = recItem.price ?? recItem.basePrice ?? 0;
     const cartItem = {
       menuItemId: recItem.id,
       name: recItem.name,
-      price: recItem.price,
+      price: itemPrice,
       quantity: 1,
       selectedOptions: [],
     };
     const newCart = [...cart, cartItem];
     setCart(newCart);
     broadcastCartChange(newCart);
-    showSuccess(`เพิ่ม ${recItem.name} ลงตะกร้าแล้ว 🛒`, `+฿${recItem.price}`);
+    showSuccess(`เพิ่ม ${recItem.name} ลงตะกร้าแล้ว 🛒`, `+฿${itemPrice}`);
   };
 
+  const isAiUpsellEnabled = store?.enableAiUpsell !== false;
+
   const modalUpsellItems = useMemo(() => {
-    if (!selectedMenuItem) return [];
+    if (!isAiUpsellEnabled || !selectedMenuItem) return [];
     return getUpsellingRecommendations([selectedMenuItem], categories, 4);
-  }, [selectedMenuItem, categories]);
+  }, [isAiUpsellEnabled, selectedMenuItem, categories]);
 
   const cartUpsellItems = useMemo(() => {
-    if (cart.length === 0) return [];
+    if (!isAiUpsellEnabled || cart.length === 0) return [];
     return getUpsellingRecommendations(cart, categories, 4);
-  }, [cart, categories]);
+  }, [isAiUpsellEnabled, cart, categories]);
 
   const handleMemberLookup = async (phone: string) => {
     setMemberPhone(phone);
@@ -1347,7 +1350,7 @@ export default function CustomerOrderingView({
                             {rec.badge}
                           </span>
                           <div className="text-xs font-black text-white truncate mt-0.5">{rec.name}</div>
-                          <div className="text-[10px] text-orange-400 font-bold">+฿{rec.price}</div>
+                          <div className="text-[10px] text-orange-400 font-bold">+฿{rec.price ?? rec.item?.basePrice ?? 0}</div>
                         </div>
                         <button
                           type="button"
@@ -1448,14 +1451,14 @@ export default function CustomerOrderingView({
                             {rec.badge}
                           </span>
                           <div className="text-[11px] font-black text-white truncate mt-1">{rec.name}</div>
-                          <div className="text-[10px] text-orange-400 font-bold">฿{rec.price}</div>
+                          <div className="text-[10px] text-orange-400 font-bold">฿{rec.price ?? rec.item?.basePrice ?? 0}</div>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleAddUpsellToCart(rec.item)}
                           className="mt-2 w-full py-1 rounded-lg bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-[10px] font-black transition-all cursor-pointer text-center shadow-xs"
                         >
-                          + เพิ่ม ฿{rec.price}
+                          + เพิ่ม ฿{rec.price ?? rec.item?.basePrice ?? 0}
                         </button>
                       </div>
                     ))}

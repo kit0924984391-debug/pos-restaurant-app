@@ -82,6 +82,7 @@ model Store {
   // การตั้งค่าเครื่องพิมพ์ความร้อน & พิมพ์ออเดอร์เข้าครัวอัตโนมัติ (Thermal Printer & Auto Print)
   autoPrintKitchenTicket Boolean @default(false) // พิมพ์ใบสั่งอาหารเข้าครัวอัตโนมัติเมื่อมีออเดอร์เข้า
   printerPaperWidth     String  @default("80mm") // ขนาดหน้ากว้างกระดาษความร้อน ("80mm" หรือ "58mm")
+  enableAiUpsell        Boolean @default(true) // เปิด/ปิดระบบ AI แนะนำเมนูคู่กัน (AI Smart Upselling)
   
   // ความสัมพันธ์ข้อมูลของร้าน
   users           User[]

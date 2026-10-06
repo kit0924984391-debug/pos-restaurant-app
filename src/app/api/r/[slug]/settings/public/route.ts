@@ -32,6 +32,7 @@ export async function GET(
         serviceCallItems: true,
         slipAutoCheckout: true,
         slipProvider: true,
+        enableAiUpsell: true,
       },
     });
 
@@ -65,6 +66,7 @@ export async function GET(
       serviceCallItems: parsedServiceItems,
       slipAutoCheckout: store.slipAutoCheckout,
       slipProvider: store.slipProvider,
+      enableAiUpsell: store.enableAiUpsell ?? true,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

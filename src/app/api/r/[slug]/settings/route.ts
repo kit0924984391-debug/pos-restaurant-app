@@ -86,6 +86,7 @@ export async function GET(
       serviceCallItems: parsedServiceItems,
       autoPrintKitchenTicket: store.autoPrintKitchenTicket ?? false,
       printerPaperWidth: store.printerPaperWidth || '80mm',
+      enableAiUpsell: store.enableAiUpsell ?? true,
       _isOwner: isOwner,
     });
   } catch (error: any) {
@@ -135,6 +136,7 @@ export async function PUT(
       serviceCallItems,
       autoPrintKitchenTicket,
       printerPaperWidth,
+      enableAiUpsell,
     } = body;
 
     // Payment-critical settings are owner-only: staff changing the PromptPay
@@ -224,6 +226,7 @@ export async function PUT(
           : store.serviceCallItems,
         autoPrintKitchenTicket: autoPrintKitchenTicket !== undefined ? Boolean(autoPrintKitchenTicket) : store.autoPrintKitchenTicket,
         printerPaperWidth: printerPaperWidth !== undefined ? String(printerPaperWidth) : store.printerPaperWidth,
+        enableAiUpsell: enableAiUpsell !== undefined ? Boolean(enableAiUpsell) : store.enableAiUpsell,
       },
       include: { plan: true },
     });
@@ -272,6 +275,7 @@ export async function PUT(
       serviceCallItems: parsedServiceItems,
       autoPrintKitchenTicket: updated.autoPrintKitchenTicket,
       printerPaperWidth: updated.printerPaperWidth,
+      enableAiUpsell: updated.enableAiUpsell ?? true,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

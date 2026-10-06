@@ -57,6 +57,14 @@ export function getUpsellingRecommendations(
   const hasSoupOrCurry = /ต้มยำ|แกง|ซุป|ต้มจืด|เกาเหลา|เล้ง|soup/i.test(currentNamesText);
   const hasRice = /ข้าวสวย|ข้าวเปล่า|ข้าวหอม/i.test(currentNamesText);
 
+  const getItemPrice = (item: any): number => {
+    if (typeof item?.basePrice === 'number') return item.basePrice;
+    if (typeof item?.price === 'number') return item.price;
+    if (typeof item?.basePrice === 'string') return parseFloat(item.basePrice) || 0;
+    if (typeof item?.price === 'string') return parseFloat(item.price) || 0;
+    return 0;
+  };
+
   const candidates: UpsellRecommendation[] = [];
 
   // Helper to find matching menu item by regex
@@ -70,29 +78,31 @@ export function getUpsellingRecommendations(
   if (hasWokOrRice) {
     const eggItem = findItem(/ไข่ดาว|ไข่เจียว/i);
     if (eggItem) {
+      const p = getItemPrice(eggItem);
       candidates.push({
         id: eggItem.id,
         name: eggItem.name,
-        price: eggItem.price,
+        price: p,
         imageUrl: eggItem.imageUrl,
         categoryName: eggItem.categoryName,
         reason: 'ท็อปปิ้งคู่กะเพราขายดีอันดับ 1',
         badge: '🍳 คู่ซี้จานผัด',
-        item: eggItem,
+        item: { ...eggItem, price: p },
       });
     }
 
     const soupItem = findItem(/ต้มจืด|แกงจืด|ซุป/i);
     if (soupItem) {
+      const p = getItemPrice(soupItem);
       candidates.push({
         id: soupItem.id,
         name: soupItem.name,
-        price: soupItem.price,
+        price: p,
         imageUrl: soupItem.imageUrl,
         categoryName: soupItem.categoryName,
         reason: 'ซดน้ำซุปร้อนๆ คล่องคอ',
         badge: '🍲 ซดคล่องคอ',
-        item: soupItem,
+        item: { ...soupItem, price: p },
       });
     }
   }
@@ -101,15 +111,16 @@ export function getUpsellingRecommendations(
   if (hasSoupOrCurry && !hasRice) {
     const riceItem = findItem(/ข้าวสวย|ข้าวเปล่า|ข้าวหอม/i);
     if (riceItem) {
+      const p = getItemPrice(riceItem);
       candidates.push({
         id: riceItem.id,
         name: riceItem.name,
-        price: riceItem.price,
+        price: p,
         imageUrl: riceItem.imageUrl,
         categoryName: riceItem.categoryName,
         reason: 'ทานคู่ต้มยำ/แกงจืด ร้อนๆ ฟินมาก',
         badge: '🍚 สั่งคู่แกง',
-        item: riceItem,
+        item: { ...riceItem, price: p },
       });
     }
   }
@@ -118,29 +129,31 @@ export function getUpsellingRecommendations(
   if (!hasDrink) {
     const teaItem = findItem(/ชาไทย|ชาเย็น|ชามะนาว|เก๊กฮวย/i);
     if (teaItem) {
+      const p = getItemPrice(teaItem);
       candidates.push({
         id: teaItem.id,
         name: teaItem.name,
-        price: teaItem.price,
+        price: p,
         imageUrl: teaItem.imageUrl,
         categoryName: teaItem.categoryName,
         reason: 'เครื่องดื่มดับกระหาย แก้เผ็ดสดชื่น',
         badge: '🥤 ดับกระหาย',
-        item: teaItem,
+        item: { ...teaItem, price: p },
       });
     }
 
     const softDrink = findItem(/โค้ก|เป๊ปซี่|น้ำอัดลม|สไปรท์/i);
     if (softDrink && !candidates.some((c) => c.id === softDrink.id)) {
+      const p = getItemPrice(softDrink);
       candidates.push({
         id: softDrink.id,
         name: softDrink.name,
-        price: softDrink.price,
+        price: p,
         imageUrl: softDrink.imageUrl,
         categoryName: softDrink.categoryName,
         reason: 'ซ่าสดชื่น ดื่มคู่มื้ออร่อย',
         badge: '🧊 ซ่าเย็นชื่นใจ',
-        item: softDrink,
+        item: { ...softDrink, price: p },
       });
     }
   }
@@ -148,30 +161,32 @@ export function getUpsellingRecommendations(
   // Rule 4: Appetizer / Snack / Crispy Sides
   const sideItem = findItem(/หมูกรอบ|ลูกชิ้น|เกี๊ยว|ปีกไก่|ทอด/i);
   if (sideItem && !candidates.some((c) => c.id === sideItem.id)) {
+    const p = getItemPrice(sideItem);
     candidates.push({
       id: sideItem.id,
       name: sideItem.name,
-      price: sideItem.price,
+      price: p,
       imageUrl: sideItem.imageUrl,
       categoryName: sideItem.categoryName,
       reason: 'ของทานเล่นเคี้ยวเพลินประจำร้าน',
       badge: '✨ สั่งเพิ่มยอดฮิต',
-      item: sideItem,
+      item: { ...sideItem, price: p },
     });
   }
 
   // Rule 5: Desserts (if available)
   const dessertItem = findItem(/บัวลอย|เฉาก๊วย|หวาน|ไอศกรีม|ไอติม/i);
   if (dessertItem && !candidates.some((c) => c.id === dessertItem.id)) {
+    const p = getItemPrice(dessertItem);
     candidates.push({
       id: dessertItem.id,
       name: dessertItem.name,
-      price: dessertItem.price,
+      price: p,
       imageUrl: dessertItem.imageUrl,
       categoryName: dessertItem.categoryName,
       reason: 'ตบท้ายมื้ออร่อยด้วยของหวาน',
       badge: '🍧 ของหวานตบท้าย',
-      item: dessertItem,
+      item: { ...dessertItem, price: p },
     });
   }
 
@@ -182,15 +197,16 @@ export function getUpsellingRecommendations(
       .slice(0, limit - candidates.length);
 
     remaining.forEach((rem) => {
+      const p = getItemPrice(rem);
       candidates.push({
         id: rem.id,
         name: rem.name,
-        price: rem.price,
+        price: p,
         imageUrl: rem.imageUrl,
         categoryName: rem.categoryName,
         reason: 'เมนูยอดนิยมที่ลูกค้าสั่งบ่อย',
         badge: '⭐️ เมนูแนะนำ',
-        item: rem,
+        item: { ...rem, price: p },
       });
     });
   }
