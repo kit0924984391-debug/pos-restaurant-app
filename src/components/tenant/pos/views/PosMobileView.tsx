@@ -285,7 +285,7 @@ export default function PosMobileView({
       {statusFilter !== 'DELIVERY' && (
         <div className="grid grid-cols-2 gap-2.5 w-full">
           {filteredTables.map((table) => {
-            const isOccupied = table.status === 'OCCUPIED' || table.activeOrdersCount > 0;
+            const isOccupied = (table.activeOrdersCount > 0 || table.status === 'OCCUPIED' || table.status === 'PAYMENT_PENDING') && (table.activeOrdersCount > 0 || (table.totalAmount || 0) > 0);
             const isSelected = selectedTable?.id === table.id || selectedTable?.tableNo === table.tableNo;
             const tableKey = String(table.tableNo || table.id);
 

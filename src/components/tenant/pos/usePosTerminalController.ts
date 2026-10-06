@@ -564,11 +564,17 @@ export function usePosTerminalController({
   // Filter Tables
   const filteredTables = useMemo(() => {
     if (statusFilter === 'ALL') return tables;
+    if (statusFilter === 'OCCUPIED') {
+      return tables.filter((t) => (t.status === 'OCCUPIED' || t.status === 'PAYMENT_PENDING' || t.activeOrdersCount > 0) && (t.activeOrdersCount > 0 || (t.totalAmount || 0) > 0));
+    }
+    if (statusFilter === 'AVAILABLE') {
+      return tables.filter((t) => !((t.status === 'OCCUPIED' || t.status === 'PAYMENT_PENDING' || t.activeOrdersCount > 0) && (t.activeOrdersCount > 0 || (t.totalAmount || 0) > 0)));
+    }
     return tables.filter((t) => t.status === statusFilter);
   }, [tables, statusFilter]);
 
-  const totalOccupied = tables.filter((t) => t.status === 'OCCUPIED' || t.status === 'PAYMENT_PENDING').length;
-  const totalAvailable = tables.filter((t) => t.status === 'AVAILABLE').length;
+  const totalOccupied = tables.filter((t) => (t.status === 'OCCUPIED' || t.status === 'PAYMENT_PENDING' || t.activeOrdersCount > 0) && (t.activeOrdersCount > 0 || (t.totalAmount || 0) > 0)).length;
+  const totalAvailable = tables.length - totalOccupied;
 
   const handleOpenDeliveryModal = (channel: 'LINEMAN' | 'GRAB' | 'SHOPEE_FOOD' | 'ROBINHOOD' = 'LINEMAN') => {
     setOrderChannel(channel);

@@ -54,12 +54,22 @@ export async function GET(
         } catch (e) {}
       }
 
+      let currentStatus = t.status;
+      // Auto-heal: If table has status OCCUPIED or PAYMENT_PENDING but 0 unpaid orders, revert to AVAILABLE
+      if ((currentStatus === 'OCCUPIED' || currentStatus === 'PAYMENT_PENDING') && activeOrders.length === 0) {
+        currentStatus = 'AVAILABLE';
+        prisma.table.update({
+          where: { id: t.id },
+          data: { status: 'AVAILABLE', currentSessionId: null },
+        }).catch(() => {});
+      }
+
       return {
         id: t.tableNo, // integer table number for compatibility
         tableNo: t.tableNo,
         tableId: t.id,
         name: t.name,
-        status: t.status,
+        status: currentStatus,
         activeOrdersCount: activeOrders.length,
         totalItems,
         totalAmount,
