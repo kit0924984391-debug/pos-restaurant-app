@@ -93,6 +93,8 @@ export default function TenantStoreLayout({
   };
 
   useEffect(() => {
+    if (pathname?.includes('/table/')) return;
+
     fetch(`/api/r/${slug}/settings`)
       .then((res) => res.json())
       .then((data) => {
@@ -103,7 +105,7 @@ export default function TenantStoreLayout({
     if (typeof document !== 'undefined' && slug) {
       document.cookie = `last_store_slug=${slug}; path=/; max-age=31536000; SameSite=Lax`;
     }
-  }, [slug]);
+  }, [slug, pathname]);
 
   // Close more menu on route change
   useEffect(() => {

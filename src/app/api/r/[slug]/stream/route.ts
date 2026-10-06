@@ -30,9 +30,16 @@ export async function GET(
   // events reach all screens no matter which isolate served their requests.
   const hub = getRealtimeHub();
   if (hub) {
-    const id = hub.idFromName(store.id);
-    const stub = hub.get(id);
-    return stub.fetch('https://hub/connect', { signal: request.signal });
+    try {
+      const id = hub.idFromName(store.id);
+      const stub = hub.get(id);
+      const res = await stub.fetch('https://hub/connect', { signal: request.signal });
+      if (res && res.status < 500) {
+        return res;
+      }
+    } catch (e) {
+      console.warn('RealtimeHub DO connection failed, falling back to SSE stream:', e);
+    }
   }
 
   // Fallback (local `next dev` without a DO binding): in-memory emitter.
