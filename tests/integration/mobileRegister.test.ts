@@ -12,6 +12,7 @@ describe('Mobile Registration & SMS OTP End-to-End Flow', () => {
   beforeAll(async () => {
     // Cleanup prior test artifacts
     await prisma.smsOtp.deleteMany({ where: { phone: testPhone } }).catch(() => {});
+    await prisma.$executeRaw`DELETE FROM LoginAttempt WHERE key LIKE ${'%:' + testPhone}`.catch(() => {});
     const existing = await prisma.user.findFirst({ where: { phone: testPhone } });
     if (existing?.storeId) {
       await prisma.store.delete({ where: { id: existing.storeId } }).catch(() => {});
@@ -21,6 +22,7 @@ describe('Mobile Registration & SMS OTP End-to-End Flow', () => {
   afterAll(async () => {
     // Cleanup after test
     await prisma.smsOtp.deleteMany({ where: { phone: testPhone } }).catch(() => {});
+    await prisma.$executeRaw`DELETE FROM LoginAttempt WHERE key LIKE ${'%:' + testPhone}`.catch(() => {});
     const existing = await prisma.user.findFirst({ where: { phone: testPhone } });
     if (existing?.storeId) {
       await prisma.store.delete({ where: { id: existing.storeId } }).catch(() => {});
@@ -136,6 +138,7 @@ describe('Next.js API Route Handlers Integration (/api/auth)', () => {
 
   beforeAll(async () => {
     await prisma.smsOtp.deleteMany({ where: { phone: apiPhone } }).catch(() => {});
+    await prisma.$executeRaw`DELETE FROM LoginAttempt WHERE key LIKE ${'%:' + apiPhone}`.catch(() => {});
     const existing = await prisma.user.findFirst({ where: { phone: apiPhone } });
     if (existing?.storeId) {
       await prisma.store.delete({ where: { id: existing.storeId } }).catch(() => {});
@@ -144,6 +147,7 @@ describe('Next.js API Route Handlers Integration (/api/auth)', () => {
 
   afterAll(async () => {
     await prisma.smsOtp.deleteMany({ where: { phone: apiPhone } }).catch(() => {});
+    await prisma.$executeRaw`DELETE FROM LoginAttempt WHERE key LIKE ${'%:' + apiPhone}`.catch(() => {});
     const existing = await prisma.user.findFirst({ where: { phone: apiPhone } });
     if (existing?.storeId) {
       await prisma.store.delete({ where: { id: existing.storeId } }).catch(() => {});

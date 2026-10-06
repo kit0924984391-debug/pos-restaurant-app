@@ -156,25 +156,19 @@ export default function LoginPage() {
           {/* Quick Demo Access Credentials */}
           <div className="mt-8 pt-6 border-t border-slate-800">
             <span className="text-[11px] font-bold text-slate-400 block mb-3 text-center">
-              🔑 ทดลองเข้าระบบด้วยเบอร์โทรตัวอย่าง (Demo Logins):
+              🔑 ทดลองเข้าระบบด้วยร้านค้าตัวอย่าง (Demo Login):
             </span>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('081-234-5678', 'pos1234')}
-                className="p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-left border border-slate-700/80 hover:border-orange-500/40 transition-all"
-              >
-                <span className="text-[11px] font-extrabold text-orange-400 block">👑 Super Admin</span>
-                <span className="text-[10px] text-slate-300 font-mono block truncate">📱 081-234-5678</span>
-              </button>
-
+            <div>
               <button
                 type="button"
                 onClick={() => handleDemoLogin('089-123-4567', 'pos1234')}
-                className="p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-left border border-slate-700/80 hover:border-orange-500/40 transition-all"
+                className="w-full p-3 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-left border border-slate-700/80 hover:border-emerald-500/50 transition-all flex items-center justify-between px-4"
               >
-                <span className="text-[11px] font-extrabold text-emerald-400 block">👨‍🍳 ร้านลุง-ป้า</span>
-                <span className="text-[10px] text-slate-300 font-mono block truncate">📱 089-123-4567</span>
+                <span className="text-xs font-extrabold text-emerald-400 flex items-center space-x-2">
+                  <span>👨‍🍳</span>
+                  <span>ร้านลุง-ป้า (ร้านค้าตัวอย่าง)</span>
+                </span>
+                <span className="text-xs text-slate-300 font-mono">📱 089-123-4567</span>
               </button>
             </div>
           </div>
