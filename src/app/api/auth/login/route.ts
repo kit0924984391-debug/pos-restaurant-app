@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword, createSessionToken, COOKIE_NAME } from '@/lib/auth';
-import { cleanPhoneNumber } from '@/lib/sms';
+import { cleanPhoneNumber, formatPhoneNumber } from '@/lib/sms';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +46,7 @@ export async function POST(request: Request) {
     }
 
     const cleanPhone = cleanPhoneNumber(loginInput);
+    const formattedPhone = cleanPhone ? formatPhoneNumber(cleanPhone) : '';
     const accountKey = (cleanPhone || loginInput.toLowerCase()).trim();
     const nowMs = Date.now();
     const failedCount = await getFailedCount(accountKey, nowMs);
@@ -56,13 +57,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Search by phone (cleaned or raw with dashes) OR by email
+    // Search by phone (cleaned, formatted, or raw with dashes) OR by email
     const searchConditions: any[] = [
       { email: loginInput.toLowerCase() },
     ];
     if (cleanPhone) {
       searchConditions.push({ phone: cleanPhone });
       searchConditions.push({ phone: loginInput });
+      if (formattedPhone) {
+        searchConditions.push({ phone: formattedPhone });
+      }
     }
 
     const user = await prisma.user.findFirst({
