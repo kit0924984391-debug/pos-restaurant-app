@@ -486,4 +486,10 @@ model SmsOtp {
   @@index([phone])
 }
 
+model LoginAttempt {
+  key         String @id
+  windowStart BigInt
+  count       Int    @default(0)
+}
+
 
