@@ -3,6 +3,16 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
+function getRealtimeHub(): any {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { getCloudflareContext } = require('@opennextjs/cloudflare');
+    return getCloudflareContext()?.env?.REALTIME_HUB;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }
@@ -16,6 +26,16 @@ export async function GET(
     return new Response('Store not found', { status: 404 });
   }
 
+  // Preferred path: the store's Durable Object hub holds every SSE writer, so
+  // events reach all screens no matter which isolate served their requests.
+  const hub = getRealtimeHub();
+  if (hub) {
+    const id = hub.idFromName(store.id);
+    const stub = hub.get(id);
+    return stub.fetch('https://hub/connect', { signal: request.signal });
+  }
+
+  // Fallback (local `next dev` without a DO binding): in-memory emitter.
   const responseStream = new TransformStream();
   const writer = responseStream.writable.getWriter();
   const encoder = new TextEncoder();

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireSuperAdmin } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     await requireSuperAdmin();
@@ -49,6 +51,15 @@ export async function POST(request: Request) {
     }
 
     if (action === 'APPROVE') {
+      // Guard against double approval (double-click / retry): extending the
+      // subscription twice for one payment would hand out free days.
+      if (sub.status !== 'PENDING') {
+        return NextResponse.json(
+          { error: 'รายการนี้ถูกดำเนินการไปแล้ว (อนุมัติ/ปฏิเสธ ไปก่อนหน้านี้)' },
+          { status: 400 }
+        );
+      }
+
       const currentEnd = new Date(sub.store.subscriptionEnd);
       const baseDate = currentEnd > new Date() ? currentEnd : new Date();
       baseDate.setDate(baseDate.getDate() + sub.plan.durationDays);

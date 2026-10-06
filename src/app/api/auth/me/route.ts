@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const session = await getCurrentUser();
@@ -29,6 +31,7 @@ export async function GET() {
       user: {
         id: user.id,
         email: user.email,
+        phone: user.phone,
         name: user.name,
         role: user.role,
         store: user.store,

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireStoreAccess } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }
@@ -134,34 +136,34 @@ export async function PUT(
 
     const newStock = currentStock !== undefined ? Math.max(0, Number(currentStock)) : existing.currentStock;
     const stockDiff = newStock - existing.currentStock;
+    const effectiveCostPerUnit = costPerUnit !== undefined ? Number(costPerUnit) : existing.costPerUnit;
 
-    const [updated] = await prisma.$transaction(async (tx) => {
-      const ing = await tx.ingredient.update({
+    const [updated] = await prisma.$transaction([
+      prisma.ingredient.update({
         where: { id: existing.id },
         data: {
           name: name ? name.trim() : existing.name,
           unit: unit ? unit.trim() : existing.unit,
-          costPerUnit: costPerUnit !== undefined ? Number(costPerUnit) : existing.costPerUnit,
+          costPerUnit: effectiveCostPerUnit,
           minStockAlert: minStockAlert !== undefined ? Number(minStockAlert) : existing.minStockAlert,
           currentStock: newStock,
         },
-      });
-
-      if (stockDiff !== 0) {
-        await tx.stockLog.create({
-          data: {
-            storeId: store.id,
-            ingredientId: existing.id,
-            changeQty: stockDiff,
-            reason: 'ADJUST',
-            note: 'ปรับยอดสต็อกโดยผู้ดูแล',
-            cost: stockDiff > 0 ? stockDiff * ing.costPerUnit : null,
-          },
-        });
-      }
-
-      return [ing];
-    });
+      }),
+      ...(stockDiff !== 0
+        ? [
+            prisma.stockLog.create({
+              data: {
+                storeId: store.id,
+                ingredientId: existing.id,
+                changeQty: stockDiff,
+                reason: 'ADJUST',
+                note: 'ปรับยอดสต็อกโดยผู้ดูแล',
+                cost: stockDiff > 0 ? stockDiff * effectiveCostPerUnit : null,
+              },
+            }),
+          ]
+        : []),
+    ]);
 
     return NextResponse.json({ success: true, ingredient: updated });
   } catch (error: any) {

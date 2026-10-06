@@ -1,0 +1,8 @@
+# Keep HTML and everything dynamic revalidating on every load so a new
+# deployment never leaves browsers referencing deleted JS chunks.
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Immutable content-hashed assets only
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable

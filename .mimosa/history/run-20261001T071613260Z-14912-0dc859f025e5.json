@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "mimosa-finding-history/v1",
+  "runId": "20261001T071613260Z-14912-0dc859f025e5",
+  "runStatus": "inconclusive",
+  "errors": [
+    "baseline-read:.open-next/assets/_next/static/ukLjjz2U4TYZ0urRMI5yP/_buildManifest.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/ukLjjz2U4TYZ0urRMI5yP/_ssgManifest.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/r/[slug]/admin/menu/page-0be86baaa5dee533.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/pos/page-4597c837d188bc9a.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/platform-admin/settings/page-6533223c21ea7c43.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/kitchen/page-cc970c2da8938eaa.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/tables/page-cd45ca9c8d8dd64b.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/settings/page-4a010bbbddf00fe6.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/reports/page-c2ae81e2f81fda51.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/qr-codes/page-beb4ae234ededb34.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/menu/page-67167c73ebbd821b.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "scan:src/app/api/r/[slug]/members/route.ts: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:src/app/api/auth/register/route.ts: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/cloudflare/init.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/ukLjjz2U4TYZ0urRMI5yP/_buildManifest.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/ukLjjz2U4TYZ0urRMI5yP/_ssgManifest.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/r/[slug]/admin/menu/page-0be86baaa5dee533.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/pos/page-4597c837d188bc9a.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/platform-admin/settings/page-6533223c21ea7c43.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/kitchen/page-cc970c2da8938eaa.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/tables/page-cd45ca9c8d8dd64b.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/settings/page-4a010bbbddf00fe6.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/reports/page-c2ae81e2f81fda51.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/qr-codes/page-beb4ae234ededb34.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/menu/page-67167c73ebbd821b.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/.build/durable-objects/queue.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+  ],
+  "target": ".",
+  "revision": "b39160db1218415a2a5e12e932e3ea63fa3c6125",
+  "diffHash": "dc3c0d9170e5b9e7b81aa97eac54e5074ca8f581a674183a10376e73cc5098f0",
+  "rulesVersion": "unavailable",
+  "recordedAt": "2026-10-01T07:16:13.260Z",
+  "timing": {
+    "startedAt": "2026-10-01T07:16:10.358Z",
+    "completedAt": "2026-10-01T07:16:13.260Z",
+    "durationMs": 2902
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "modelCalls": 0,
+    "measurement": "known-zero"
+  },
+  "findings": {
+    "total": 0,
+    "bySeverity": {},
+    "byStatus": {}
+  },
+  "coverage": {
+    "status": "partial",
+    "reasonCounts": {
+      "baseline_snapshot_unreadable": 11,
+      "scanner_failed": 15,
+      "project_check_failed": 26
+    }
+  },
+  "evidenceBoundary": "static_only",
+  "immutableReport": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00-20261001T071613260Z-14912-0dc859f025e5.json"
+}

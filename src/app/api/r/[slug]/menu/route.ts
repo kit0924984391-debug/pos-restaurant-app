@@ -5,6 +5,8 @@ import { formatImageUrl } from '@/lib/utils';
 import { requireStoreAccess } from '@/lib/auth';
 import { getStoreBySlug } from '@/lib/storeCache';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }

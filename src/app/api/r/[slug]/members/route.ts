@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireStoreAccess } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }
@@ -126,7 +128,7 @@ export async function POST(
           storeId: store.id,
           phone: cleanPhone,
           name: name ? name.trim() : 'ลูกค้าทั่วไป',
-          points: parseInt(points) || 0,
+          points: Math.max(0, parseInt(points) || 0),
         },
       });
 
@@ -141,26 +143,50 @@ export async function POST(
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
 
-      const member = await prisma.customerMember.upsert({
-        where: {
-          storeId_phone: {
+      const delta = parseInt(pointsDelta) || 0;
+
+      // Negative adjustments are guarded so the balance can never go below
+      // zero (same clamp as every other points path). A decrement that would
+      // overshoot simply clamps the balance to 0.
+      if (delta < 0) {
+        const debited = await prisma.customerMember.updateMany({
+          where: {
             storeId: store.id,
             phone: cleanPhone,
+            points: { gte: -delta },
           },
-        },
-        update: {
-          points: {
-            increment: parseInt(pointsDelta) || 0,
+          data: { points: { increment: delta } },
+        });
+        if (debited.count === 0) {
+          await prisma.customerMember.updateMany({
+            where: { storeId: store.id, phone: cleanPhone },
+            data: { points: 0 },
+          });
+        }
+      } else {
+        const member = await prisma.customerMember.upsert({
+          where: {
+            storeId_phone: {
+              storeId: store.id,
+              phone: cleanPhone,
+            },
           },
-        },
-        create: {
-          storeId: store.id,
-          phone: cleanPhone,
-          name: name ? name.trim() : 'ลูกค้าทั่วไป',
-          points: Math.max(0, parseInt(pointsDelta) || 0),
-        },
-      });
+          update: {
+            points: { increment: delta },
+          },
+          create: {
+            storeId: store.id,
+            phone: cleanPhone,
+            name: name ? name.trim() : 'ลูกค้าทั่วไป',
+            points: delta,
+          },
+        });
+        return NextResponse.json({ success: true, member });
+      }
 
+      const member = await prisma.customerMember.findUnique({
+        where: { storeId_phone: { storeId: store.id, phone: cleanPhone } },
+      });
       return NextResponse.json({ success: true, member });
     }
 

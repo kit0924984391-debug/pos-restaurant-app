@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mimosa-finding-history/v1",
+  "runId": "20261001T064011585Z-17788-940426659190",
+  "runStatus": "inconclusive",
+  "errors": [
+    "baseline-read:.open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_buildManifest.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_ssgManifest.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/pos/page-091b9fc32b82ad15.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/kitchen/page-ab87e3e36c16e62b.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/tables/page-9de1fbc1f2d8ced9.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/settings/page-d2b1b86f51917e4c.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/reports/page-35586722e24981ec.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/qr-codes/page-c91a1c184af8857f.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/menu/page-d652fc8be71908c3.js: baseline_snapshot_unreadable: file is missing from task baseline"
+  ],
+  "target": ".",
+  "revision": "b39160db1218415a2a5e12e932e3ea63fa3c6125",
+  "diffHash": "1561af6038ee9fa2e8f099b5ff1544605c77dce5bfc1e671c6abb31f90890039",
+  "rulesVersion": "unavailable",
+  "recordedAt": "2026-10-01T06:40:11.585Z",
+  "timing": {
+    "startedAt": "2026-10-01T06:40:09.010Z",
+    "completedAt": "2026-10-01T06:40:11.585Z",
+    "durationMs": 2575
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "modelCalls": 0,
+    "measurement": "known-zero"
+  },
+  "findings": {
+    "total": 4,
+    "bySeverity": {
+      "high": 4
+    },
+    "byStatus": {
+      "static_verified": 3,
+      "blocked": 1
+    }
+  },
+  "coverage": {
+    "status": "partial",
+    "reasonCounts": {
+      "baseline_snapshot_unreadable": 9,
+      "project_check_failed": 9
+    }
+  },
+  "evidenceBoundary": "static_only",
+  "immutableReport": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00-20261001T064011585Z-17788-940426659190.json"
+}

@@ -9,6 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@prisma/client/wasm': path.resolve(__dirname, './node_modules/@prisma/client'),
     },
   },
 });

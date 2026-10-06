@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { broadcastEvent } from '@/lib/events';
 import { getStoreBySlug } from '@/lib/storeCache';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }

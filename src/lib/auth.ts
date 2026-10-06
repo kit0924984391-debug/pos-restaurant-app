@@ -11,6 +11,7 @@ export const COOKIE_NAME = 'pos_auth_token';
 export type SessionUser = {
   id: string;
   email: string;
+  phone?: string | null;
   name: string;
   role: 'SUPER_ADMIN' | 'STORE_OWNER' | 'STORE_STAFF';
   storeId?: string | null;
@@ -21,7 +22,9 @@ export type SessionUser = {
 };
 
 export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 10);
+  // Cost 6 keeps verification ~4-5ms of CPU — inside the Workers free plan's
+  // 10ms per-request limit. Raise to 10 (and use Workers Paid) for production.
+  return bcrypt.hash(password, 6);
 }
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {

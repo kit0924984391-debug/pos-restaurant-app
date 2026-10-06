@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireStoreAccess } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }
@@ -73,25 +75,22 @@ export async function POST(
     const validIngredientSet = new Set(storeIngredients.map((i) => i.id));
 
     // Replace existing recipes for this item
-    await prisma.$transaction(async (tx) => {
-      await tx.menuItemRecipe.deleteMany({
+    const validItemsToInsert = ingredients
+      .filter((ing: any) => ing.ingredientId && validIngredientSet.has(ing.ingredientId) && Number(ing.quantity) > 0)
+      .map((ing: any) => ({
+        menuItemId,
+        ingredientId: ing.ingredientId,
+        quantity: Number(ing.quantity),
+      }));
+
+    await prisma.$transaction([
+      prisma.menuItemRecipe.deleteMany({
         where: { menuItemId },
-      });
-
-      const validItemsToInsert = ingredients
-        .filter((ing: any) => ing.ingredientId && validIngredientSet.has(ing.ingredientId) && Number(ing.quantity) > 0)
-        .map((ing: any) => ({
-          menuItemId,
-          ingredientId: ing.ingredientId,
-          quantity: Number(ing.quantity),
-        }));
-
-      if (validItemsToInsert.length > 0) {
-        await tx.menuItemRecipe.createMany({
-          data: validItemsToInsert,
-        });
-      }
-    });
+      }),
+      ...(validItemsToInsert.length > 0
+        ? [prisma.menuItemRecipe.createMany({ data: validItemsToInsert })]
+        : []),
+    ]);
 
     const updatedRecipes = await prisma.menuItemRecipe.findMany({
       where: { menuItemId },

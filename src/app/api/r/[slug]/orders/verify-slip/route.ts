@@ -11,6 +11,8 @@ import { saveSlipImage } from '@/lib/google-drive-storage';
 import { requireStoreAccess } from '@/lib/auth';
 import { settlePayment } from '@/lib/paymentEngine';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(
   request: Request,
   { params }: { params: { slug: string } }

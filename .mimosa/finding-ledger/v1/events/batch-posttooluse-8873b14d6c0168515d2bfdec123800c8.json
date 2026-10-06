@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "posttooluse-8873b14d6c0168515d2bfdec123800c8",
+  "runId": null,
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "PostToolUse"
+  },
+  "revision": null,
+  "diffHash": null,
+  "rulesVersion": null,
+  "sessionHash": "fc2f37becebf38d4c4f24eadcb4f3c9091fd712398fa4c3ae806927b8c3ecdad",
+  "reportRef": null,
+  "events": [
+    {
+      "eventId": "hook-0369dd9008c46da0084315a316c85ceb",
+      "findingId": "mimosa-123e24357ad694b36321ef43",
+      "type": "static_fix_verified",
+      "at": "2026-10-01T06:27:49.945Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 41,
+      "endLine": 41,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-69027ec282845ed585d88bef326147dc",
+      "findingId": "mimosa-387262cbc553a4cff227777a",
+      "type": "static_fix_verified",
+      "at": "2026-10-01T06:27:49.945Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 41,
+      "endLine": 41,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa"
+      },
+      "sequence": 1
+    },
+    {
+      "eventId": "hook-78bc0439643d56194bdae515bc72c571",
+      "findingId": "mimosa-9bf14e45a1c9d2a91afa92df",
+      "type": "static_fix_verified",
+      "at": "2026-10-01T06:27:49.945Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 6,
+      "endLine": 6,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5"
+      },
+      "sequence": 2
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-10-01T06:27:50.717Z"
+}

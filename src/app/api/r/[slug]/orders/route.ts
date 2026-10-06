@@ -4,6 +4,8 @@ import { broadcastEvent } from '@/lib/events';
 import { requireStoreAccess } from '@/lib/auth';
 import { getStoreBySlug } from '@/lib/storeCache';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }
@@ -103,26 +105,35 @@ export async function POST(
     }
 
     const isDelivery = ['LINEMAN', 'GRAB', 'SHOPEE_FOOD', 'ROBINHOOD'].includes(orderChannel);
-    const tableNo = parseInt(tableId || (isDelivery ? 0 : 1));
+    const isDineIn = orderChannel === 'DINE_IN';
+    const parsedTableNo = parseInt(String(tableId ?? ''), 10);
+
+    // Dine-in orders must state their table — no silent fallback to table 1.
+    if (isDineIn && !(parsedTableNo > 0)) {
+      return NextResponse.json(
+        { error: 'กรุณาระบุเลขโต๊ะสำหรับออเดอร์ทานที่ร้าน' },
+        { status: 400 }
+      );
+    }
 
     // Upsert table for this store if dine-in
     let table: any = null;
-    if (tableNo > 0) {
+    if (isDineIn) {
       table = await prisma.table.upsert({
         where: {
           storeId_tableNo: {
             storeId: store.id,
-            tableNo,
+            tableNo: parsedTableNo,
           },
         },
         update: {
-          ...(orderChannel === 'DINE_IN' && { status: 'OCCUPIED' }),
+          status: 'OCCUPIED',
         },
         create: {
           storeId: store.id,
-          tableNo,
-          name: `โต๊ะ ${tableNo}`,
-          status: orderChannel === 'DINE_IN' ? 'OCCUPIED' : 'AVAILABLE',
+          tableNo: parsedTableNo,
+          name: `โต๊ะ ${parsedTableNo}`,
+          status: 'OCCUPIED',
         },
       });
     }
@@ -140,6 +151,24 @@ export async function POST(
       },
     });
     const dbMenuItemMap = new Map(dbMenuItems.map((m) => [m.id, m]));
+
+    // Custom-priced items (no valid menuItemId) may only be added by staff —
+    // the public QR-ordering endpoint must not accept client-set prices.
+    const hasCustomItems = items.some(
+      (item: any) => !item.menuItemId || !dbMenuItemMap.has(item.menuItemId)
+    );
+    let isStaffCaller = false;
+    if (hasCustomItems) {
+      try {
+        await requireStoreAccess(params.slug);
+        isStaffCaller = true;
+      } catch {
+        return NextResponse.json(
+          { error: 'พบรายการที่ไม่อยู่ในเมนูของร้าน กรุณาสั่งจากเมนูที่แสดง' },
+          { status: 400 }
+        );
+      }
+    }
 
     let totalAmount = 0;
     const orderItemsData = items.map((item: any) => {
@@ -277,17 +306,34 @@ export async function POST(
     }
 
     // Calculate GP% and Net Revenue for Delivery Channels
+    // (a custom GP% may only be set by staff; public callers get store defaults)
     let gpPercent = 0;
+    let customGpApplied = false;
     if (customGpPercent !== undefined && !isNaN(Number(customGpPercent))) {
-      gpPercent = Number(customGpPercent);
-    } else if (orderChannel === 'LINEMAN') {
-      gpPercent = store.linemanGp ?? 30;
-    } else if (orderChannel === 'GRAB') {
-      gpPercent = store.grabGp ?? 30;
-    } else if (orderChannel === 'SHOPEE_FOOD') {
-      gpPercent = store.shopeeGp ?? 30;
-    } else if (orderChannel === 'ROBINHOOD') {
-      gpPercent = store.robinhoodGp ?? 20;
+      let gpIsStaff = isStaffCaller;
+      if (!gpIsStaff) {
+        try {
+          await requireStoreAccess(params.slug);
+          gpIsStaff = true;
+        } catch {
+          gpIsStaff = false;
+        }
+      }
+      if (gpIsStaff) {
+        gpPercent = Number(customGpPercent);
+        customGpApplied = true;
+      }
+    }
+    if (!customGpApplied) {
+      if (orderChannel === 'LINEMAN') {
+        gpPercent = store.linemanGp ?? 30;
+      } else if (orderChannel === 'GRAB') {
+        gpPercent = store.grabGp ?? 30;
+      } else if (orderChannel === 'SHOPEE_FOOD') {
+        gpPercent = store.shopeeGp ?? 30;
+      } else if (orderChannel === 'ROBINHOOD') {
+        gpPercent = store.robinhoodGp ?? 20;
+      }
     }
 
     const gpAmount = isDelivery ? (netAmount * gpPercent) / 100 : 0;
@@ -350,8 +396,11 @@ export async function POST(
       },
     });
 
-    // 4. Execute Real-time Stock Deductions & Depletion Triggers asynchronously
-    (async () => {
+    // 4. Execute Real-time Stock Deductions & Depletion Triggers
+    // On Cloudflare Workers, work that outlives the response must be registered
+    // with ctx.waitUntil — a bare fire-and-forget promise can be killed once
+    // the response is sent, silently skipping stock deduction.
+    const runStockDeductions = async () => {
       try {
         for (const ded of stockDeductions) {
           const updatedIng = await prisma.ingredient.update({
@@ -390,7 +439,24 @@ export async function POST(
       } catch (stockErr) {
         console.error('Error executing stock deduction:', stockErr);
       }
-    })();
+    };
+
+    let stockTaskRegistered = false;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { getCloudflareContext } = require('@opennextjs/cloudflare');
+      const cfCtx: any = getCloudflareContext();
+      if (cfCtx?.ctx?.waitUntil) {
+        cfCtx.ctx.waitUntil(runStockDeductions());
+        stockTaskRegistered = true;
+      }
+    } catch {
+      stockTaskRegistered = false;
+    }
+    if (!stockTaskRegistered) {
+      // Plain Node runtime: just await it.
+      await runStockDeductions();
+    }
 
     // Broadcast SSE realtime events
     broadcastEvent('ORDER_CREATED', newOrder, store.id);

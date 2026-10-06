@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { broadcastEvent } from '@/lib/events';
 import { parseBankNotificationText } from '@/lib/bank-message-parser';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET: ดึงประวัติการแจ้งเตือนเงินเข้าของร้านค้านี้ (30 รายการล่าสุด)
  */
@@ -233,23 +235,42 @@ export async function POST(
       const updatedOrders: any[] = [];
       for (let i = 0; i < ordersToClose.length; i++) {
         const o = ordersToClose[i];
-        const updated = await prisma.order.update({
-          where: { id: o.id },
-          data: {
-            paymentMethod: 'PROMPTPAY',
-            paymentStatus: 'PAID',
-            status: 'COMPLETED',
-            slipRef: `${effectiveSlipRef}${ordersToClose.length > 1 ? `_${i + 1}` : ''}`,
-            slipAmount: ordersToClose.length === 1 ? incomingAmount : o.netAmount,
-            slipVerifiedAt: new Date(),
-            slipVerifiedBy: `AUTO_BANK_${parsed.bank}`,
-            slipRawData: JSON.stringify(parsed),
-            paidAt: new Date(),
-            note: o.note ? `${o.note} (โอนผ่าน ${parsed.bankName})` : `ชำระผ่าน ${parsed.bankName}`,
-          },
-          include: { table: true, items: true },
-        });
+        // Guarded update: bank webhooks are retried, so a duplicate delivery
+        // must not close (or award points for) the same order twice.
+        let updated: any;
+        try {
+          updated = await prisma.order.update({
+            where: { id: o.id, paymentStatus: { not: 'PAID' } },
+            data: {
+              paymentMethod: 'PROMPTPAY',
+              paymentStatus: 'PAID',
+              status: 'COMPLETED',
+              slipRef: `${effectiveSlipRef}${ordersToClose.length > 1 ? `_${i + 1}` : ''}`,
+              slipAmount: ordersToClose.length === 1 ? incomingAmount : o.netAmount,
+              slipVerifiedAt: new Date(),
+              slipVerifiedBy: `AUTO_BANK_${parsed.bank}`,
+              slipRawData: JSON.stringify(parsed),
+              paidAt: new Date(),
+              note: o.note ? `${o.note} (โอนผ่าน ${parsed.bankName})` : `ชำระผ่าน ${parsed.bankName}`,
+            },
+            include: { table: true, items: true },
+          });
+        } catch (e: any) {
+          if (e?.code === 'P2025') {
+            // Already paid by a concurrent delivery — skip it entirely.
+            continue;
+          }
+          throw e;
+        }
         updatedOrders.push(updated);
+      }
+
+      if (updatedOrders.length === 0) {
+        return NextResponse.json({
+          success: true,
+          message: 'ออเดอร์นี้ถูกปิดบิลไปแล้ว (webhook ซ้ำ) — ข้ามการประมวลผล',
+          skipped: true,
+        });
       }
 
       // จัดการแต้มสมาชิกสะสม

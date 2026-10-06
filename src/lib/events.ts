@@ -64,6 +64,33 @@ export class CompositeBroadcaster implements IRealtimeBroadcaster {
 
 export const defaultBroadcaster = new CompositeBroadcaster([new LocalEventEmitterBroadcaster()]);
 
+// Cross-isolate fan-out: forward the event to the store's Durable Object hub,
+// which broadcasts it to every connected SSE client (POS/Kitchen/customer
+// screens), regardless of which worker isolate served their request.
+function forwardToRealtimeHub(payload: EventPayload): void {
+  if (!payload.storeId) return; // hub is keyed by store — unrouted events stay local
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { getCloudflareContext } = require('@opennextjs/cloudflare');
+    const ctx: any = getCloudflareContext();
+    const hub = ctx?.env?.REALTIME_HUB;
+    if (!hub) return; // local dev / build time: local emitter only
+    const id = hub.idFromName(payload.storeId);
+    const stub = hub.get(id);
+    const call = stub.fetch('https://hub/broadcast', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    if (ctx?.ctx?.waitUntil) {
+      ctx.ctx.waitUntil(call.catch(() => {}));
+    } else {
+      call.catch(() => {});
+    }
+  } catch {
+    // local dev without OpenNext context — ignore
+  }
+}
+
 export function broadcastEvent(type: EventPayload['type'], data: any, storeId?: string) {
   const payload: EventPayload = {
     type,
@@ -72,10 +99,12 @@ export function broadcastEvent(type: EventPayload['type'], data: any, storeId?: 
     timestamp: Date.now(),
   };
 
-  // Dispatch through broadcaster system (LocalEventEmitterBroadcaster + any registered external sinks)
+  // Same-isolate listeners (kept for local dev and any in-process consumers)
   defaultBroadcaster.broadcast(payload).catch((err) => {
     console.error('Error broadcasting event:', err);
   });
+
+  forwardToRealtimeHub(payload);
 }
 
 

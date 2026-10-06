@@ -5,6 +5,8 @@ import { requireStoreAccess } from '@/lib/auth';
 
 import { testGoogleDriveWebhook } from '@/lib/google-drive-storage';
 
+export const dynamic = 'force-dynamic';
+
 const DEFAULT_SERVICE_CALL_ITEMS = [
   { id: 'srv-1', icon: '🌶️', label: 'ขอน้ำปลาพริก / พริกน้ำส้ม / เครื่องปรุง', active: true },
   { id: 'srv-2', icon: '🧊', label: 'ขอเติมน้ำแข็ง / น้ำดื่ม', active: true },
@@ -19,11 +21,15 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
+    let sessionUser: any = null;
     try {
-      await requireStoreAccess(params.slug);
+      const access = await requireStoreAccess(params.slug);
+      sessionUser = access.user;
     } catch (authErr) {
       return NextResponse.json({ error: 'Unauthorized: Staff access required' }, { status: 401 });
     }
+
+    const isOwner = sessionUser?.role === 'STORE_OWNER' || sessionUser?.role === 'SUPER_ADMIN';
 
     const store = await prisma.store.findUnique({
       where: { slug: params.slug },
@@ -46,6 +52,10 @@ export async function GET(
       }
     }
 
+    // Payment-critical secrets are only shown to the store owner (or platform
+    // admin); staff must not be able to read/redirect payment configuration.
+    const maskIfStaff = (value: string) => (isOwner ? value : value ? '••••••••' : '');
+
     return NextResponse.json({
       id: store.id,
       slug: store.slug,
@@ -64,18 +74,19 @@ export async function GET(
       grabGp: store.grabGp ?? 30,
       shopeeGp: store.shopeeGp ?? 30,
       robinhoodGp: store.robinhoodGp ?? 20,
-      deliveryWebhookSecret: store.deliveryWebhookSecret,
+      deliveryWebhookSecret: maskIfStaff(store.deliveryWebhookSecret || ''),
       slipAutoCheckout: store.slipAutoCheckout ?? false,
       slipProvider: store.slipProvider ?? 'HYBRID',
-      slipApiKey: store.slipApiKey || '',
+      slipApiKey: maskIfStaff(store.slipApiKey || ''),
       slipBranchId: store.slipBranchId || '',
-      bankWebhookKey: store.bankWebhookKey || (await ensureStoreBankKey(store.id)),
+      bankWebhookKey: isOwner ? store.bankWebhookKey || (await ensureStoreBankKey(store.id)) : '••••••••',
       bankAutoCheckout: store.bankAutoCheckout ?? true,
       googleDriveFolderId: store.googleDriveFolderId || '',
-      googleDriveWebhookUrl: store.googleDriveWebhookUrl || '',
+      googleDriveWebhookUrl: maskIfStaff(store.googleDriveWebhookUrl || ''),
       serviceCallItems: parsedServiceItems,
       autoPrintKitchenTicket: store.autoPrintKitchenTicket ?? false,
       printerPaperWidth: store.printerPaperWidth || '80mm',
+      _isOwner: isOwner,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -87,11 +98,15 @@ export async function PUT(
   { params }: { params: { slug: string } }
 ) {
   try {
+    let sessionUser: any = null;
     try {
-      await requireStoreAccess(params.slug);
+      const access = await requireStoreAccess(params.slug);
+      sessionUser = access.user;
     } catch (authErr) {
       return NextResponse.json({ error: 'Unauthorized: Staff access required' }, { status: 401 });
     }
+
+    const isOwner = sessionUser?.role === 'STORE_OWNER' || sessionUser?.role === 'SUPER_ADMIN';
 
     const body = await request.json();
     const {
@@ -121,6 +136,30 @@ export async function PUT(
       autoPrintKitchenTicket,
       printerPaperWidth,
     } = body;
+
+    // Payment-critical settings are owner-only: staff changing the PromptPay
+    // number, slip provider keys or webhook secrets could redirect payments.
+    const OWNER_ONLY_FIELDS: Array<[string, any]> = [
+      ['promptPayId', promptPayId],
+      ['promptPayName', promptPayName],
+      ['deliveryWebhookSecret', deliveryWebhookSecret],
+      ['slipApiKey', slipApiKey],
+      ['slipBranchId', slipBranchId],
+      ['bankWebhookKey', bankWebhookKey],
+      ['regenerateBankKey', regenerateBankKey],
+      ['googleDriveFolderId', googleDriveFolderId],
+      ['googleDriveWebhookUrl', googleDriveWebhookUrl],
+      ['testGoogleDrive', testGoogleDrive],
+    ];
+    if (!isOwner) {
+      const attempted = OWNER_ONLY_FIELDS.filter(([, v]) => v !== undefined).map(([k]) => k);
+      if (attempted.length > 0) {
+        return NextResponse.json(
+          { error: 'เฉพาะเจ้าของร้านเท่านั้นที่แก้ไขการตั้งค่าการรับเงินได้' },
+          { status: 403 }
+        );
+      }
+    }
 
     const store = await prisma.store.findUnique({
       where: { slug: params.slug },

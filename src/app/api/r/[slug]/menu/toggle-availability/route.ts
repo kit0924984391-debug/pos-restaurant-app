@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { broadcastEvent } from '@/lib/events';
 import { requireStoreAccess } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(
   request: Request,
   { params }: { params: { slug: string } }

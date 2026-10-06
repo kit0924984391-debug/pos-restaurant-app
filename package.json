@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.6",
+    "@prisma/adapter-d1": "^7.10.0",
     "@prisma/adapter-pg": "^6.19.3",
     "@prisma/client": "^6.19.3",
     "@supabase/supabase-js": "^2.117.2",

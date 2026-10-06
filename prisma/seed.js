@@ -78,7 +78,7 @@ async function main() {
   }
 
   // 3. Super Admin User
-  const adminPasswordHash = await bcrypt.hash('11072526#Kit', 10);
+  const adminPasswordHash = await bcrypt.hash('11072526#Kit', 6);
   await prisma.user.upsert({
     where: { email: 'kit0924984391@gmail.com' },
     update: {
@@ -118,7 +118,7 @@ async function main() {
     },
   });
 
-  const ownerPasswordHash = await bcrypt.hash('password123', 10);
+  const ownerPasswordHash = await bcrypt.hash('password123', 6);
   await prisma.user.upsert({
     where: { email: 'owner@lungpa.com' },
     update: {

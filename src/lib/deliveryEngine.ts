@@ -90,9 +90,14 @@ export async function processDeliveryWebhook(
       return { status: 404, body: { error: 'Store not found' } };
     }
 
-    // Verify webhook signature/secret token if configured on store
+    // Verify webhook signature/secret token if configured on store.
+    // When a secret IS configured the header is REQUIRED — a missing header
+    // must not silently skip verification (that would let anyone inject fake
+    // delivery orders). Stores without a configured secret keep working as
+    // before (open webhook).
     if (store.deliveryWebhookSecret && headers) {
       const authHeader =
+        headers.get('x-proxy-secret') ||
         headers.get('x-proxy-signature') ||
         headers.get('x-print-signature') ||
         headers.get('x-klikit-signature') ||
@@ -102,7 +107,7 @@ export async function processDeliveryWebhook(
         headers.get('x-webhook-secret') ||
         headers.get('authorization');
 
-      if (authHeader && !authHeader.includes(store.deliveryWebhookSecret)) {
+      if (!authHeader || !authHeader.includes(store.deliveryWebhookSecret)) {
         return { status: 401, body: { error: 'Unauthorized webhook signature' } };
       }
     }

@@ -1,0 +1,786 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261001T064011585Z-17788-940426659190",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_buildManifest.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_ssgManifest.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/pos/page-091b9fc32b82ad15.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-ab87e3e36c16e62b.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-9de1fbc1f2d8ced9.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-d2b1b86f51917e4c.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-35586722e24981ec.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-c91a1c184af8857f.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-d652fc8be71908c3.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 249,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 4
+    },
+    "change_tracking": {
+      "touched_observed": 2,
+      "touched_retained": 2,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 13,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 13,
+      "selected_files": 13,
+      "limit": 20,
+      "truncated": false
+    },
+    "scanning": {
+      "required_files": 13,
+      "scanned_files": 13,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "baseline_snapshot_unreadable": 9,
+      "project_check_failed": 9
+    },
+    "reasons": [
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_buildManifest.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_ssgManifest.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/pos/page-091b9fc32b82ad15.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-ab87e3e36c16e62b.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-9de1fbc1f2d8ced9.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-d2b1b86f51917e4c.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-35586722e24981ec.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-c91a1c184af8857f.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-d652fc8be71908c3.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_buildManifest.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_ssgManifest.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/pos/page-091b9fc32b82ad15.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-ab87e3e36c16e62b.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-9de1fbc1f2d8ced9.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-d2b1b86f51917e4c.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-35586722e24981ec.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-c91a1c184af8857f.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-d652fc8be71908c3.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-10-01T06:40:11.585Z",
+  "session_id": "sess_449395d9-37c4-4c4e-9d78-6a53cce93f00",
+  "target": ".",
+  "revision": "b39160db1218415a2a5e12e932e3ea63fa3c6125",
+  "rules_version": "unavailable",
+  "diff_hash": "1561af6038ee9fa2e8f099b5ff1544605c77dce5bfc1e671c6abb31f90890039",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 13,
+    "changed_files": [
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/menu/page-d652fc8be71908c3.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "b276aa4ffe87fb29a23ae519f8408812c5b9ec020cca939eb5a6f890ac67ce51"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-c91a1c184af8857f.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "e2d5a52a6ffa085771b8a681160c6fdd5454ed67cd21f87eb287cd2645183895"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/reports/page-35586722e24981ec.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "74ba90a58b4a84f236483b45f1ea116050111adb60eb3f86c67b6baa4d0367e2"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/settings/page-d2b1b86f51917e4c.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "e5f63d43d6a50a526c048fb2e73158e2897668784de918517ca2be68c5b66efe"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/tables/page-9de1fbc1f2d8ced9.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "85f73a9dcfe32494206e7b48629b2f2ac0f65fff5e3e157ee7395edb4b37937d"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/kitchen/page-ab87e3e36c16e62b.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "33ce54934a9754d70c20fd51624a5d61a691defb5f8899c161d2565c98128e3a"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/pos/page-091b9fc32b82ad15.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "1e342ed5f6416f8ba09e649eed521e9e2beb23da03fe0c2315fd00f3c080373b"
+      },
+      {
+        "file": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_buildManifest.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "1817e9c01e6f654f88886cef971a82605f42a0537c513a2e00d04260082e7904"
+      },
+      {
+        "file": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_ssgManifest.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "678f6ce2cb80b1fe72fc67e7412be6e2ab6ada083111b64f7c40d35e3cba5e00"
+      },
+      {
+        "file": ".open-next/.build/durable-objects/queue.js",
+        "ranges": [
+          {
+            "start": 159,
+            "end": 159
+          },
+          {
+            "start": 183,
+            "end": 183
+          },
+          {
+            "start": 235,
+            "end": 235
+          },
+          {
+            "start": 259,
+            "end": 260
+          }
+        ],
+        "before_hash": "bbb894e48d7d60e2b66d98d48778ffb0bec41342a6c1966ac58f3aef20fed032",
+        "after_hash": "d6494bbf733b101183ecea0d69effdc0369c7abeee859a8c8c83c5e56d85fee3"
+      },
+      {
+        "file": ".open-next/cloudflare/init.js",
+        "ranges": [
+          {
+            "start": 50,
+            "end": 50
+          }
+        ],
+        "before_hash": "96ed9fe67bb1b0908a5c054336b8862ba9bc0a1a0ebdb547e7f1a2d51f5cff64",
+        "after_hash": "f8ac7ff2b2b75623862e7ceae37e728becd105247f35b6b1236ee50fb5c1ce4f"
+      },
+      {
+        "file": "src/app/api/auth/login/route.ts",
+        "ranges": [
+          {
+            "start": 7,
+            "end": 33
+          },
+          {
+            "start": 46,
+            "end": 55
+          },
+          {
+            "start": 62,
+            "end": 62
+          },
+          {
+            "start": 71,
+            "end": 71
+          },
+          {
+            "start": 78,
+            "end": 82
+          }
+        ],
+        "before_hash": "a10b5ae2f254f7ce805a9ecc6c78fda8571d279dbe11003e6e2a9cb7f8fb21cd",
+        "after_hash": "1817a26c6a62ccdc2b246416fbed96d313f64aedeb36d18cace9bd9d3d4ff815"
+      },
+      {
+        "file": "src/app/api/r/[slug]/orders/route.ts",
+        "ranges": [
+          {
+            "start": 108,
+            "end": 117
+          },
+          {
+            "start": 121,
+            "end": 121
+          },
+          {
+            "start": 126,
+            "end": 126
+          },
+          {
+            "start": 130,
+            "end": 130
+          },
+          {
+            "start": 134,
+            "end": 136
+          }
+        ],
+        "before_hash": "bede5ce56d7a9cfde062453bf1a2b63c4b1b96b8694611f5073739e8ecf03a7a",
+        "after_hash": "3d4c19fb00405a3dc69ef6fe594573bb805d3c19e07479c1d999d13a7617400b"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-10-01T06:40:09.010Z",
+    "completed_at": "2026-10-01T06:40:11.585Z",
+    "duration_ms": 2575,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 2575,
+    "peakMemoryBytes": 151572480,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 13,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [
+    {
+      "finding_id": "mimosa-123e24357ad694b36321ef43",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 41,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SSRF 服务端请求伪造",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-01T06:24:37.744Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-123e24357ad694b36321ef43",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 41,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "服务端请求伪造",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-01T06:24:37.745Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-387262cbc553a4cff227777a",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 41,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SSRF 服务端请求伪造",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-01T06:25:06.182Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-9bf14e45a1c9d2a91afa92df",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 6,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SSRF 服务端请求伪造",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-01T06:25:45.909Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-43327503fefae3c01be2a814",
+      "file": "src/middleware.ts",
+      "line": 28,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SSRF 服务端请求伪造",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-01T06:26:23.573Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "d91272d641063720606b8e71a3f8dfc81ee74391e77f291a08258cca4d3cca56",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-43327503fefae3c01be2a814",
+      "file": "src/middleware.ts",
+      "line": 28,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "服务端请求伪造",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-01T06:26:23.573Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "d91272d641063720606b8e71a3f8dfc81ee74391e77f291a08258cca4d3cca56",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-43327503fefae3c01be2a814",
+      "file": "src/middleware.ts",
+      "line": 28,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SSRF 服务端请求伪造",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-01T06:27:21.089Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "d91272d641063720606b8e71a3f8dfc81ee74391e77f291a08258cca4d3cca56",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-43327503fefae3c01be2a814",
+      "file": "src/middleware.ts",
+      "line": 28,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "服务端请求伪造",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-01T06:27:21.089Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "d91272d641063720606b8e71a3f8dfc81ee74391e77f291a08258cca4d3cca56",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-123e24357ad694b36321ef43",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 41,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "服务端请求伪造",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-10-01T06:27:49.945Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "candidate_before_evidence_hash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "post_change_evidence_hash_at_previous_location": "e76ceb32291aa180e28bd08659e68e38047ff6b4cfb7eb134297455a1648193b",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-123e24357ad694b36321ef43",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 41,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "服务端请求伪造",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-10-01T06:27:49.945Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "candidate_before_evidence_hash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "post_change_evidence_hash_at_previous_location": "e76ceb32291aa180e28bd08659e68e38047ff6b4cfb7eb134297455a1648193b",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-387262cbc553a4cff227777a",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 41,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SSRF 服务端请求伪造",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-10-01T06:27:49.945Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa",
+        "candidate_before_evidence_hash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa",
+        "post_change_evidence_hash_at_previous_location": "e76ceb32291aa180e28bd08659e68e38047ff6b4cfb7eb134297455a1648193b",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-387262cbc553a4cff227777a",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 41,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SSRF 服务端请求伪造",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-10-01T06:27:49.945Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa",
+        "candidate_before_evidence_hash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa",
+        "post_change_evidence_hash_at_previous_location": "e76ceb32291aa180e28bd08659e68e38047ff6b4cfb7eb134297455a1648193b",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-9bf14e45a1c9d2a91afa92df",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 6,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SSRF 服务端请求伪造",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-10-01T06:27:49.945Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5",
+        "candidate_before_evidence_hash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5",
+        "post_change_evidence_hash_at_previous_location": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-9bf14e45a1c9d2a91afa92df",
+      "file": "src/app/api/auth/login/route.ts",
+      "line": 6,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SSRF 服务端请求伪造",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-10-01T06:27:49.945Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5",
+        "candidate_before_evidence_hash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5",
+        "post_change_evidence_hash_at_previous_location": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    }
+  ],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00-20261001T064011585Z-17788-940426659190.json",
+    "latest_report": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00.json",
+    "history_summary": ".mimosa/history/run-20261001T064011585Z-17788-940426659190.json"
+  }
+}

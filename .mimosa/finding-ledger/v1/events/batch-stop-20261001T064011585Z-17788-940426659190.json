@@ -1,0 +1,433 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261001T064011585Z-17788-940426659190",
+  "runId": "20261001T064011585Z-17788-940426659190",
+  "runStatus": "inconclusive",
+  "coverage": {
+    "status": "partial",
+    "reasons": [
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_buildManifest.js",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_ssgManifest.js",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/pos/page-091b9fc32b82ad15.js",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-ab87e3e36c16e62b.js",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-9de1fbc1f2d8ced9.js",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-d2b1b86f51917e4c.js",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-35586722e24981ec.js",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-c91a1c184af8857f.js",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-d652fc8be71908c3.js",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_buildManifest.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_ssgManifest.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/pos/page-091b9fc32b82ad15.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-ab87e3e36c16e62b.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-9de1fbc1f2d8ced9.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-d2b1b86f51917e4c.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-35586722e24981ec.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-c91a1c184af8857f.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-d652fc8be71908c3.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      }
+    ]
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "b39160db1218415a2a5e12e932e3ea63fa3c6125",
+  "diffHash": "1561af6038ee9fa2e8f099b5ff1544605c77dce5bfc1e671c6abb31f90890039",
+  "rulesVersion": "unavailable",
+  "sessionHash": "fc2f37becebf38d4c4f24eadcb4f3c9091fd712398fa4c3ae806927b8c3ecdad",
+  "reportRef": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00-20261001T064011585Z-17788-940426659190.json",
+  "events": [
+    {
+      "eventId": "hook-67a6348bfa15a57999b7d3c619020774",
+      "findingId": "mimosa-123e24357ad694b36321ef43",
+      "type": "finding_blocked",
+      "at": "2026-10-01T06:24:37.744Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 41,
+      "endLine": 41,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-abcdbcf82a7d9701ef74569e3dced2bf",
+      "findingId": "mimosa-123e24357ad694b36321ef43",
+      "type": "finding_blocked",
+      "at": "2026-10-01T06:24:37.745Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 41,
+      "endLine": 41,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662"
+      },
+      "sequence": 1
+    },
+    {
+      "eventId": "hook-e2a95a0d7a1b38f006641d527090488f",
+      "findingId": "mimosa-387262cbc553a4cff227777a",
+      "type": "finding_blocked",
+      "at": "2026-10-01T06:25:06.182Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 41,
+      "endLine": 41,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa"
+      },
+      "sequence": 2
+    },
+    {
+      "eventId": "hook-27e8b8c5874b7582472a666483ebff27",
+      "findingId": "mimosa-9bf14e45a1c9d2a91afa92df",
+      "type": "finding_blocked",
+      "at": "2026-10-01T06:25:45.909Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 6,
+      "endLine": 6,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5"
+      },
+      "sequence": 3
+    },
+    {
+      "eventId": "hook-5050d702ce47ae62e4c7dd2bb26f1801",
+      "findingId": "mimosa-43327503fefae3c01be2a814",
+      "type": "finding_blocked",
+      "at": "2026-10-01T06:26:23.573Z",
+      "identity": {
+        "projectRelativeFile": "src/middleware.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "d91272d641063720606b8e71a3f8dfc81ee74391e77f291a08258cca4d3cca56",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 28,
+      "endLine": 28,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "d91272d641063720606b8e71a3f8dfc81ee74391e77f291a08258cca4d3cca56"
+      },
+      "sequence": 4
+    },
+    {
+      "eventId": "hook-fd6307df3c98c3ba0d36ee6ecdfb33f1",
+      "findingId": "mimosa-43327503fefae3c01be2a814",
+      "type": "finding_blocked",
+      "at": "2026-10-01T06:27:21.089Z",
+      "identity": {
+        "projectRelativeFile": "src/middleware.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "d91272d641063720606b8e71a3f8dfc81ee74391e77f291a08258cca4d3cca56",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 28,
+      "endLine": 28,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "d91272d641063720606b8e71a3f8dfc81ee74391e77f291a08258cca4d3cca56"
+      },
+      "sequence": 5
+    },
+    {
+      "eventId": "hook-0369dd9008c46da0084315a316c85ceb",
+      "findingId": "mimosa-123e24357ad694b36321ef43",
+      "type": "static_fix_verified",
+      "at": "2026-10-01T06:27:49.945Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 41,
+      "endLine": 41,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "8c821d03a884d3e73679ac7557e6532633b842f68f3d4423a828ca9fe4744662"
+      },
+      "sequence": 6
+    },
+    {
+      "eventId": "hook-69027ec282845ed585d88bef326147dc",
+      "findingId": "mimosa-387262cbc553a4cff227777a",
+      "type": "static_fix_verified",
+      "at": "2026-10-01T06:27:49.945Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 41,
+      "endLine": 41,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "660ea156e0b8d0b95b3ccce4ee5c3cf5d987af9ede9f30885c339f60202d98fa"
+      },
+      "sequence": 7
+    },
+    {
+      "eventId": "hook-78bc0439643d56194bdae515bc72c571",
+      "findingId": "mimosa-9bf14e45a1c9d2a91afa92df",
+      "type": "static_fix_verified",
+      "at": "2026-10-01T06:27:49.945Z",
+      "identity": {
+        "projectRelativeFile": "src/app/api/auth/login/route.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 6,
+      "endLine": 6,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "6334f836eb3aad5e5163275c02207e00914cde95349cd07cb57534a28d0646b5"
+      },
+      "sequence": 8
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "src/app/api/r/[slug]/orders/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/app/api/auth/login/route.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/cloudflare/init.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_buildManifest.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/assets/_next/static/hfE4aY1WAfbCV08ZuZozF/_ssgManifest.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/assets/_next/static/chunks/app/pos/page-091b9fc32b82ad15.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/assets/_next/static/chunks/app/kitchen/page-ab87e3e36c16e62b.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/assets/_next/static/chunks/app/admin/tables/page-9de1fbc1f2d8ced9.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/assets/_next/static/chunks/app/admin/settings/page-d2b1b86f51917e4c.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/assets/_next/static/chunks/app/admin/reports/page-35586722e24981ec.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-c91a1c184af8857f.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/assets/_next/static/chunks/app/admin/menu/page-d652fc8be71908c3.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": ".open-next/.build/durable-objects/queue.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-10-01T06:40:12.216Z"
+}

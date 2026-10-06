@@ -117,6 +117,23 @@ export async function settlePayment(params: SettleOrderParams): Promise<SettleRe
     }
   }
 
+  // Atomically debit redeemed points (guarded so concurrent redemptions can
+  // never drive the balance negative). If the race loses, skip the redemption.
+  let appliedRedemption = pointsRedeemed;
+  if (normalizedPhone && pointsRedeemed > 0) {
+    const debited = await prisma.customerMember.updateMany({
+      where: {
+        storeId,
+        phone: normalizedPhone,
+        points: { gte: pointsRedeemed },
+      },
+      data: { points: { decrement: pointsRedeemed } },
+    });
+    if (debited.count === 0) {
+      appliedRedemption = 0;
+    }
+  }
+
   // Distribute total discount across unpaid orders
   let remainingDiscount = Math.max(0, Number(discountAmount) || 0);
   const updatedOrders: any[] = [];
@@ -132,31 +149,43 @@ export async function settlePayment(params: SettleOrderParams): Promise<SettleRe
     const newDiscount = (order.discountAmount || 0) + orderDiscount;
     const newNetAmount = Math.max(0, order.totalAmount - newDiscount);
 
-    const updated = await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        paymentMethod,
-        paymentStatus: 'PAID',
-        status: 'COMPLETED',
-        cashReceived: paymentMethod === 'CASH' && isFirst ? cashReceived || null : null,
-        changeAmount: paymentMethod === 'CASH' && isFirst ? Math.max(0, changeAmount || 0) : 0,
-        discountAmount: newDiscount,
-        netAmount: newNetAmount,
-        slipUrl: slipUrl || order.slipUrl,
-        slipRef: slipRef ? `${slipRef}${unpaidOrders.length > 1 ? `_${i + 1}` : ''}` : order.slipRef,
-        slipAmount: unpaidOrders.length === 1 ? (slipAmount || newNetAmount) : newNetAmount,
-        slipVerifiedAt: slipUrl || slipRef ? now : order.slipVerifiedAt,
-        slipVerifiedBy: slipVerifiedBy || order.slipVerifiedBy,
-        slipRawData: slipRawData || order.slipRawData,
-        memberPhone: normalizedPhone || order.memberPhone,
-        customerName: trimmedName || order.customerName,
-        pointsRedeemed: isFirst && pointsRedeemed > 0 ? pointsRedeemed : 0,
-        promoCode: isFirst && promoCode ? promoCode.toUpperCase().trim() : null,
-        paidAt: now,
-        note: note ? (order.note ? `${order.note} | ${note}` : note) : order.note,
-      },
-      include: { table: true, items: true },
-    });
+    // Guarded update: if a concurrent settlement already marked this order
+    // PAID between our read and write, Prisma throws P2025 and we skip it —
+    // the order is never paid twice.
+    let updated: any;
+    try {
+      updated = await prisma.order.update({
+        where: { id: order.id, paymentStatus: { not: 'PAID' } },
+        data: {
+          paymentMethod,
+          paymentStatus: 'PAID',
+          status: 'COMPLETED',
+          cashReceived: paymentMethod === 'CASH' && isFirst ? cashReceived || null : null,
+          changeAmount: paymentMethod === 'CASH' && isFirst ? Math.max(0, changeAmount || 0) : 0,
+          discountAmount: newDiscount,
+          netAmount: newNetAmount,
+          slipUrl: slipUrl || order.slipUrl,
+          slipRef: slipRef ? `${slipRef}${unpaidOrders.length > 1 ? `_${i + 1}` : ''}` : order.slipRef,
+          slipAmount: unpaidOrders.length === 1 ? (slipAmount || newNetAmount) : newNetAmount,
+          slipVerifiedAt: slipUrl || slipRef ? now : order.slipVerifiedAt,
+          slipVerifiedBy: slipVerifiedBy || order.slipVerifiedBy,
+          slipRawData: slipRawData || order.slipRawData,
+          memberPhone: normalizedPhone || order.memberPhone,
+          customerName: trimmedName || order.customerName,
+          pointsRedeemed: isFirst && appliedRedemption > 0 ? appliedRedemption : 0,
+          promoCode: isFirst && promoCode ? promoCode.toUpperCase().trim() : null,
+          paidAt: now,
+          note: note ? (order.note ? `${order.note} | ${note}` : note) : order.note,
+        },
+        include: { table: true, items: true },
+      });
+    } catch (e: any) {
+      if (e?.code === 'P2025') {
+        // Lost the race: another settlement already paid this order.
+        continue;
+      }
+      throw e;
+    }
     updatedOrders.push(updated);
   }
 
@@ -169,23 +198,19 @@ export async function settlePayment(params: SettleOrderParams): Promise<SettleRe
   }
 
   // Settle loyalty member points
+  // (redeemed points were already debited atomically above — here we only
+  // credit earnings via increment, which is race-safe)
   const totalPaidNet = updatedOrders.reduce((sum, o) => sum + (o.netAmount || 0), 0);
   const targetPhone = normalizedPhone || updatedOrders.find((o) => o.memberPhone)?.memberPhone;
   let pointsEarned = 0;
 
   if (targetPhone && store.pointsRate > 0) {
     pointsEarned = Math.floor(totalPaidNet / store.pointsRate);
-    const currentMember = await prisma.customerMember.findUnique({
-      where: { storeId_phone: { storeId, phone: targetPhone } },
-    });
-
-    const currentPoints = currentMember?.points || 0;
-    const newPoints = Math.max(0, currentPoints + pointsEarned - pointsRedeemed);
 
     await prisma.customerMember.upsert({
       where: { storeId_phone: { storeId, phone: targetPhone } },
       update: {
-        points: newPoints,
+        points: { increment: pointsEarned },
         totalSpent: { increment: totalPaidNet },
         visitCount: { increment: 1 },
         ...(trimmedName ? { name: trimmedName } : {}),
@@ -194,7 +219,7 @@ export async function settlePayment(params: SettleOrderParams): Promise<SettleRe
         storeId,
         phone: targetPhone,
         name: trimmedName || updatedOrders[0]?.customerName || 'สมาชิก',
-        points: newPoints,
+        points: pointsEarned,
         totalSpent: totalPaidNet,
         visitCount: 1,
       },

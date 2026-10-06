@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Store, Lock, Mail, ArrowRight, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Store, Lock, Phone, ArrowRight, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +21,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ phone, identifier: phone, email: phone, password }),
       });
 
       let data: any;
@@ -49,8 +49,8 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoLogin = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
+  const handleDemoLogin = (demoPhoneOrEmail: string, demoPass: string) => {
+    setPhone(demoPhoneOrEmail);
     setPassword(demoPass);
   };
 
@@ -79,7 +79,7 @@ export default function LoginPage() {
         <p className="mt-2 text-center text-xs sm:text-sm text-slate-400">
           ยังไม่มีร้านค้า?{' '}
           <Link href="/register" className="font-bold text-orange-400 hover:text-orange-300 underline underline-offset-4">
-            สมัครเปิดร้านใหม่ ทดลองใช้ฟรี
+            สมัครเปิดร้านใหม่ ยืนยันผ่าน SMS ฟรี
           </Link>
         </p>
       </div>
@@ -95,21 +95,24 @@ export default function LoginPage() {
           <form className="space-y-5" onSubmit={handleLogin}>
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                อีเมล (Email)
+                เบอร์โทรศัพท์มือถือ (Phone Number)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                  <Mail className="w-4 h-4" />
+                  <Phone className="w-4 h-4" />
                 </div>
                 <input
-                  type="email"
+                  type="tel"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-slate-500 transition-all"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="เช่น 089-123-4567 หรือ 0812345678"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-slate-500 transition-all font-mono"
                 />
               </div>
+              <p className="mt-1 text-[11px] text-slate-400">
+                สามารถใช้เบอร์โทรศัพท์ที่ลงทะเบียนไว้ หรืออีเมลเดิมได้
+              </p>
             </div>
 
             <div>
@@ -143,7 +146,7 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  <span>เข้าสู่ระบบ</span>
+                  <span>เข้าสู่ระบบด้วยเบอร์มือถือ</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -153,25 +156,25 @@ export default function LoginPage() {
           {/* Quick Demo Access Credentials */}
           <div className="mt-8 pt-6 border-t border-slate-800">
             <span className="text-[11px] font-bold text-slate-400 block mb-3 text-center">
-              🔑 รหัสผ่านทดลองเข้าระบบ (Demo Logins):
+              🔑 ทดลองเข้าระบบด้วยเบอร์โทรตัวอย่าง (Demo Logins):
             </span>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => handleDemoLogin('admin@ordeopos.com', 'adminpassword123')}
+                onClick={() => handleDemoLogin('081-234-5678', 'pos1234')}
                 className="p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-left border border-slate-700/80 hover:border-orange-500/40 transition-all"
               >
                 <span className="text-[11px] font-extrabold text-orange-400 block">👑 Super Admin</span>
-                <span className="text-[10px] text-slate-400 block truncate">admin@ordeopos.com</span>
+                <span className="text-[10px] text-slate-300 font-mono block truncate">📱 081-234-5678</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => handleDemoLogin('owner@lungpa.com', 'password123')}
+                onClick={() => handleDemoLogin('089-123-4567', 'pos1234')}
                 className="p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-left border border-slate-700/80 hover:border-orange-500/40 transition-all"
               >
                 <span className="text-[11px] font-extrabold text-emerald-400 block">👨‍🍳 ร้านลุง-ป้า</span>
-                <span className="text-[10px] text-slate-400 block truncate">owner@lungpa.com</span>
+                <span className="text-[10px] text-slate-300 font-mono block truncate">📱 089-123-4567</span>
               </button>
             </div>
           </div>

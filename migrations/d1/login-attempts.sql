@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS "LoginAttempt" (
+  "key" TEXT NOT NULL PRIMARY KEY,
+  "windowStart" INTEGER NOT NULL,
+  "count" INTEGER NOT NULL
+);
