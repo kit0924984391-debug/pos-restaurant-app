@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pos-restaurant-app",
-  "account_id": "58cb07b411cf7c30586c705887e4b93a",
+  "account_id": "e4e2260dbde349bb06a3897b51dcef1a",
   "main": "./worker-cache-fix.mjs",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": [
@@ -24,7 +24,7 @@
     {
       "binding": "DB",
       "database_name": "pos-restaurant",
-      "database_id": "71395a01-c254-42f8-bdea-5b344bf1d339"
+      "database_id": "b4c64b7c-902d-4116-ba9d-319887b5f433"
     }
   ],
   "durable_objects": {
