@@ -48,10 +48,35 @@ export async function verifySessionToken(token: string): Promise<SessionUser | n
   }
 }
 
-export async function getCurrentUser(): Promise<SessionUser | null> {
+export async function getCurrentUser(request?: Request): Promise<SessionUser | null> {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
+    let token: string | undefined;
+
+    // 1. Try reading from Request if provided
+    if (request) {
+      const cookieHeader = request.headers.get('cookie') || '';
+      const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=([^;]+)`));
+      if (match) {
+        token = match[1];
+      }
+      if (!token) {
+        const authHeader = request.headers.get('authorization') || '';
+        if (authHeader.startsWith('Bearer ')) {
+          token = authHeader.slice(7);
+        }
+      }
+    }
+
+    // 2. Fallback to Next.js cookies()
+    if (!token) {
+      try {
+        const cookieStore = cookies();
+        token = cookieStore.get(COOKIE_NAME)?.value;
+      } catch {
+        // cookies() throws when called outside Next.js request context
+      }
+    }
+
     if (!token) return null;
     return await verifySessionToken(token);
   } catch (err) {
@@ -59,16 +84,16 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   }
 }
 
-export async function requireAuth(): Promise<SessionUser> {
-  const user = await getCurrentUser();
+export async function requireAuth(request?: Request): Promise<SessionUser> {
+  const user = await getCurrentUser(request);
   if (!user) {
     throw new Error('UNAUTHORIZED');
   }
   return user;
 }
 
-export async function requireSuperAdmin(): Promise<SessionUser> {
-  const user = await requireAuth();
+export async function requireSuperAdmin(request?: Request): Promise<SessionUser> {
+  const user = await requireAuth(request);
   if (user.role !== 'SUPER_ADMIN') {
     throw new Error('FORBIDDEN_NOT_SUPER_ADMIN');
   }

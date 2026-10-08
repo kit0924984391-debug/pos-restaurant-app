@@ -11,12 +11,16 @@ import {
   Ban,
   Calendar,
   ExternalLink,
-  Plus,
   Trash2,
-  Edit,
   Loader2,
   Sparkles,
   BarChart3,
+  RotateCcw,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ArrowLeft,
 } from 'lucide-react';
 
 export default function PlatformAdminStoresPage() {
@@ -29,6 +33,18 @@ export default function PlatformAdminStoresPage() {
   const [selectedStore, setSelectedStore] = useState<any>(null);
   const [daysToAdd, setDaysToAdd] = useState(30);
   const [extending, setExtending] = useState(false);
+
+  // Delete Store Modal State (2-step verification + 30-day grace period)
+  const [storeToDelete, setStoreToDelete] = useState<any>(null);
+  const [deleteStep, setDeleteStep] = useState<1 | 2>(1);
+  const [inputStoreName, setInputStoreName] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  // Cancel Delete / Restore State
+  const [restoringStoreId, setRestoringStoreId] = useState<string | null>(null);
 
   const fetchStores = async () => {
     try {
@@ -87,23 +103,102 @@ export default function PlatformAdminStoresPage() {
     }
   };
 
-  const handleDeleteStore = async (store: any) => {
-    if (!confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบร้าน "${store.name}" และข้อมูลทั้งหมดอย่างถาวร?`)) {
-      return;
-    }
+  // Open 2-Step Deletion Modal
+  const handleOpenDeleteModal = (store: any) => {
+    setStoreToDelete(store);
+    setDeleteStep(1);
+    setInputStoreName('');
+    setAdminPassword('');
+    setShowPassword(false);
+    setDeleteError('');
+  };
+
+  const handleCloseDeleteModal = () => {
+    setStoreToDelete(null);
+    setDeleteStep(1);
+    setInputStoreName('');
+    setAdminPassword('');
+    setDeleteError('');
+  };
+
+  // Submit Deletion
+  const handleConfirmDeleteStore = async () => {
+    if (!storeToDelete || !adminPassword) return;
+    setDeleteLoading(true);
+    setDeleteError('');
+
     try {
-      const res = await fetch(`/api/platform-admin/stores/${store.id}`, {
+      const res = await fetch(`/api/platform-admin/stores/${storeToDelete.id}`, {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storeName: inputStoreName.trim(),
+          adminPassword,
+        }),
       });
-      if (res.ok) {
-        fetchStores();
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'เกิดข้อผิดพลาดในการขอลบร้านค้า');
       }
-    } catch (err) {
-      console.error(err);
+
+      handleCloseDeleteModal();
+      fetchStores();
+    } catch (err: any) {
+      setDeleteError(err.message || 'เกิดข้อผิดพลาดในการขอลบร้านค้า');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
-  const getStatusBadge = (status: string, end: string) => {
+  // Cancel Deletion / Restore Store
+  const handleCancelDelete = async (store: any) => {
+    if (!confirm(`คุณต้องการยกเลิกการลบร้าน "${store.name}" และคืนสถานะร้านค้ากลับมาเปิดใช้งานทันทีใช่หรือไม่?`)) {
+      return;
+    }
+
+    try {
+      setRestoringStoreId(store.id);
+      const res = await fetch(`/api/platform-admin/stores/${store.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'CANCEL_DELETE' }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'ไม่สามารถยกเลิกการลบได้');
+      } else {
+        fetchStores();
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+    } finally {
+      setRestoringStoreId(null);
+    }
+  };
+
+  const getStatusBadge = (status: string, end: string, scheduledDeleteAt?: string) => {
+    if (status === 'PENDING_DELETE') {
+      const daysLeft = scheduledDeleteAt
+        ? Math.max(0, Math.ceil((new Date(scheduledDeleteAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+        : 30;
+      return (
+        <div className="space-y-1">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/15 text-rose-400 border border-rose-500/30 animate-pulse">
+            <AlertTriangle className="w-3 h-3 mr-1 text-rose-400 shrink-0" />
+            รอการลบ (เหลืออีก {daysLeft} วัน)
+          </span>
+          {scheduledDeleteAt && (
+            <span className="text-[10px] text-slate-400 block font-mono">
+              ครบกำหนด: {new Date(scheduledDeleteAt).toLocaleDateString('th-TH')}
+            </span>
+          )}
+        </div>
+      );
+    }
+
     const isExpired = new Date(end) < new Date();
 
     if (status === 'SUSPENDED') {
@@ -172,20 +267,23 @@ export default function PlatformAdminStoresPage() {
         </form>
 
         <div className="flex items-center space-x-2 overflow-x-auto w-full md:w-auto">
-          {['ALL', 'ACTIVE', 'TRIAL', 'SUSPENDED'].map((st) => (
+          {[
+            { id: 'ALL', label: 'ทั้งหมด' },
+            { id: 'ACTIVE', label: 'เปิดใช้งาน' },
+            { id: 'TRIAL', label: 'ทดลองใช้' },
+            { id: 'SUSPENDED', label: 'ถูกระงับ' },
+            { id: 'PENDING_DELETE', label: 'รอการลบ (30 วัน)' },
+          ].map((item) => (
             <button
-              key={st}
-              onClick={() => setStatusFilter(st)}
+              key={item.id}
+              onClick={() => setStatusFilter(item.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                statusFilter === st
-                  ? 'bg-slate-700 text-white border border-slate-600'
+                statusFilter === item.id
+                  ? 'bg-slate-700 text-white border border-slate-600 shadow-sm'
                   : 'bg-slate-800/50 text-slate-400 hover:text-white'
               }`}
             >
-              {st === 'ALL' && 'ทั้งหมด'}
-              {st === 'ACTIVE' && 'เปิดใช้งาน'}
-              {st === 'TRIAL' && 'ทดลองใช้'}
-              {st === 'SUSPENDED' && 'ถูกระงับ'}
+              {item.label}
             </button>
           ))}
         </div>
@@ -221,7 +319,14 @@ export default function PlatformAdminStoresPage() {
                   const isExpired = endDate < new Date();
 
                   return (
-                    <tr key={s.id} className="hover:bg-slate-800/30 transition-colors">
+                    <tr
+                      key={s.id}
+                      className={`transition-colors ${
+                        s.status === 'PENDING_DELETE'
+                          ? 'bg-rose-950/20 hover:bg-rose-950/30'
+                          : 'hover:bg-slate-800/30'
+                      }`}
+                    >
                       <td className="py-4 px-4">
                         <div className="font-extrabold text-white text-sm">{s.name}</div>
                         <div className="text-[11px] text-orange-400 font-mono mt-0.5">
@@ -236,7 +341,7 @@ export default function PlatformAdminStoresPage() {
                       </td>
 
                       <td className="py-4 px-4">
-                        {getStatusBadge(s.status, s.subscriptionEnd)}
+                        {getStatusBadge(s.status, s.subscriptionEnd, s.scheduledDeleteAt)}
                       </td>
 
                       <td className="py-4 px-4">
@@ -259,63 +364,84 @@ export default function PlatformAdminStoresPage() {
                       </td>
 
                       <td className="py-4 px-4 text-right space-x-1.5 whitespace-nowrap">
-                        {/* Open Store POS link */}
-                        <Link
-                          href={`/r/${s.slug}/pos`}
-                          target="_blank"
-                          className="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] transition-all"
-                          title="เปิดหน้าร้าน POS"
-                        >
-                          <span>เข้าหน้าร้าน</span>
-                          <ExternalLink className="w-3 h-3 ml-1 text-orange-400" />
-                        </Link>
-
-                        {/* Open Store Reports link */}
-                        <Link
-                          href={`/r/${s.slug}/admin/reports`}
-                          target="_blank"
-                          className="inline-flex items-center px-2 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 font-bold text-[11px] border border-indigo-500/20 transition-all"
-                          title="ดูรายงานยอดขายของร้านนี้"
-                        >
-                          <BarChart3 className="w-3 h-3 mr-1" />
-                          <span>รายงาน</span>
-                        </Link>
-
-                        {/* Extend Days Button */}
-                        <button
-                          onClick={() => setSelectedStore(s)}
-                          className="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-bold text-[11px] border border-emerald-500/20 transition-all"
-                        >
-                          <Calendar className="w-3 h-3 mr-1" />
-                          เพิ่มวัน
-                        </button>
-
-                        {/* Toggle Suspend */}
-                        {s.status === 'SUSPENDED' ? (
-                          <button
-                            onClick={() => handleChangeStatus(s.id, 'ACTIVE')}
-                            className="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-bold text-[11px] border border-blue-500/20 transition-all"
-                          >
-                            เปิดใช้งาน
-                          </button>
+                        {s.status === 'PENDING_DELETE' ? (
+                          <>
+                            {/* Cancel Delete / Restore button */}
+                            <button
+                              onClick={() => handleCancelDelete(s)}
+                              disabled={restoringStoreId === s.id}
+                              className="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 font-bold text-[11px] border border-emerald-500/30 transition-all shadow-sm disabled:opacity-50"
+                              title="กดยกเลิกการลบ และคืนค่าร้านค้ากลับมาเปิดใช้งานทันที"
+                            >
+                              {restoringStoreId === s.id ? (
+                                <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                              ) : (
+                                <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                              )}
+                              <span>ยกเลิกการลบ (คืนค่าร้าน)</span>
+                            </button>
+                          </>
                         ) : (
-                          <button
-                            onClick={() => handleChangeStatus(s.id, 'SUSPENDED')}
-                            className="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-[11px] border border-amber-500/20 transition-all"
-                            title="ระงับร้านค้าชั่วคราว"
-                          >
-                            ระงับ
-                          </button>
-                        )}
+                          <>
+                            {/* Open Store POS link */}
+                            <Link
+                              href={`/r/${s.slug}/pos`}
+                              target="_blank"
+                              className="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] transition-all"
+                              title="เปิดหน้าร้าน POS"
+                            >
+                              <span>เข้าหน้าร้าน</span>
+                              <ExternalLink className="w-3 h-3 ml-1 text-orange-400" />
+                            </Link>
 
-                        {/* Delete store */}
-                        <button
-                          onClick={() => handleDeleteStore(s)}
-                          className="inline-flex items-center p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all"
-                          title="ลบร้านค้าถาวร"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                            {/* Open Store Reports link */}
+                            <Link
+                              href={`/r/${s.slug}/admin/reports`}
+                              target="_blank"
+                              className="inline-flex items-center px-2 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 font-bold text-[11px] border border-indigo-500/20 transition-all"
+                              title="ดูรายงานยอดขายของร้านนี้"
+                            >
+                              <BarChart3 className="w-3 h-3 mr-1" />
+                              <span>รายงาน</span>
+                            </Link>
+
+                            {/* Extend Days Button */}
+                            <button
+                              onClick={() => setSelectedStore(s)}
+                              className="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-bold text-[11px] border border-emerald-500/20 transition-all"
+                            >
+                              <Calendar className="w-3 h-3 mr-1" />
+                              เพิ่มวัน
+                            </button>
+
+                            {/* Toggle Suspend */}
+                            {s.status === 'SUSPENDED' ? (
+                              <button
+                                onClick={() => handleChangeStatus(s.id, 'ACTIVE')}
+                                className="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-bold text-[11px] border border-blue-500/20 transition-all"
+                              >
+                                เปิดใช้งาน
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleChangeStatus(s.id, 'SUSPENDED')}
+                                className="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-[11px] border border-amber-500/20 transition-all"
+                                title="ระงับร้านค้าชั่วคราว"
+                              >
+                                ระงับ
+                              </button>
+                            )}
+
+                            {/* Delete store button */}
+                            <button
+                              onClick={() => handleOpenDeleteModal(s)}
+                              className="inline-flex items-center p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all"
+                              title="ลบบัญชีร้านค้า (กดยืนยัน 2 ขั้นตอน + รหัสผ่าน Super Admin + มีเวลายกเลิก 30 วัน)"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   );
@@ -388,6 +514,196 @@ export default function PlatformAdminStoresPage() {
                 )}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2-Step Safety Modal: Delete Store with 30-day Grace Period */}
+      {storeToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-3xl p-6 sm:p-7 max-w-lg w-full border border-rose-500/30 shadow-2xl space-y-5 relative animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-start space-x-3.5 border-b border-slate-800 pb-4">
+              <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0 shadow-inner">
+                {deleteStep === 1 ? <AlertTriangle className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base sm:text-lg font-black text-white">
+                    {deleteStep === 1 ? 'ยืนยันการลบบัญชีร้านค้า' : 'ยืนยันสิทธิ์ด้วยรหัสผ่านสูงสุด'}
+                  </h3>
+                  <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-slate-800 text-rose-400 border border-rose-500/30">
+                    ขั้นตอน {deleteStep} จาก 2
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {deleteStep === 1
+                    ? 'ขั้นตอนที่ 1: ตรวจสอบและพิมพ์ชื่อร้านเพื่อยืนยัน'
+                    : 'ขั้นตอนที่ 2: กรอกรหัสผ่าน Super Admin เพื่ออนุมัติคำขอลบ'}
+                </p>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {deleteError && (
+              <div className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-start space-x-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            {/* 30-Day Policy Notice */}
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-xs space-y-1">
+              <div className="font-extrabold flex items-center space-x-1.5">
+                <Clock className="w-3.5 h-3.5 text-amber-400" />
+                <span>มีระยะเวลาผ่อนผัน 30 วัน เพื่อกดยกเลิก</span>
+              </div>
+              <p className="text-[11px] text-amber-300/80 leading-relaxed">
+                เมื่อยืนยัน ระบบจะเปลี่ยนสถานะร้านเป็น <strong>&quot;รอการลบ&quot;</strong> ทันที โดยข้อมูลทั้งหมดจะยังไม่ถูกทำลาย
+                ผู้ดูแลระบบสามารถเข้ามากด <strong>&quot;ยกเลิกการลบ (คืนค่าร้าน)&quot;</strong> ได้ตลอดเวลาภายใน 30 วัน
+              </p>
+            </div>
+
+            {/* Step 1 Content */}
+            {deleteStep === 1 && (
+              <div className="space-y-4">
+                {/* Store Summary Card */}
+                <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400 font-bold">ร้านที่จะขอลบ:</span>
+                    <span className="text-xs font-mono text-orange-400 font-bold">/r/{storeToDelete.slug}</span>
+                  </div>
+                  <div className="text-sm font-black text-white">{storeToDelete.name}</div>
+                  <div className="text-[11px] text-slate-400 pt-1 border-t border-slate-700/50 flex space-x-3">
+                    <span>🪑 {storeToDelete._count?.tables || 0} โต๊ะ</span>
+                    <span>🍲 {storeToDelete._count?.menuItems || 0} เมนู</span>
+                    <span>🧾 {storeToDelete._count?.orders || 0} บิล</span>
+                  </div>
+                </div>
+
+                {/* Name Match Input */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-300">
+                    พิมพ์ชื่อร้าน <span className="font-mono text-amber-400 font-extrabold px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 select-all">{storeToDelete.name}</span> ให้ตรงกันเพื่อยืนยัน:
+                  </label>
+                  <input
+                    type="text"
+                    autoFocus
+                    value={inputStoreName}
+                    onChange={(e) => setInputStoreName(e.target.value)}
+                    placeholder="พิมพ์ชื่อร้านที่นี่..."
+                    className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500 placeholder-slate-500"
+                  />
+                  <div className="flex items-center justify-between text-[11px]">
+                    {inputStoreName.trim() === storeToDelete.name.trim() ? (
+                      <span className="text-emerald-400 font-bold flex items-center space-x-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>ชื่อร้านถูกต้องตรงกันแล้ว</span>
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">
+                        {inputStoreName ? 'ชื่อร้านยังไม่ตรงกันทุกตัวอักษร' : 'กรุณากรอกชื่อร้านเพื่อปลดล็อกปุ่มถัดไป'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Modal Footer Step 1 */}
+                <div className="flex items-center space-x-3 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={handleCloseDeleteModal}
+                    className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    type="button"
+                    disabled={inputStoreName.trim() !== storeToDelete.name.trim()}
+                    onClick={() => {
+                      setDeleteError('');
+                      setDeleteStep(2);
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold transition-all flex items-center justify-center space-x-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-rose-600/20"
+                  >
+                    <span>ถัดไป (ขั้นตอนที่ 2)</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2 Content */}
+            {deleteStep === 2 && (
+              <div className="space-y-4">
+                <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+                  <div className="font-extrabold text-sm text-white mb-1">
+                    ขั้นตอนสุดท้าย: ยืนยันคำขอลบร้าน &quot;{storeToDelete.name}&quot;
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    กรุณากรอกรหัสผ่านบัญชี Super Admin เพื่อตรวจสอบสิทธิ์ความปลอดภัยสูงสุด
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-300">
+                    รหัสผ่านสูงสุด (Super Admin Password):
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      autoFocus
+                      required
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                      placeholder="กรอกรหัสผ่าน Super Admin..."
+                      className="w-full px-4 py-2.5 pr-10 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500 placeholder-slate-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Modal Footer Step 2 */}
+                <div className="flex items-center space-x-3 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    disabled={deleteLoading}
+                    onClick={() => {
+                      setDeleteError('');
+                      setDeleteStep(1);
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all flex items-center justify-center space-x-1"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>ย้อนกลับ</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!adminPassword || deleteLoading}
+                    onClick={handleConfirmDeleteStore}
+                    className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold transition-all flex items-center justify-center space-x-2 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-rose-600/25"
+                  >
+                    {deleteLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>กำลังตรวจสอบ...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>ยืนยันเริ่มการลบ (รอ 30 วัน)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

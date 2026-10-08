@@ -105,6 +105,12 @@ export async function POST(request: Request) {
           { status: 403 }
         );
       }
+      if (user.store.status === 'PENDING_DELETE') {
+        return NextResponse.json(
+          { error: 'ร้านค้านี้อยู่ในกระบวนการรอการลบ (มีระยะเวลาผ่อนผัน 30 วัน) กรุณาติดต่อผู้ดูแลระบบหากต้องการกดยกเลิกการลบ' },
+          { status: 403 }
+        );
+      }
     }
 
     const token = await createSessionToken({

@@ -33,11 +33,16 @@ export async function GET(
         slipAutoCheckout: true,
         slipProvider: true,
         enableAiUpsell: true,
+        status: true,
       },
     });
 
     if (!store) {
       return NextResponse.json({ error: 'ไม่พบร้านค้า' }, { status: 404 });
+    }
+
+    if (store.status === 'PENDING_DELETE') {
+      return NextResponse.json({ error: 'ร้านค้านี้อยู่ในกระบวนการรอการลบชั่วคราว' }, { status: 403 });
     }
 
     let parsedServiceItems = DEFAULT_SERVICE_CALL_ITEMS;
