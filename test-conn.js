@@ -17,7 +17,7 @@ async function testAll() {
       port: isPooler ? 6543 : 5432,
       database: 'postgres',
       user,
-      password: '11072526#Kit',
+      password: process.env.SUPABASE_DB_PASSWORD || '',
       ssl: { rejectUnauthorized: false },
       connectionTimeoutMillis: 5000,
     });

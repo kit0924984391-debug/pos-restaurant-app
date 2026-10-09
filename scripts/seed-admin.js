@@ -2,16 +2,25 @@ const { Client } = require('pg');
 const bcrypt = require('bcryptjs');
 
 async function seedAdmin() {
+  const connectionString = process.env.SEED_DB_URL || process.env.DIRECT_URL || process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.error('ต้องตั้งค่า SEED_DB_URL (หรือ DATABASE_URL) ก่อนรันสคริปต์นี้');
+    process.exit(1);
+  }
   const client = new Client({
-    connectionString: 'postgresql://postgres.koutohveoioovtlylphm:11072526%23Kit@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres',
-    ssl: { rejectUnauthorized: false }
+    connectionString,
+    ssl: { rejectUnauthorized: true }
   });
 
   await client.connect();
   console.log('Connected to database.');
 
-  const adminEmail = 'admin@ordeopos.com';
-  const adminPassword = 'adminpassword123';
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@ordeopos.com';
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!adminPassword) {
+    console.error('ต้องตั้งค่า SEED_ADMIN_PASSWORD (ไม่เก็บรหัสจริงไว้ในโค้ด) ก่อนรันสคริปต์นี้');
+    process.exit(1);
+  }
   const hash = await bcrypt.hash(adminPassword, 10);
 
   const existing = await client.query(
