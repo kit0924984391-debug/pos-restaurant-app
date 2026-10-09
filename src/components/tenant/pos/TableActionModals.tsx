@@ -29,6 +29,7 @@ export default function TableActionModals({
 
   // Move table state
   const [targetTableId, setTargetTableId] = useState<number | ''>('');
+  const [isMovingTable, setIsMovingTable] = useState(false);
 
   // Add table state
   const [newTableId, setNewTableId] = useState('');
@@ -36,7 +37,8 @@ export default function TableActionModals({
   const [isCreatingTable, setIsCreatingTable] = useState(false);
 
   const handleMoveTable = async () => {
-    if (!selectedTable || !targetTableId) return;
+    if (isMovingTable || !selectedTable || !targetTableId) return;
+    setIsMovingTable(true);
     const targetTableNum = targetTableId;
     const sourceTableName = selectedTable.name;
 
@@ -66,6 +68,8 @@ export default function TableActionModals({
       console.error(err);
       showError('เกิดข้อผิดพลาด', 'ไม่สามารถย้ายโต๊ะได้');
       onSuccess();
+    } finally {
+      setIsMovingTable(false);
     }
   };
 
@@ -135,12 +139,12 @@ export default function TableActionModals({
               </button>
               <button
                 type="button"
-                disabled={!targetTableId}
+                disabled={!targetTableId || isMovingTable}
                 onClick={handleMoveTable}
                 data-sound="success"
                 className="flex-1 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white text-xs font-extrabold shadow-sm transition-all duration-75 active:scale-90 active:translate-y-0.5 disabled:opacity-50 cursor-pointer select-none ring-0 active:ring-2 active:ring-orange-300"
               >
-                ยืนยันย้ายโต๊ะ
+                {isMovingTable ? 'กำลังย้าย...' : 'ยืนยันย้ายโต๊ะ'}
               </button>
             </div>
           </div>

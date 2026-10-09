@@ -88,7 +88,7 @@ export async function POST(
       },
     });
 
-    return NextResponse.json({ success: true, reward });
+    return NextResponse.json({ success: true, reward }, { status: 201 });
   } catch (error: any) {
     console.error('Error creating reward:', error);
     return NextResponse.json({ error: 'Failed to create reward' }, { status: 500 });
@@ -200,3 +200,5 @@ export async function DELETE(
     return NextResponse.json({ error: 'Failed to delete reward' }, { status: 500 });
   }
 }
+
+export const PATCH = PUT;

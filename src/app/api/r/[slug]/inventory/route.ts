@@ -104,7 +104,7 @@ export async function POST(
       });
     }
 
-    return NextResponse.json({ success: true, ingredient: newIng });
+    return NextResponse.json({ success: true, ingredient: newIng }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Error processing inventory' },
@@ -202,3 +202,6 @@ export async function DELETE(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export const PATCH = PUT;
+

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
@@ -81,6 +81,13 @@ export default function CustomerOrderingView({
   const [cart, setCart] = useState<any[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  // Idempotency id for the current submission: kept across retries of the
+  // same cart, cleared whenever the cart changes (or after success) so a new
+  // submission always gets a fresh id.
+  const orderRequestIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    orderRequestIdRef.current = null;
+  }, [cart]);
   const [customerName, setCustomerName] = useState('');
   const [clientUuid] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -124,6 +131,7 @@ export default function CustomerOrderingView({
 
   // Send Service Call notification to cashier
   const handleSendServiceCall = async (requestType: string, note?: string) => {
+    if (isCallingService) return;
     setIsCallingService(true);
     try {
       const res = await fetch(`/api/r/${slug}/service-call`, {
@@ -710,6 +718,14 @@ export default function CustomerOrderingView({
     if (cart.length === 0) return;
     setIsSubmittingOrder(true);
     try {
+      // Reuse the same request id when retrying this exact cart so the server
+      // replays the stored response instead of creating a duplicate order.
+      if (!orderRequestIdRef.current) {
+        orderRequestIdRef.current =
+          typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : `req-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      }
       const res = await fetch(`/api/r/${slug}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -717,10 +733,12 @@ export default function CustomerOrderingView({
           tableId,
           orderType: 'DINE_IN',
           items: cart,
+          clientRequestId: orderRequestIdRef.current,
         }),
       });
 
       if (res.ok) {
+        orderRequestIdRef.current = null;
         showSuccess('ส่งรายการอาหารเข้าครัวแล้ว! 🍳', `โต๊ะ ${tableId} • ส่งรายการเรียบร้อย`);
         setCart([]);
         // Clear shared table cart on server

@@ -46,12 +46,44 @@ export async function GET(
 
     // List all members for store admin (Bug #7: Protected to prevent customer PII leakage)
     try {
-      await requireStoreAccess(params.slug);
+      await requireStoreAccess(params.slug, request);
     } catch {
       return NextResponse.json(
         { error: 'Unauthorized: เฉพาะเจ้าของร้านหรือพนักงานเท่านั้นที่สามารถดูรายชื่อสมาชิกทั้งหมดได้' },
         { status: 401 }
       );
+    }
+
+    const pageParam = searchParams.get('page');
+    const limitParam = searchParams.get('limit');
+
+    if (pageParam !== null) {
+      const page = Math.max(1, parseInt(pageParam, 10) || 1);
+      const limit = Math.min(100, Math.max(1, parseInt(limitParam || '50', 10) || 50));
+      const skip = (page - 1) * limit;
+
+      const [members, total] = await Promise.all([
+        prisma.customerMember.findMany({
+          where: { storeId: store.id },
+          orderBy: { points: 'desc' },
+          skip,
+          take: limit,
+        }),
+        prisma.customerMember.count({ where: { storeId: store.id } }),
+      ]);
+
+      return NextResponse.json({
+        members,
+        pointsRate: store.pointsRate,
+        pointValue: store.pointValue,
+        rewards,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      });
     }
 
     const members = await prisma.customerMember.findMany({
@@ -83,7 +115,7 @@ export async function POST(
     // Update store points rate settings
     if (action === 'UPDATE_SETTINGS' && (pointsRate !== undefined || pointValue !== undefined)) {
       try {
-        await requireStoreAccess(params.slug);
+        await requireStoreAccess(params.slug, request);
       } catch {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
@@ -105,7 +137,7 @@ export async function POST(
     // Create new member manually from Admin
     if (action === 'CREATE_MEMBER') {
       try {
-        await requireStoreAccess(params.slug);
+        await requireStoreAccess(params.slug, request);
       } catch {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
@@ -120,7 +152,10 @@ export async function POST(
       });
 
       if (existing) {
-        return NextResponse.json({ error: 'เบอร์โทรศัพท์นี้มีในระบบแล้ว' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'เบอร์โทรศัพท์นี้มีในระบบแล้ว', code: 'phone_taken' },
+          { status: 409 }
+        );
       }
 
       const member = await prisma.customerMember.create({
@@ -132,13 +167,13 @@ export async function POST(
         },
       });
 
-      return NextResponse.json({ success: true, member });
+      return NextResponse.json({ success: true, member }, { status: 201 });
     }
 
     // Adjust points manually
     if (action === 'ADJUST_POINTS' && pointsDelta !== undefined) {
       try {
-        await requireStoreAccess(params.slug);
+        await requireStoreAccess(params.slug, request);
       } catch {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
@@ -221,7 +256,7 @@ export async function PUT(
 ) {
   try {
     try {
-      await requireStoreAccess(params.slug);
+      await requireStoreAccess(params.slug, request);
     } catch {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -252,7 +287,10 @@ export async function PUT(
         },
       });
       if (conflict) {
-        return NextResponse.json({ error: 'เบอร์โทรศัพท์นี้ถูกใช้งานโดยสมาชิกท่านอื่นแล้ว' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'เบอร์โทรศัพท์นี้ถูกใช้งานโดยสมาชิกท่านอื่นแล้ว', code: 'phone_taken' },
+          { status: 409 }
+        );
       }
     }
 
@@ -278,7 +316,7 @@ export async function DELETE(
 ) {
   try {
     try {
-      await requireStoreAccess(params.slug);
+      await requireStoreAccess(params.slug, request);
     } catch {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -317,3 +355,6 @@ export async function DELETE(
     return NextResponse.json({ error: error.message || 'Failed to delete member' }, { status: 500 });
   }
 }
+
+export const PATCH = PUT;
+

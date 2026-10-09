@@ -7,7 +7,7 @@ import { GET as getPublicSettings } from '@/app/api/r/[slug]/settings/public/rou
 
 describe('Store Deletion Safety & 30-Day Cancellation Flow', () => {
   const adminEmail = 'test-super-admin@ordeopos.com';
-  const adminPassword = 'SuperSecretMasterPassword123#';
+  const adminPassword = crypto.randomUUID();
   let adminId: string;
   let adminToken: string;
 
@@ -16,10 +16,24 @@ describe('Store Deletion Safety & 30-Day Cancellation Flow', () => {
   let testStoreId: string;
 
   const ownerPhone = '0898887766';
-  const ownerPassword = 'ownerpassword123';
+  const ownerPassword = crypto.randomUUID();
   let ownerId: string;
 
   beforeAll(async () => {
+    // 0. Pre-cleanup any lingering records from previous test runs
+    await prisma.user.deleteMany({
+      where: {
+        OR: [
+          { email: adminEmail },
+          { email: 'safety-owner@test.com' },
+          { phone: ownerPhone },
+        ],
+      },
+    });
+    await prisma.store.deleteMany({
+      where: { slug: testStoreSlug },
+    });
+
     // 1. Create a test Super Admin
     const adminHash = await hashPassword(adminPassword);
     const admin = await prisma.user.create({
@@ -68,12 +82,17 @@ describe('Store Deletion Safety & 30-Day Cancellation Flow', () => {
 
   afterAll(async () => {
     // Cleanup
-    await prisma.user.deleteMany({
-      where: { id: { in: [adminId, ownerId] } },
-    });
-    await prisma.store.deleteMany({
-      where: { id: testStoreId },
-    });
+    const userIds = [adminId, ownerId].filter(Boolean) as string[];
+    if (userIds.length > 0) {
+      await prisma.user.deleteMany({
+        where: { id: { in: userIds } },
+      });
+    }
+    if (testStoreId) {
+      await prisma.store.deleteMany({
+        where: { id: testStoreId },
+      });
+    }
   });
 
   it('Step 1: Rejects deletion if Super Admin password is missing or incorrect', async () => {
@@ -85,7 +104,7 @@ describe('Store Deletion Safety & 30-Day Cancellation Flow', () => {
       },
       body: JSON.stringify({
         storeName: testStoreName,
-        adminPassword: 'WrongPassword123',
+        adminPassword: adminPassword + '-wrong',
       }),
     });
 

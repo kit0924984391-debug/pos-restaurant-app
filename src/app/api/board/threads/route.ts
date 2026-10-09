@@ -221,17 +221,20 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      thread: {
-        id: thread.id,
-        title: thread.title,
-        body: thread.body,
-        category: thread.category,
-        featureStatus: thread.featureStatus,
-        createdAt: thread.createdAt,
+    return NextResponse.json(
+      {
+        success: true,
+        thread: {
+          id: thread.id,
+          title: thread.title,
+          body: thread.body,
+          category: thread.category,
+          featureStatus: thread.featureStatus,
+          createdAt: thread.createdAt,
+        },
       },
-    });
+      { status: 201 }
+    );
   } catch (error: any) {
     console.error('Error creating board thread:', error);
     return NextResponse.json(

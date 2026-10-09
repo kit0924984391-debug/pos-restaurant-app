@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       success: true,
       message: 'ส่งรายงานเรียบร้อยแล้ว ทีมงานจะตรวจสอบอย่างเร็วที่สุด',
       reportId: report.id,
-    });
+    }, { status: 201 });
   } catch (error: any) {
     console.error('Error submitting report:', error);
     return NextResponse.json(

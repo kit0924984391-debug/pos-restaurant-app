@@ -52,8 +52,11 @@ export async function POST(request: Request) {
     const failedCount = await getFailedCount(accountKey, nowMs);
     if (failedCount >= MAX_FAILURES_PER_ACCOUNT) {
       return NextResponse.json(
-        { error: 'ล็อกอินไม่สำเร็จหลายครั้ง บัญชีนี้ถูกระงับชั่วคราว 10 นาที' },
-        { status: 429 }
+        {
+          error: 'ล็อกอินไม่สำเร็จหลายครั้ง บัญชีนี้ถูกระงับชั่วคราว 10 นาที',
+          code: 'rate_limited',
+        },
+        { status: 429, headers: { 'Retry-After': '600' } }
       );
     }
 

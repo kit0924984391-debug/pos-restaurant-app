@@ -5,7 +5,7 @@ import { hashPassword, verifyPassword } from '@/lib/auth';
 
 describe('Mobile Registration & SMS OTP End-to-End Flow', () => {
   const testPhone = '0899998877';
-  const testPassword = 'testpassword123';
+  const testPassword = crypto.randomUUID();
   const testStoreName = 'ร้านทดสอบระบบมือถือ';
   const testUserName = 'คุณทดสอบ สมัครผ่านมือถือ';
 
@@ -132,7 +132,7 @@ describe('Mobile Registration & SMS OTP End-to-End Flow', () => {
 
 describe('Next.js API Route Handlers Integration (/api/auth)', () => {
   const apiPhone = '0871112233';
-  const apiPassword = 'password888';
+  const apiPassword = crypto.randomUUID();
   let receivedOtp = '';
   let receivedRef = '';
 
@@ -212,7 +212,8 @@ describe('Next.js API Route Handlers Integration (/api/auth)', () => {
 
     const res = await register(req);
     const data = await res.json();
-    expect(res.status).toBe(400);
+    // 409 Conflict per the API conventions (duplicate resource).
+    expect(res.status).toBe(409);
     expect(data.error).toContain('ถูกใช้งาน');
   });
 

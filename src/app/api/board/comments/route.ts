@@ -92,7 +92,7 @@ export async function POST(request: Request) {
         reactionsCount: 0,
         hasReacted: false,
       },
-    });
+    }, { status: 201 });
   } catch (error: any) {
     console.error('Error creating comment:', error);
     return NextResponse.json(

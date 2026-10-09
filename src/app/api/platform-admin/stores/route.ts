@@ -36,6 +36,8 @@ export async function GET(request: Request) {
         },
       },
       orderBy: { createdAt: 'desc' },
+      // Bounded list: tenant count grows with the business.
+      take: 500,
     });
 
     return NextResponse.json({ stores });

@@ -23,7 +23,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await requireSuperAdmin();
+    await requireSuperAdmin(request);
     const body = await request.json();
     const { name, price, durationDays, maxTables, description, sortOrder } = body;
 
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, plan });
+    return NextResponse.json({ success: true, plan }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    await requireSuperAdmin();
+    await requireSuperAdmin(request);
     const body = await request.json();
     const { id, name, price, durationDays, maxTables, description, isActive, sortOrder } = body;
 
@@ -79,3 +79,6 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export const PATCH = PUT;
+

@@ -70,8 +70,8 @@ export async function POST(request: Request) {
     const priorAttempts = await registerAttemptsFor(signupKey, signupNow);
     if (priorAttempts >= MAX_REGISTER_PER_PHONE) {
       return NextResponse.json(
-        { error: 'เบอร์โทรนี้ลองสมัครหลายครั้งเกินไป กรุณารอ 24 ชั่วโมงแล้วลองใหม่' },
-        { status: 429 }
+        { error: 'เบอร์โทรนี้ลองสมัครหลายครั้งเกินไป กรุณารอ 24 ชั่วโมงแล้วลองใหม่', code: 'rate_limited' },
+        { status: 429, headers: { 'Retry-After': '86400' } }
       );
     }
     await recordRegisterAttempt(signupKey, signupNow);
@@ -88,8 +88,8 @@ export async function POST(request: Request) {
 
     if (existingPhoneUser) {
       return NextResponse.json(
-        { error: 'เบอร์โทรศัพท์นี้ถูกใช้งานในระบบแล้ว กรุณาเข้าสู่ระบบด้วยเบอร์นี้หรือใช้เบอร์อื่น' },
-        { status: 400 }
+        { error: 'เบอร์โทรศัพท์นี้ถูกใช้งานในระบบแล้ว กรุณาเข้าสู่ระบบด้วยเบอร์นี้หรือใช้เบอร์อื่น', code: 'phone_taken' },
+        { status: 409 }
       );
     }
 
@@ -113,8 +113,8 @@ export async function POST(request: Request) {
 
     if (existingEmailUser) {
       return NextResponse.json(
-        { error: 'อีเมลนี้ถูกใช้งานในระบบแล้ว กรุณาใช้อีเมลอื่น' },
-        { status: 400 }
+        { error: 'อีเมลนี้ถูกใช้งานในระบบแล้ว กรุณาใช้อีเมลอื่น', code: 'email_taken' },
+        { status: 409 }
       );
     }
 

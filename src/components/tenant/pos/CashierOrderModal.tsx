@@ -50,6 +50,7 @@ export default function CashierOrderModal({
   const [dishQuantity, setDishQuantity] = useState(1);
   const [searchMenu, setSearchMenu] = useState('');
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const allMenuItems = useMemo(() => {
     const list: any[] = [];
@@ -139,9 +140,10 @@ export default function CashierOrderModal({
   };
 
   const handleSubmitCashierOrder = async () => {
-    if (cashierCart.length === 0) return;
+    if (isSubmitting || cashierCart.length === 0) return;
     const isDelivery = ['LINEMAN', 'GRAB', 'SHOPEE_FOOD', 'ROBINHOOD'].includes(orderChannel);
     if (!isDelivery && !selectedTable) return;
+    setIsSubmitting(true);
 
     // Snapshot payload
     const cartSnapshot = [...cashierCart];
@@ -150,6 +152,7 @@ export default function CashierOrderModal({
     const orderIdSnapshot = deliveryOrderId;
     const rNameSnapshot = riderName;
     const rPhoneSnapshot = riderPhone;
+    const cashierIdemKey = `cashier_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
     // 1. Immediate tactile sound & toast (0ms)
     if (isDelivery) {
@@ -172,12 +175,16 @@ export default function CashierOrderModal({
     setCashierCart([]);
     onOrderSuccess();
 
-    // 3. Background network dispatch
+    // 3. Background network dispatch with Idempotency-Key
     try {
       const res = await fetch(`/api/r/${slug}/orders`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': cashierIdemKey,
+        },
         body: JSON.stringify({
+          clientRequestId: cashierIdemKey,
           tableId: isDelivery ? 0 : (tableSnapshot?.id || tableSnapshot?.tableNo),
           items: cartSnapshot,
           orderType: isDelivery ? 'TAKEAWAY' : (channelSnapshot === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN'),
@@ -193,6 +200,8 @@ export default function CashierOrderModal({
     } catch (err) {
       console.error(err);
       showError('เกิดข้อผิดพลาด', 'ไม่สามารถส่งออเดอร์ได้');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -417,7 +426,7 @@ export default function CashierOrderModal({
                       </div>
 
                       <button
-                        disabled={cashierCart.length === 0}
+                        disabled={cashierCart.length === 0 || isSubmitting}
                         onClick={handleSubmitCashierOrder}
                         data-sound="success"
                         className={`w-full min-h-[48px] py-3 rounded-2xl text-white font-black text-sm shadow-lg transition-all duration-75 active:scale-90 active:translate-y-0.5 select-none disabled:opacity-50 cursor-pointer ${
@@ -426,7 +435,11 @@ export default function CashierOrderModal({
                             : 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-orange-500/25 ring-0 active:ring-2 active:ring-orange-300'
                         }`}
                       >
-                        {isDeliv ? '🛵 ส่งออเดอร์เดลิเวอรีเข้าครัว' : 'ส่งออเดอร์เข้าครัว 🍳'}
+                        {isSubmitting
+                          ? 'กำลังส่งออเดอร์...'
+                          : isDeliv
+                          ? '🛵 ส่งออเดอร์เดลิเวอรีเข้าครัว'
+                          : 'ส่งออเดอร์เข้าครัว 🍳'}
                       </button>
                     </>
                   );
@@ -511,14 +524,17 @@ export default function CashierOrderModal({
                     </span>
                   </div>
                   <button
+                    disabled={cashierCart.length === 0 || isSubmitting}
                     onClick={() => {
                       setIsMobileCartOpen(false);
                       handleSubmitCashierOrder();
                     }}
                     data-sound="success"
-                    className="w-full btn-pos-primary min-h-[56px] text-base"
+                    className="w-full btn-pos-primary min-h-[56px] text-base disabled:opacity-50"
                   >
-                    {['LINEMAN', 'GRAB', 'SHOPEE_FOOD', 'ROBINHOOD'].includes(orderChannel)
+                    {isSubmitting
+                      ? 'กำลังส่งออเดอร์...'
+                      : ['LINEMAN', 'GRAB', 'SHOPEE_FOOD', 'ROBINHOOD'].includes(orderChannel)
                       ? '🛵 ส่งออเดอร์เดลิเวอรีเข้าครัวทันที'
                       : '🍳 ส่งออเดอร์เข้าครัวทันที'}
                   </button>

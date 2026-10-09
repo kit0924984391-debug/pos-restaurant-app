@@ -304,7 +304,8 @@ export default function CheckoutModal({
 
   // Handle Process Payment (Instant Zero-Delay Optimistic Execution)
   const handleProcessPayment = () => {
-    if (!selectedTable || activeOrders.length === 0) return;
+    if (isProcessingPay || !selectedTable || activeOrders.length === 0) return;
+    setIsProcessingPay(true);
 
     // 1. ปุ่มมี action ทันที & ส่งเสียงแจ้งเตือนภาษาไทย "ยืนยันชำระเงิน โต๊ะ X" และเสียง Chime แบบ 0ms
     playButtonTapSound('success');
@@ -347,7 +348,8 @@ export default function CheckoutModal({
     onPaidSuccess();
     onPrintReceipt(receiptData);
 
-    // 4. Background Sync: ยิงส่งข้อมูลไปยังเซิร์ฟเวอร์แบบขนาน (Promise.all) ไม่บล็อก UI
+    // 4. Background Sync: ยิงส่งข้อมูลไปยังเซิร์ฟเวอร์แบบขนาน (Promise.all) ไม่บล็อก UI พร้อม Idempotency-Key
+    const paymentBatchId = `pos_pay_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const orderPayPromises = [];
     let remainingDiscount = totalCombinedDiscount;
     for (let i = 0; i < activeOrders.length; i++) {
@@ -357,11 +359,16 @@ export default function CheckoutModal({
       const orderDiscount = Math.min(currentOrderAmount, remainingDiscount);
       remainingDiscount -= orderDiscount;
 
+      const orderIdemKey = `${paymentBatchId}_${order.id}`;
       orderPayPromises.push(
         fetch(`/api/r/${slug}/orders/${order.id}/pay`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Idempotency-Key': orderIdemKey,
+          },
           body: JSON.stringify({
+            clientRequestId: orderIdemKey,
             paymentMethod,
             cashReceived: paymentMethod === 'CASH' && isFirst ? parseFloat(cashReceived) : null,
             changeAmount: paymentMethod === 'CASH' && isFirst ? Math.max(0, change) : 0,
@@ -376,10 +383,14 @@ export default function CheckoutModal({
       );
     }
 
-    Promise.all(orderPayPromises).catch((err: any) => {
-      console.error('[POS Payment Background Error]:', err);
-      showError('เกิดข้อผิดพลาดในการบันทึกข้อมูลการชำระเงิน', err.message);
-    });
+    Promise.all(orderPayPromises)
+      .catch((err: any) => {
+        console.error('[POS Payment Background Error]:', err);
+        showError('เกิดข้อผิดพลาดในการบันทึกข้อมูลการชำระเงิน', err.message);
+      })
+      .finally(() => {
+        setIsProcessingPay(false);
+      });
   };
 
   // Generate PromptPay QR Payload for Checkout
@@ -1539,12 +1550,21 @@ export default function CheckoutModal({
               <button
                 type="button"
                 data-sound="success"
-                disabled={paymentMethod === 'CASH' && change < 0}
+                disabled={(paymentMethod === 'CASH' && change < 0) || isProcessingPay}
                 onClick={handleProcessPayment}
                 className="sm:col-span-2 py-3.5 min-h-[52px] rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white font-black text-base sm:text-sm shadow-lg shadow-emerald-500/25 active:shadow-sm transition-all duration-75 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center space-x-2 active:scale-95 cursor-pointer select-none ring-0 active:ring-2 active:ring-emerald-300"
               >
-                <CheckCircle2 className="w-5 h-5" />
-                <span>ยืนยันชำระเงิน &amp; ปิดบิล</span>
+                {isProcessingPay ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>กำลังปิดบิล...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>ยืนยันชำระเงิน &amp; ปิดบิล</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

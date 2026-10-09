@@ -117,7 +117,7 @@ export async function POST(
       },
     });
 
-    return NextResponse.json({ success: true, promotion: promo });
+    return NextResponse.json({ success: true, promotion: promo }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -197,3 +197,6 @@ export async function DELETE(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export const PATCH = PUT;
+

@@ -5,6 +5,43 @@ import { formatImageUrl } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
+export async function GET(
+  request: Request,
+  { params }: { params: { slug: string; id: string } }
+) {
+  try {
+    const store = await prisma.store.findUnique({
+      where: { slug: params.slug },
+      select: { id: true },
+    });
+
+    if (!store) {
+      return NextResponse.json({ error: 'ไม่พบร้านค้า' }, { status: 404 });
+    }
+
+    const item = await prisma.menuItem.findFirst({
+      where: { id: params.id, storeId: store.id },
+      include: {
+        category: true,
+        options: {
+          include: {
+            choices: true,
+          },
+        },
+      },
+    });
+
+    if (!item) {
+      return NextResponse.json({ error: 'ไม่พบเมนูอาหาร' }, { status: 404 });
+    }
+
+    return NextResponse.json(item);
+  } catch (error) {
+    console.error('Error fetching menu item:', error);
+    return NextResponse.json({ error: 'Failed to fetch menu item' }, { status: 500 });
+  }
+}
+
 export async function PUT(
   request: Request,
   { params }: { params: { slug: string; id: string } }
@@ -86,6 +123,9 @@ export async function PUT(
     return NextResponse.json({ error: 'Failed to update menu item' }, { status: 500 });
   }
 }
+
+// RESTful PATCH alias for partial updates
+export const PATCH = PUT;
 
 export async function DELETE(
   request: Request,

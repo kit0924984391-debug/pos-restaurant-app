@@ -72,30 +72,38 @@ export async function POST(
     const { cart = [], clientUuid, updatedBy } = body;
 
     const key = `${store.id}:${table.tableNo}`;
+    const previous = tableCarts.get(key);
+    const isIdentical =
+      previous &&
+      JSON.stringify(previous.cart) === JSON.stringify(cart) &&
+      previous.clientUuid === clientUuid;
+
     const payload = {
       cart,
-      updatedAt: Date.now(),
+      updatedAt: isIdentical ? previous.updatedAt : Date.now(),
       updatedBy: updatedBy || 'เพื่อนที่โต๊ะ',
       clientUuid,
     };
 
     tableCarts.set(key, payload);
 
-    // Broadcast to all clients connected to this store's stream
-    broadcastEvent(
-      'TABLE_CART_UPDATED',
-      {
-        tableId: table.tableNo,
-        tableDbId: table.id,
-        cart,
-        clientUuid,
-        updatedBy: payload.updatedBy,
-        timestamp: payload.updatedAt,
-      },
-      store.id
-    );
+    // Broadcast only when cart actually changes
+    if (!isIdentical) {
+      broadcastEvent(
+        'TABLE_CART_UPDATED',
+        {
+          tableId: table.tableNo,
+          tableDbId: table.id,
+          cart,
+          clientUuid,
+          updatedBy: payload.updatedBy,
+          timestamp: payload.updatedAt,
+        },
+        store.id
+      );
+    }
 
-    return NextResponse.json({ success: true, ...payload });
+    return NextResponse.json({ success: true, isDuplicate: Boolean(isIdentical), ...payload });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

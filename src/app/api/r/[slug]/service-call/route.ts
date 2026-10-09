@@ -90,23 +90,64 @@ export async function POST(
 
     // Customer initiating service call
     const { tableNo, tableName, requestType, note } = body;
+    const targetTableNo = Number(tableNo) || 1;
+    const effectiveReqType = requestType || 'เรียกพนักงาน';
+
+    // Idempotent duplicate check: if table called within 20s with same requestType, return existing call without duplicate chime
+    const existingTable = await prisma.table.findUnique({
+      where: {
+        storeId_tableNo: {
+          storeId: store.id,
+          tableNo: targetTableNo,
+        },
+      },
+      select: { currentSessionId: true },
+    });
+
+    if (existingTable?.currentSessionId) {
+      try {
+        const parsed = JSON.parse(existingTable.currentSessionId);
+        if (parsed && parsed.serviceCall) {
+          const prevCall = parsed.serviceCall;
+          const timeSince = Date.now() - (prevCall.timestamp || 0);
+          if (timeSince < 20000 && prevCall.requestType === effectiveReqType) {
+            return NextResponse.json({
+              success: true,
+              isDuplicate: true,
+              message: 'แจ้งพนักงานเรียบร้อยแล้ว พนักงานกำลังมาให้บริการครับ',
+              call: prevCall,
+            });
+          }
+        }
+      } catch (e) {}
+    }
 
     const callPayload = {
-      id: `call_${Date.now()}_${tableNo || 'table'}`,
-      tableNo: Number(tableNo) || 1,
+      id: `call_${Date.now()}_${targetTableNo || 'table'}`,
+      tableNo: targetTableNo,
       tableName: tableName || (tableNo ? `โต๊ะ ${tableNo}` : 'โต๊ะอาหาร'),
-      requestType: requestType || 'เรียกพนักงาน',
+      requestType: effectiveReqType,
       note: note || '',
       timestamp: Date.now(),
     };
 
     // 1. Persist in database on table's currentSessionId for serverless resilience
-    await prisma.table.updateMany({
+    await prisma.table.upsert({
       where: {
-        storeId: store.id,
-        tableNo: Number(tableNo) || 1,
+        storeId_tableNo: {
+          storeId: store.id,
+          tableNo: targetTableNo,
+        },
       },
-      data: {
+      update: {
+        currentSessionId: JSON.stringify({
+          serviceCall: callPayload,
+        }),
+      },
+      create: {
+        storeId: store.id,
+        tableNo: targetTableNo,
+        name: tableName || `โต๊ะ ${targetTableNo}`,
         currentSessionId: JSON.stringify({
           serviceCall: callPayload,
         }),

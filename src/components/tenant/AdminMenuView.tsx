@@ -108,6 +108,8 @@ export default function AdminMenuView({ slug = 'lung-pa' }: { slug?: string }) {
   // Add Item Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [isSubmittingItem, setIsSubmittingItem] = useState(false);
+  const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
 
   // Form State for new item
   const [itemName, setItemName] = useState('');
@@ -381,6 +383,8 @@ export default function AdminMenuView({ slug = 'lung-pa' }: { slug?: string }) {
   // Add Menu Item
   const handleCreateItem = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingItem) return;
+    setIsSubmittingItem(true);
     try {
       const normalizedImage = formatImageUrl(itemImage);
       const res = await fetch(`/api/r/${slug}/menu`, {
@@ -408,13 +412,16 @@ export default function AdminMenuView({ slug = 'lung-pa' }: { slug?: string }) {
     } catch (err) {
       console.error(err);
       showError('เกิดข้อผิดพลาด', 'ไม่สามารถเพิ่มเมนูได้');
+    } finally {
+      setIsSubmittingItem(false);
     }
   };
 
   // Add Category (Bug #13)
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!categoryName.trim()) return;
+    if (isSubmittingCategory || !categoryName.trim()) return;
+    setIsSubmittingCategory(true);
     try {
       const res = await fetch(`/api/r/${slug}/menu`, {
         method: 'POST',
@@ -434,6 +441,8 @@ export default function AdminMenuView({ slug = 'lung-pa' }: { slug?: string }) {
       }
     } catch (err: any) {
       showError('เกิดข้อผิดพลาด', err.message);
+    } finally {
+      setIsSubmittingCategory(false);
     }
   };
 
@@ -802,9 +811,10 @@ export default function AdminMenuView({ slug = 'lung-pa' }: { slug?: string }) {
                 <button
                   type="submit"
                   data-sound="success"
-                  className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-90 sm:active:scale-95 active:translate-y-0.5 select-none duration-75 text-white font-extrabold shadow-md shadow-orange-500/20 transition-all cursor-pointer ring-2 ring-orange-400/40"
+                  disabled={isSubmittingItem}
+                  className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-90 sm:active:scale-95 active:translate-y-0.5 select-none duration-75 text-white font-extrabold shadow-md shadow-orange-500/20 transition-all cursor-pointer ring-2 ring-orange-400/40 disabled:opacity-50"
                 >
-                  บันทึกเมนู
+                  {isSubmittingItem ? 'กำลังบันทึก...' : 'บันทึกเมนู'}
                 </button>
               </div>
             </form>
@@ -1033,9 +1043,10 @@ export default function AdminMenuView({ slug = 'lung-pa' }: { slug?: string }) {
                 <button
                   type="submit"
                   data-sound="success"
-                  className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-90 sm:active:scale-95 active:translate-y-0.5 select-none duration-75 text-white font-extrabold text-xs shadow-md shadow-orange-500/20 transition-all cursor-pointer ring-2 ring-orange-400/40"
+                  disabled={isSubmittingCategory}
+                  className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-90 sm:active:scale-95 active:translate-y-0.5 select-none duration-75 text-white font-extrabold text-xs shadow-md shadow-orange-500/20 transition-all cursor-pointer ring-2 ring-orange-400/40 disabled:opacity-50"
                 >
-                  บันทึกหมวดหมู่
+                  {isSubmittingCategory ? 'กำลังบันทึก...' : 'บันทึกหมวดหมู่'}
                 </button>
               </div>
             </form>

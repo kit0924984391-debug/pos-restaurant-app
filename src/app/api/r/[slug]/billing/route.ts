@@ -58,6 +58,25 @@ export async function POST(
     const plan = await prisma.plan.findUnique({ where: { id: planId } });
     if (!plan) return NextResponse.json({ error: 'ไม่พบแพ็กเกจที่เลือก' }, { status: 404 });
 
+    // Idempotency: Prevent duplicate rapid submissions if user clicked multiple times
+    const existingPending = await prisma.subscriptionHistory.findFirst({
+      where: {
+        storeId: store.id,
+        planId,
+        status: 'PENDING',
+        createdAt: { gte: new Date(Date.now() - 60 * 1000) },
+      },
+    });
+
+    if (existingPending) {
+      return NextResponse.json({
+        success: true,
+        message: 'มีรายการแจ้งชำระเงินแพ็กเกจนี้ที่เพิ่งส่งไปแล้ว กำลังรอผู้ดูแลระบบตรวจสอบ',
+        submission: existingPending,
+        isDuplicate: true,
+      });
+    }
+
     const submission = await prisma.subscriptionHistory.create({
       data: {
         storeId: store.id,

@@ -48,7 +48,7 @@ export async function POST(
 ) {
   try {
     try {
-      await requireStoreAccess(params.slug);
+      await requireStoreAccess(params.slug, request);
     } catch (authErr) {
       return NextResponse.json({ error: 'Unauthorized: Staff access required' }, { status: 401 });
     }
@@ -70,16 +70,24 @@ export async function POST(
       if (!name) {
         return NextResponse.json({ error: 'กรุณากรอกชื่อหมวดหมู่' }, { status: 400 });
       }
+      const trimmedName = name.trim();
+      const existingCategory = await prisma.category.findFirst({
+        where: { storeId: store.id, name: trimmedName },
+      });
+      if (existingCategory) {
+        return NextResponse.json(existingCategory, { status: 200 });
+      }
+
       const count = await prisma.category.count({ where: { storeId: store.id } });
       const newCategory = await prisma.category.create({
         data: {
           storeId: store.id,
-          name: name.trim(),
+          name: trimmedName,
           sortOrder: count + 1,
         },
       });
       broadcastEvent('MENU_UPDATED', { action: 'create_category', category: newCategory }, store.id);
-      return NextResponse.json(newCategory);
+      return NextResponse.json(newCategory, { status: 201 });
     }
 
     // Action 2: Create Menu Item
@@ -121,7 +129,7 @@ export async function POST(
 
     broadcastEvent('MENU_UPDATED', { action: 'create', item: newItem }, store.id);
 
-    return NextResponse.json(newItem);
+    return NextResponse.json(newItem, { status: 201 });
   } catch (error) {
     console.error('Error creating menu item:', error);
     return NextResponse.json({ error: 'Failed to create menu item' }, { status: 500 });

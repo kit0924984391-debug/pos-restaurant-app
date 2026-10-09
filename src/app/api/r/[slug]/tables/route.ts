@@ -159,7 +159,10 @@ export async function POST(
 
       broadcastEvent('TABLE_UPDATED', { action: 'create', table: newTable }, store.id);
 
-      return NextResponse.json({ success: true, table: newTable, message: `เพิ่ม ${finalName} สำเร็จแล้ว` });
+      return NextResponse.json(
+        { success: true, table: newTable, message: `เพิ่ม ${finalName} สำเร็จแล้ว` },
+        { status: 201 }
+      );
     }
 
     // 2. Batch Create Tables
@@ -201,11 +204,14 @@ export async function POST(
 
       broadcastEvent('TABLE_UPDATED', { action: 'batch_create', count: createdTables.length }, store.id);
 
-      return NextResponse.json({
-        success: true,
-        message: `เพิ่ม ${createdTables.length} โต๊ะใหม่เรียบร้อยแล้ว`,
-        tables: createdTables,
-      });
+      return NextResponse.json(
+        {
+          success: true,
+          message: `เพิ่ม ${createdTables.length} โต๊ะใหม่เรียบร้อยแล้ว`,
+          tables: createdTables,
+        },
+        { status: 201 }
+      );
     }
 
     // 3. Clear Table Status

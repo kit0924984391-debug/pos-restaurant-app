@@ -247,6 +247,35 @@ export async function processDeliveryWebhook(
       rawOrderId ||
       `${channel === 'LINEMAN' ? 'LM' : channel === 'GRAB' ? 'GF' : channel === 'SHOPEE_FOOD' ? 'SF' : 'KL'}-${Date.now().toString().slice(-4)}`;
 
+    // Idempotency: Check if an order with this deliveryOrderId has already been created for this store.
+    // Delivery aggregators retry webhooks on network blips — an idempotent replay prevents
+    // duplicate orders and duplicate BOM stock deductions.
+    const existingDeliveryOrder = await prisma.order.findFirst({
+      where: {
+        storeId: store.id,
+        deliveryOrderId: String(deliveryOrderId),
+      },
+      include: { table: true, items: true },
+    });
+
+    if (existingDeliveryOrder) {
+      return {
+        status: 200,
+        body: {
+          success: true,
+          orderId: existingDeliveryOrder.id,
+          deliveryOrderId: String(deliveryOrderId),
+          channel: existingDeliveryOrder.orderChannel,
+          status: 'ACCEPTED',
+          message: 'Order already processed (idempotent replay)',
+          totalAmount: existingDeliveryOrder.totalAmount,
+          netRevenue: existingDeliveryOrder.netRevenue,
+          gpAmount: existingDeliveryOrder.gpAmount,
+          isDuplicateWebhook: true,
+        },
+      };
+    }
+
     const riderName =
       payload.rider?.name ||
       payload.driver?.name ||

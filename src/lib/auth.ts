@@ -100,8 +100,8 @@ export async function requireSuperAdmin(request?: Request): Promise<SessionUser>
   return user;
 }
 
-export async function requireStoreAccess(slug: string): Promise<{ user: SessionUser; store: any }> {
-  const user = await requireAuth();
+export async function requireStoreAccess(slug: string, request?: Request): Promise<{ user: SessionUser; store: any }> {
+  const user = await requireAuth(request);
   
   const store = await prisma.store.findUnique({
     where: { slug },

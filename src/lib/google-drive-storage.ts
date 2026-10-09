@@ -115,16 +115,22 @@ export async function saveSlipImage(
   // ไม่บันทึก Base64 ลง Supabase เด็ดขาด!
   // -------------------------------------------------------------
   try {
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'slips');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    const uploadRoot = path.resolve(process.cwd(), 'public', 'uploads', 'slips');
+    if (!fs.existsSync(uploadRoot)) {
+      fs.mkdirSync(uploadRoot, { recursive: true });
     }
 
-    const filePath = path.join(uploadDir, fileName);
+    // Whitelist the file name and verify the resolved target stays inside the
+    // upload root (defense against path traversal).
+    const safeFileName = path.basename(fileName).replace(/[^a-zA-Z0-9._-]/g, '_');
+    const targetPath = path.resolve(uploadRoot, safeFileName);
+    if (!targetPath.startsWith(uploadRoot + path.sep)) {
+      throw new Error('Invalid slip file path');
+    }
     const buffer = Buffer.from(cleanBase64, 'base64');
-    fs.writeFileSync(filePath, buffer);
+    fs.writeFileSync(targetPath, buffer);
 
-    return `/uploads/slips/${fileName}`;
+    return `/uploads/slips/${safeFileName}`;
   } catch (fsErr) {
     console.error('Error saving slip to local disk storage:', fsErr);
     return '';
