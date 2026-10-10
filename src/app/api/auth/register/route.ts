@@ -77,9 +77,9 @@ export async function POST(request: Request) {
     }
     await recordRegisterAttempt(signupKey, signupNow);
 
-    // 1. Anti-abuse & deduplication check for phone and bank account
+    // 1. Anti-abuse & deduplication check for phone, bank account, and email
     const cleanAccount = bankAccountNo ? cleanBankAccount(bankAccountNo) : '';
-    const eligibility = await checkRegistrationEligibility(cleanPhone, cleanAccount);
+    const eligibility = await checkRegistrationEligibility(cleanPhone, cleanAccount, email);
     if (!eligibility.eligible) {
       return NextResponse.json(
         { error: eligibility.message, code: eligibility.code },
@@ -250,6 +250,7 @@ export async function POST(request: Request) {
           bankAccountName: bankAccountName ? String(bankAccountName).trim() : name.trim(),
           storeName: storeName.trim(),
           storeId: result.store.id,
+          email: userEmail,
         },
       }).catch((auditErr: any) => console.error('Failed to write StoreTrialAudit:', auditErr));
     } catch (provisionErr) {

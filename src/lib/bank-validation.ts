@@ -1,22 +1,24 @@
 import { prisma } from './prisma';
 import { cleanPhoneNumber, formatPhoneNumber, isValidThaiMobile } from './sms';
+import { isValidEmail } from './email';
 export { THAI_BANKS, cleanBankAccount, isValidThaiBankAccount, type ThaiBankInfo } from './bank-constants';
 import { cleanBankAccount, isValidThaiBankAccount } from './bank-constants';
 
 export interface EligibilityResult {
   eligible: boolean;
-  code?: 'phone_taken' | 'bank_taken' | 'invalid_phone' | 'invalid_bank';
+  code?: 'phone_taken' | 'bank_taken' | 'email_taken' | 'invalid_phone' | 'invalid_bank' | 'invalid_email';
   message?: string;
 }
 
 /**
- * Checks whether the phone and bank account are eligible for a new store registration.
- * Rejects if either phone or bank account has already been registered in the system
+ * Checks whether the phone, bank account, and email are eligible for a new store registration.
+ * Rejects if phone, bank account, or email has already been registered in the system
  * (including active users, active stores, or permanent StoreTrialAudit history).
  */
 export async function checkRegistrationEligibility(
   phone: string,
-  bankAccountNo?: string
+  bankAccountNo?: string,
+  email?: string
 ): Promise<EligibilityResult> {
   const cleanPhone = cleanPhoneNumber(phone);
   if (!cleanPhone || !isValidThaiMobile(cleanPhone)) {
@@ -118,6 +120,42 @@ export async function checkRegistrationEligibility(
           message: 'เลขที่บัญชีธนาคารนี้ถูกใช้งานและเคยรับสิทธิ์ทดลองใช้แล้ว ไม่สามารถรับสิทธิ์ฟรีซ้ำได้ กรุณาเข้าสู่ระบบบัญชีเดิม',
         };
       }
+  }
+
+  // 6. Check email uniqueness in User and StoreTrialAudit
+  if (email && email.trim()) {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!isValidEmail(cleanEmail)) {
+      return {
+        eligible: false,
+        code: 'invalid_email',
+        message: 'รูปแบบอีเมลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง',
+      };
+    }
+
+    const existingEmailUser = await prisma.user.findUnique({
+      where: { email: cleanEmail },
+    });
+
+    if (existingEmailUser) {
+      return {
+        eligible: false,
+        code: 'email_taken',
+        message: 'อีเมลนี้ถูกใช้งานในระบบแล้ว กรุณาเข้าสู่ระบบด้วยอีเมลนี้หรือใช้อีเมลอื่น',
+      };
+    }
+
+    const auditEmail = await (prisma as any).storeTrialAudit.findFirst({
+      where: { email: cleanEmail },
+    });
+
+    if (auditEmail) {
+      return {
+        eligible: false,
+        code: 'email_taken',
+        message: 'อีเมลนี้ถูกใช้งานและเคยรับสิทธิ์ทดลองใช้แล้ว ไม่สามารถรับสิทธิ์ฟรีซ้ำได้ กรุณาเข้าสู่ระบบเดิม',
+      };
+    }
   }
 
   return { eligible: true };

@@ -511,11 +511,32 @@ model StoreTrialAudit {
   bankAccountName String?  // ชื่อบัญชี เช่น "สมชาย ใจดี"
   storeName       String?  // ชื่อร้านค้าตอนสมัคร
   storeId         String?  // ID ของร้านค้า
+  email           String?  @default("") // อีเมลที่ใช้ลงทะเบียน
   registeredAt    DateTime @default(now())
 
   @@index([phone])
   @@index([bankAccountNo])
+  @@index([email])
 }
+
+// ----------------------------------------------------
+// 9. โทเค็นกู้คืนรหัสผ่าน (Password Reset Tokens)
+// ----------------------------------------------------
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  email     String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@index([userId])
+  @@index([email])
+}
+
 
 
 

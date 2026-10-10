@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { phone, bankAccountNo, purpose = 'REGISTER' } = body;
+    const { phone, bankAccountNo, email, purpose = 'REGISTER' } = body;
 
     if (!phone) {
       return NextResponse.json(
@@ -25,9 +25,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // If purpose is REGISTER, check if phone or bank account is already registered
+    // If purpose is REGISTER, check if phone, bank account, or email is already registered
     if (purpose === 'REGISTER') {
-      const eligibility = await checkRegistrationEligibility(clean, bankAccountNo);
+      const eligibility = await checkRegistrationEligibility(clean, bankAccountNo, email);
       if (!eligibility.eligible) {
         return NextResponse.json(
           { error: eligibility.message, code: eligibility.code },

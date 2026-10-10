@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { broadcastEvent } from '@/lib/events';
 import { requireStoreAccess } from '@/lib/auth';
+import { isValidEmail } from '@/lib/email';
 
 import { testGoogleDriveWebhook } from '@/lib/google-drive-storage';
 
@@ -56,10 +57,16 @@ export async function GET(
     // admin); staff must not be able to read/redirect payment configuration.
     const maskIfStaff = (value: string) => (isOwner ? value : value ? '••••••••' : '');
 
+    const ownerUser = await prisma.user.findFirst({
+      where: { storeId: store.id, role: 'STORE_OWNER' },
+    });
+    const ownerEmail = ownerUser?.email && !ownerUser.email.endsWith('@ordeopos.com') ? ownerUser.email : '';
+
     return NextResponse.json({
       id: store.id,
       slug: store.slug,
       storeName: store.name,
+      ownerEmail: isOwner ? (ownerEmail || '') : '',
       promptPayId: store.promptPayId,
       promptPayName: store.promptPayName,
       address: store.address,
@@ -112,6 +119,7 @@ export async function PUT(
     const body = await request.json();
     const {
       storeName,
+      ownerEmail,
       promptPayId,
       promptPayName,
       address,
@@ -245,10 +253,37 @@ export async function PUT(
       }
     }
 
+    let finalOwnerEmail = '';
+    if (ownerEmail !== undefined && isOwner) {
+      const cleanOwnerEmail = String(ownerEmail || '').trim().toLowerCase();
+      if (cleanOwnerEmail) {
+        if (!isValidEmail(cleanOwnerEmail)) {
+          return NextResponse.json({ error: 'รูปแบบอีเมลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง' }, { status: 400 });
+        }
+        const ownerUser = await prisma.user.findFirst({
+          where: { storeId: store.id, role: 'STORE_OWNER' },
+        });
+        if (ownerUser && ownerUser.email !== cleanOwnerEmail) {
+          const duplicateUser = await prisma.user.findUnique({
+            where: { email: cleanOwnerEmail },
+          });
+          if (duplicateUser && duplicateUser.id !== ownerUser.id) {
+            return NextResponse.json({ error: 'อีเมลนี้ถูกใช้งานโดยบัญชีอื่นแล้ว กรุณาใช้อีเมลอื่น' }, { status: 400 });
+          }
+          await prisma.user.update({
+            where: { id: ownerUser.id },
+            data: { email: cleanOwnerEmail },
+          });
+        }
+        finalOwnerEmail = cleanOwnerEmail;
+      }
+    }
+
     return NextResponse.json({
       id: updated.id,
       slug: updated.slug,
       storeName: updated.name,
+      ownerEmail: finalOwnerEmail || (ownerEmail !== undefined ? ownerEmail : ''),
       promptPayId: updated.promptPayId,
       promptPayName: updated.promptPayName,
       address: updated.address,

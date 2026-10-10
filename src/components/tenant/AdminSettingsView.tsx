@@ -49,6 +49,7 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
     phone: string;
     receiptFooter: string;
     tableCount: number;
+    ownerEmail: string;
     linemanGp: number;
     grabGp: number;
     shopeeGp: number;
@@ -68,6 +69,7 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
     enableAiUpsell: boolean;
   }>({
     storeName: '',
+    ownerEmail: '',
     promptPayId: '',
     promptPayName: '',
     address: '',
@@ -106,6 +108,7 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
         if (data) {
           setForm({
             storeName: data.storeName || '',
+            ownerEmail: data.ownerEmail || '',
             promptPayId: data.promptPayId || '',
             promptPayName: data.promptPayName || '',
             address: data.address || '',
@@ -471,6 +474,22 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-slate-700 font-bold mb-1">
+                อีเมลเจ้าของร้าน (สำหรับกู้คืนรหัสผ่าน)
+              </label>
+              <input
+                type="email"
+                placeholder="เช่น yourname@gmail.com"
+                value={form.ownerEmail}
+                onChange={(e) => setForm({ ...form, ownerEmail: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono"
+              />
+              <p className="mt-1 text-[11px] text-slate-400">
+                ใช้สำหรับรับลิงก์ตั้งรหัสผ่านใหม่เมื่อกด &ldquo;ลืมรหัสผ่าน&rdquo;
+              </p>
             </div>
 
             <div className="sm:col-span-2">

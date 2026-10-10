@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Store, User, Lock, Phone, ArrowRight, Loader2, Sparkles, CheckCircle2, KeyRound, Clock, ShieldCheck, RefreshCw, Building2, CreditCard } from 'lucide-react';
+import { Store, User, Lock, Phone, Mail, ArrowRight, Loader2, Sparkles, CheckCircle2, KeyRound, Clock, ShieldCheck, RefreshCw, Building2, CreditCard } from 'lucide-react';
 import { THAI_BANKS } from '@/lib/bank-constants';
 
 export default function RegisterPage() {
   const router = useRouter();
   const [storeName, setStoreName] = useState('');
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [bankName, setBankName] = useState('KBANK');
   const [bankAccountNo, setBankAccountNo] = useState('');
@@ -60,6 +61,12 @@ export default function RegisterPage() {
       return;
     }
 
+    const cleanMail = email.trim().toLowerCase();
+    if (!cleanMail || !cleanMail.includes('@') || !cleanMail.includes('.')) {
+      setError('กรุณากรอกอีเมลที่ถูกต้องสำหรับใช้กู้คืนรหัสผ่านก่อนขอรหัส OTP');
+      return;
+    }
+
     setOtpSending(true);
     setError('');
     setOtpMessage('');
@@ -68,12 +75,12 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, bankAccountNo: cleanAccount, purpose: 'REGISTER' }),
+        body: JSON.stringify({ phone, bankAccountNo: cleanAccount, email: cleanMail, purpose: 'REGISTER' }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        if (data.code === 'phone_taken' || data.code === 'bank_taken') {
+        if (data.code === 'phone_taken' || data.code === 'bank_taken' || data.code === 'email_taken') {
           setIsDuplicate(true);
         }
         throw new Error(data.error || 'ไม่สามารถส่งรหัส OTP ได้');
@@ -107,6 +114,12 @@ export default function RegisterPage() {
       return;
     }
 
+    const cleanMail = email.trim().toLowerCase();
+    if (!cleanMail || !cleanMail.includes('@') || !cleanMail.includes('.')) {
+      setError('กรุณากรอกอีเมลที่ถูกต้องสำหรับใช้กู้คืนรหัสผ่าน');
+      return;
+    }
+
     const cleanAccount = bankAccountNo.replace(/\D/g, '');
     if (!cleanAccount || cleanAccount.length < 10 || cleanAccount.length > 12) {
       setError('กรุณากรอกเลขที่บัญชีธนาคาร 10–12 หลักให้ถูกต้อง');
@@ -126,6 +139,7 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name.trim(),
+          email: cleanMail,
           storeName: storeName.trim(),
           phone: phone.trim(),
           bankName,
@@ -140,7 +154,7 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        if (data.code === 'phone_taken' || data.code === 'bank_taken') {
+        if (data.code === 'phone_taken' || data.code === 'bank_taken' || data.code === 'email_taken') {
           setIsDuplicate(true);
         }
         throw new Error(data.error || 'การสมัครสมาชิกล้มเหลว');
@@ -263,6 +277,29 @@ export default function RegisterPage() {
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-slate-500 transition-all"
                 />
               </div>
+            </div>
+
+            {/* Email Address for Password Recovery */}
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1">
+                อีเมลสำหรับกู้คืนรหัสผ่าน (Email) *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="เช่น somchai@gmail.com"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-slate-500 transition-all font-mono"
+                />
+              </div>
+              <p className="mt-1 text-[10px] text-slate-400">
+                🔒 ใช้สำหรับรับลิงก์ตั้งรหัสผ่านใหม่เมื่อลืมรหัสผ่าน (จำกัด 1 บัญชีต่อ 1 อีเมล)
+              </p>
             </div>
 
             {/* Bank Account Section (For Receiving Payments & Anti-Abuse) */}

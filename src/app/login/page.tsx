@@ -116,9 +116,17 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                รหัสผ่าน (Password)
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-bold text-slate-300">
+                  รหัสผ่าน (Password)
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs font-bold text-orange-400 hover:text-orange-300 hover:underline transition-colors"
+                >
+                  ลืมรหัสผ่าน?
+                </Link>
+              </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                   <Lock className="w-4 h-4" />
