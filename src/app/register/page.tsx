@@ -3,13 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Store, User, Lock, Phone, ArrowRight, Loader2, Sparkles, CheckCircle2, KeyRound, Clock, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Store, User, Lock, Phone, ArrowRight, Loader2, Sparkles, CheckCircle2, KeyRound, Clock, ShieldCheck, RefreshCw, Building2, CreditCard } from 'lucide-react';
+import { THAI_BANKS } from '@/lib/bank-constants';
 
 export default function RegisterPage() {
   const router = useRouter();
   const [storeName, setStoreName] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [bankName, setBankName] = useState('KBANK');
+  const [bankAccountNo, setBankAccountNo] = useState('');
+  const [bankAccountName, setBankAccountName] = useState('');
   const [otp, setOtp] = useState('');
   const [refCode, setRefCode] = useState('');
   const [password, setPassword] = useState('');
@@ -25,6 +29,14 @@ export default function RegisterPage() {
   // Form Submission
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isDuplicate, setIsDuplicate] = useState(false);
+
+  // Auto-sync bank account name with owner name if user hasn't edited it
+  useEffect(() => {
+    if (!bankAccountName || bankAccountName === name.slice(0, -1)) {
+      setBankAccountName(name);
+    }
+  }, [name]);
 
   // Countdown timer effect
   useEffect(() => {
@@ -36,8 +48,15 @@ export default function RegisterPage() {
 
   // Request SMS OTP
   const handleSendOtp = async () => {
+    setIsDuplicate(false);
     if (!phone || phone.trim().replace(/\D/g, '').length < 9) {
       setError('กรุณากรอกเบอร์โทรศัพท์มือถือ 10 หลักก่อนขอรหัส OTP');
+      return;
+    }
+
+    const cleanAccount = bankAccountNo.replace(/\D/g, '');
+    if (!cleanAccount || cleanAccount.length < 10 || cleanAccount.length > 12) {
+      setError('กรุณากรอกเลขที่บัญชีธนาคาร 10–12 หลักให้ถูกต้องก่อนขอรหัส OTP');
       return;
     }
 
@@ -49,11 +68,14 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, purpose: 'REGISTER' }),
+        body: JSON.stringify({ phone, bankAccountNo: cleanAccount, purpose: 'REGISTER' }),
       });
 
       const data = await res.json();
       if (!res.ok) {
+        if (data.code === 'phone_taken' || data.code === 'bank_taken') {
+          setIsDuplicate(true);
+        }
         throw new Error(data.error || 'ไม่สามารถส่งรหัส OTP ได้');
       }
 
@@ -73,6 +95,7 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsDuplicate(false);
 
     if (!otpSent) {
       setError('กรุณากดขอรหัส OTP เพื่อยืนยันเบอร์โทรศัพท์ก่อนสมัคร');
@@ -81,6 +104,12 @@ export default function RegisterPage() {
 
     if (!otp || otp.trim().length !== 6) {
       setError('กรุณากรอกรหัส OTP 6 หลักให้ครบถ้วน');
+      return;
+    }
+
+    const cleanAccount = bankAccountNo.replace(/\D/g, '');
+    if (!cleanAccount || cleanAccount.length < 10 || cleanAccount.length > 12) {
+      setError('กรุณากรอกเลขที่บัญชีธนาคาร 10–12 หลักให้ถูกต้อง');
       return;
     }
 
@@ -99,6 +128,9 @@ export default function RegisterPage() {
           name: name.trim(),
           storeName: storeName.trim(),
           phone: phone.trim(),
+          bankName,
+          bankAccountNo: cleanAccount,
+          bankAccountName: (bankAccountName || name).trim(),
           otp: otp.trim(),
           refCode: refCode.trim(),
           password,
@@ -108,6 +140,9 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (data.code === 'phone_taken' || data.code === 'bank_taken') {
+          setIsDuplicate(true);
+        }
         throw new Error(data.error || 'การสมัครสมาชิกล้มเหลว');
       }
 
@@ -162,8 +197,23 @@ export default function RegisterPage() {
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
         <div className="bg-slate-900/80 backdrop-blur-xl py-8 px-6 sm:px-10 shadow-2xl rounded-3xl border border-slate-800">
           {error && (
-            <div className="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-semibold">
-              ⚠️ {error}
+            <div className="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-semibold space-y-2">
+              <div className="flex items-start space-x-2">
+                <span className="text-sm shrink-0">⚠️</span>
+                <span>{error}</span>
+              </div>
+              {isDuplicate && (
+                <div className="pt-2 border-t border-rose-500/20 flex items-center justify-between">
+                  <span className="text-slate-300 text-[11px]">มีบัญชีร้านนี้อยู่แล้ว?</span>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center space-x-1 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
+                  >
+                    <span>เข้าสู่ระบบบัญชีเดิม</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
@@ -213,6 +263,69 @@ export default function RegisterPage() {
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-slate-500 transition-all"
                 />
               </div>
+            </div>
+
+            {/* Bank Account Section (For Receiving Payments & Anti-Abuse) */}
+            <div className="p-3.5 bg-slate-800/50 rounded-2xl border border-slate-700/70 space-y-3">
+              <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-400">
+                <Building2 className="w-4 h-4 text-amber-400" />
+                <span>บัญชีธนาคารสำหรับรับเงินของร้านค้า *</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Bank Select */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                    ธนาคาร *
+                  </label>
+                  <select
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    {THAI_BANKS.map((b) => (
+                      <option key={b.code} value={b.code}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Account Number */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                    เลขที่บัญชี (10–12 หลัก) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={bankAccountNo}
+                    onChange={(e) => setBankAccountNo(e.target.value.replace(/[^\d-]/g, ''))}
+                    placeholder="เช่น 123-4-56789-0"
+                    maxLength={15}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-slate-500"
+                  />
+                </div>
+              </div>
+
+              {/* Account Name */}
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                  ชื่อบัญชีธนาคาร *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={bankAccountName}
+                  onChange={(e) => setBankAccountName(e.target.value)}
+                  placeholder="เช่น สมชาย ใจดี (ตรงกับหน้าสมุดบัญชี)"
+                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-slate-500"
+                />
+              </div>
+
+              <p className="text-[10px] text-slate-400">
+                🔒 ข้อมูลนี้จะถูกนำไปตั้งเป็นบัญชีรับเงินของร้านใน POS อัตโนมัติ (จำกัดสิทธิ์ 1 ร้านค้าต่อ 1 บัญชี)
+              </p>
             </div>
 
             {/* Mobile Phone Number + Request OTP Button */}
@@ -289,11 +402,15 @@ export default function RegisterPage() {
                 {devOtp && (
                   <div
                     onClick={() => setOtp(devOtp)}
-                    className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[11px] text-amber-300 text-center cursor-pointer hover:bg-amber-500/20 transition-colors"
+                    className="p-3 bg-amber-500/15 border border-amber-500/30 rounded-xl text-center cursor-pointer hover:bg-amber-500/25 active:scale-[0.99] transition-all shadow-sm"
                   >
-                    <span>💡 รหัส OTP ทดสอบ: </span>
-                    <strong className="font-mono text-xs underline font-black">{devOtp}</strong>
-                    <span className="text-[10px] text-amber-400/80 block">(คลิกที่นี่เพื่อใส่รหัสอัตโนมัติ)</span>
+                    <div className="flex items-center justify-center space-x-2 font-bold mb-1">
+                      <span className="text-xs text-amber-300">💡 รหัส OTP ทดสอบ:</span>
+                      <span className="font-mono text-base px-2.5 py-0.5 bg-amber-400/20 border border-amber-400/40 rounded-lg text-amber-200 font-black tracking-wider">{devOtp}</span>
+                    </div>
+                    <span className="text-[11px] text-amber-400/90 block font-medium">
+                      👆 แตะที่นี่เพื่อใส่รหัสอัตโนมัติ (ระบบอยู่ในโหมดทดสอบ ไม่ได้ส่งเข้า SMS มือถือ)
+                    </span>
                   </div>
                 )}
               </div>

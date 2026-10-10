@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { cleanPhoneNumber, isValidThaiMobile, sendSmsOtp } from '@/lib/sms';
+import { checkRegistrationEligibility } from '@/lib/bank-validation';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { phone, purpose = 'REGISTER' } = body;
+    const { phone, bankAccountNo, purpose = 'REGISTER' } = body;
 
     if (!phone) {
       return NextResponse.json(
@@ -24,20 +25,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // If purpose is REGISTER, check if this phone number is already registered in User table
+    // If purpose is REGISTER, check if phone or bank account is already registered
     if (purpose === 'REGISTER') {
-      const existingUser = await prisma.user.findFirst({
-        where: {
-          OR: [
-            { phone: clean },
-            { phone: phone },
-          ],
-        },
-      });
-
-      if (existingUser) {
+      const eligibility = await checkRegistrationEligibility(clean, bankAccountNo);
+      if (!eligibility.eligible) {
         return NextResponse.json(
-          { error: 'เบอร์โทรศัพท์นี้ถูกใช้งานในระบบแล้ว กรุณาเข้าสู่ระบบด้วยเบอร์นี้หรือใช้เบอร์อื่น' },
+          { error: eligibility.message, code: eligibility.code },
           { status: 400 }
         );
       }

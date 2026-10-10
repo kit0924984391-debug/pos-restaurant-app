@@ -46,6 +46,9 @@ model Store {
   // การตั้งค่าร้านค้า & บัญชีรับเงินของร้านนั้นๆ
   promptPayId     String         @default("")
   promptPayName   String         @default("")
+  bankName        String?        @default("")
+  bankAccountNo   String?        @default("")
+  bankAccountName String?        @default("")
   phone           String?
   address         String?
   receiptFooter   String?        @default("ขอบคุณที่อุดหนุนครับ/ค่ะ โอกาสหน้าเชิญใหม่")
@@ -495,5 +498,24 @@ model LoginAttempt {
   windowStart BigInt
   count       Int    @default(0)
 }
+
+// ----------------------------------------------------
+// 8. ประวัติการทดลองใช้ฟรีถาวร (Permanent Anti-Abuse Trial Audit)
+// ----------------------------------------------------
+
+model StoreTrialAudit {
+  id              String   @id @default(cuid())
+  phone           String   // เบอร์มือถือ 10 หลัก (เฉพาะตัวเลข เช่น 0812345678)
+  bankAccountNo   String   // เลขที่บัญชีธนาคาร (เฉพาะตัวเลข เช่น 1234567890)
+  bankName        String?  // ชื่อธนาคาร เช่น "KBANK"
+  bankAccountName String?  // ชื่อบัญชี เช่น "สมชาย ใจดี"
+  storeName       String?  // ชื่อร้านค้าตอนสมัคร
+  storeId         String?  // ID ของร้านค้า
+  registeredAt    DateTime @default(now())
+
+  @@index([phone])
+  @@index([bankAccountNo])
+}
+
 
 

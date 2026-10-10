@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { hashPassword, createSessionToken, COOKIE_NAME } from '@/lib/auth';
 import { cleanPhoneNumber, isValidThaiMobile, verifySmsOtp } from '@/lib/sms';
+import { cleanBankAccount, checkRegistrationEligibility } from '@/lib/bank-validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,7 +49,7 @@ async function recordRegisterAttempt(key: string, nowMs: number): Promise<void> 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, password, storeName, phone, otp, refCode } = body;
+    const { name, email, password, storeName, phone, otp, refCode, bankName, bankAccountNo, bankAccountName } = body;
 
     if (!name || !storeName || !phone || !password || !otp) {
       return NextResponse.json(
@@ -76,19 +77,12 @@ export async function POST(request: Request) {
     }
     await recordRegisterAttempt(signupKey, signupNow);
 
-    // 1. Check existing phone number
-    const existingPhoneUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { phone: cleanPhone },
-          { phone: phone },
-        ],
-      },
-    });
-
-    if (existingPhoneUser) {
+    // 1. Anti-abuse & deduplication check for phone and bank account
+    const cleanAccount = bankAccountNo ? cleanBankAccount(bankAccountNo) : '';
+    const eligibility = await checkRegistrationEligibility(cleanPhone, cleanAccount);
+    if (!eligibility.eligible) {
       return NextResponse.json(
-        { error: 'เบอร์โทรศัพท์นี้ถูกใช้งานในระบบแล้ว กรุณาเข้าสู่ระบบด้วยเบอร์นี้หรือใช้เบอร์อื่น', code: 'phone_taken' },
+        { error: eligibility.message, code: eligibility.code },
         { status: 409 }
       );
     }
@@ -142,6 +136,9 @@ export async function POST(request: Request) {
           slug,
           name: storeName.trim(),
           phone: cleanPhone,
+          bankName: bankName ? String(bankName).trim() : '',
+          bankAccountNo: cleanAccount,
+          bankAccountName: bankAccountName ? String(bankAccountName).trim() : name.trim(),
           status: 'TRIAL',
           trialEndsAt: trialEnd,
           subscriptionEnd: trialEnd,
@@ -243,6 +240,18 @@ export async function POST(request: Request) {
       ]);
 
       result = { user, store };
+
+      // Permanent audit record for trial anti-abuse (prevents reuse after store deletion)
+      await (prisma as any).storeTrialAudit.create({
+        data: {
+          phone: cleanPhone,
+          bankAccountNo: cleanAccount,
+          bankName: bankName ? String(bankName).trim() : null,
+          bankAccountName: bankAccountName ? String(bankAccountName).trim() : name.trim(),
+          storeName: storeName.trim(),
+          storeId: result.store.id,
+        },
+      }).catch((auditErr: any) => console.error('Failed to write StoreTrialAudit:', auditErr));
     } catch (provisionErr) {
       if (store) {
         await prisma.store.delete({ where: { id: store.id } }).catch(() => {});

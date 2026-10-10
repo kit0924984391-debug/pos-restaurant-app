@@ -12,6 +12,7 @@ describe('Mobile Registration & SMS OTP End-to-End Flow', () => {
   beforeAll(async () => {
     // Cleanup prior test artifacts
     await prisma.smsOtp.deleteMany({ where: { phone: testPhone } }).catch(() => {});
+    await (prisma as any).storeTrialAudit?.deleteMany({ where: { phone: testPhone } }).catch(() => {});
     await prisma.$executeRaw`DELETE FROM LoginAttempt WHERE key LIKE ${'%:' + testPhone}`.catch(() => {});
     const existing = await prisma.user.findFirst({ where: { phone: testPhone } });
     if (existing?.storeId) {
@@ -22,6 +23,7 @@ describe('Mobile Registration & SMS OTP End-to-End Flow', () => {
   afterAll(async () => {
     // Cleanup after test
     await prisma.smsOtp.deleteMany({ where: { phone: testPhone } }).catch(() => {});
+    await (prisma as any).storeTrialAudit?.deleteMany({ where: { phone: testPhone } }).catch(() => {});
     await prisma.$executeRaw`DELETE FROM LoginAttempt WHERE key LIKE ${'%:' + testPhone}`.catch(() => {});
     const existing = await prisma.user.findFirst({ where: { phone: testPhone } });
     if (existing?.storeId) {
@@ -138,6 +140,7 @@ describe('Next.js API Route Handlers Integration (/api/auth)', () => {
 
   beforeAll(async () => {
     await prisma.smsOtp.deleteMany({ where: { phone: apiPhone } }).catch(() => {});
+    await (prisma as any).storeTrialAudit?.deleteMany({ where: { phone: apiPhone } }).catch(() => {});
     await prisma.$executeRaw`DELETE FROM LoginAttempt WHERE key LIKE ${'%:' + apiPhone}`.catch(() => {});
     const existing = await prisma.user.findFirst({ where: { phone: apiPhone } });
     if (existing?.storeId) {
@@ -147,6 +150,7 @@ describe('Next.js API Route Handlers Integration (/api/auth)', () => {
 
   afterAll(async () => {
     await prisma.smsOtp.deleteMany({ where: { phone: apiPhone } }).catch(() => {});
+    await (prisma as any).storeTrialAudit?.deleteMany({ where: { phone: apiPhone } }).catch(() => {});
     await prisma.$executeRaw`DELETE FROM LoginAttempt WHERE key LIKE ${'%:' + apiPhone}`.catch(() => {});
     const existing = await prisma.user.findFirst({ where: { phone: apiPhone } });
     if (existing?.storeId) {
