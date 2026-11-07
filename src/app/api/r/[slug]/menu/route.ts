@@ -142,7 +142,7 @@ export async function DELETE(
 ) {
   try {
     try {
-      await requireStoreAccess(params.slug);
+      await requireStoreAccess(params.slug, request);
     } catch (authErr) {
       return NextResponse.json({ error: 'Unauthorized: Staff access required' }, { status: 401 });
     }

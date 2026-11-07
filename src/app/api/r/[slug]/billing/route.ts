@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
 
     const [plans, platformSetting, history] = await Promise.all([
       prisma.plan.findMany({
@@ -38,7 +38,9 @@ export async function GET(
       history,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 401 });
+    console.error('[billing GET] error:', error);
+    const isDev = process.env.NODE_ENV !== 'production';
+    return NextResponse.json({ error: isDev ? error.message : 'โหลดข้อมูลบิลลิ่งไม่สำเร็จ' }, { status: 401 });
   }
 }
 
@@ -47,7 +49,7 @@ export async function POST(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const body = await request.json();
     const { planId, amount, slipUrl, note } = body;
 
@@ -57,6 +59,19 @@ export async function POST(
 
     const plan = await prisma.plan.findUnique({ where: { id: planId } });
     if (!plan) return NextResponse.json({ error: 'ไม่พบแพ็กเกจที่เลือก' }, { status: 404 });
+
+    // Validate amount against plan price (behavior-preserving: previously any
+    // amount was accepted, allowing underpayment). Reject only clear underpayment.
+    const paidAmount = Number(amount);
+    if (!Number.isFinite(paidAmount) || paidAmount <= 0) {
+      return NextResponse.json({ error: 'ยอดเงินไม่ถูกต้อง' }, { status: 400 });
+    }
+    if (Number.isFinite(plan.price) && plan.price > 0 && paidAmount < plan.price - 0.01) {
+      return NextResponse.json(
+        { error: `ยอดเงินไม่ครบตามราคาแพ็กเกจ (฿${plan.price.toLocaleString()}) กรุณาชำระให้ครบก่อนส่งหลักฐาน` },
+        { status: 400 }
+      );
+    }
 
     // Idempotency: Prevent duplicate rapid submissions if user clicked multiple times
     const existingPending = await prisma.subscriptionHistory.findFirst({
@@ -95,6 +110,8 @@ export async function POST(
       submission,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('[billing POST] error:', error);
+    const isDev = process.env.NODE_ENV !== 'production';
+    return NextResponse.json({ error: isDev ? error.message : 'ส่งหลักฐานไม่สำเร็จ กรุณาลองใหม่' }, { status: 500 });
   }
 }

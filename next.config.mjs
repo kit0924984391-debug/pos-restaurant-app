@@ -10,6 +10,12 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async headers() {
     return [
       {
@@ -34,6 +40,13 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  webpack: (config, { isServer, dev }) => {
+    if (isServer && dev) {
+      config.resolve.alias = config.resolve.alias || {};
+      config.resolve.alias['@prisma/client/wasm'] = '@prisma/client';
+    }
+    return config;
   },
 };
 

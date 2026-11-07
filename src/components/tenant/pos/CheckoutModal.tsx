@@ -636,7 +636,7 @@ export default function CheckoutModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
           {/* Mobile Handle */}
           <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
@@ -1534,17 +1534,20 @@ export default function CheckoutModal({
           </div>
 
           {/* Sticky Bottom Actions */}
-          <div className="shrink-0 p-3.5 sm:p-4 border-t border-slate-100 bg-white safe-area-bottom">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div
+            className="shrink-0 p-3 sm:p-4 border-t border-slate-100 bg-white"
+            style={{ paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))' }}
+          >
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 data-sound="pop"
                 onClick={handlePrintBillFromCheckout}
-                className="py-3 sm:py-3.5 px-4 min-h-[48px] rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-orange-100 text-slate-700 hover:text-slate-900 active:text-orange-950 font-extrabold text-sm sm:text-xs border border-slate-300 active:border-orange-400 transition-all duration-75 flex items-center justify-center space-x-1.5 shadow-sm active:scale-95 cursor-pointer select-none ring-0 active:ring-2 active:ring-orange-300"
+                className="col-span-1 py-3 sm:py-3.5 px-2 sm:px-4 min-h-[48px] rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-orange-100 text-slate-700 hover:text-slate-900 active:text-orange-950 font-extrabold text-xs sm:text-xs border border-slate-300 active:border-orange-400 transition-all duration-75 flex items-center justify-center space-x-1 sm:space-x-1.5 shadow-sm active:scale-95 cursor-pointer select-none ring-0 active:ring-2 active:ring-orange-300"
                 title="พิมพ์ใบแจ้งค่าอาหาร / ใบเช็คบิลพร้อม QR Code ก่อนชำระเงิน"
               >
-                <Printer className="w-4 h-4 text-orange-500" />
-                <span>พิมพ์บิล</span>
+                <Printer className="w-4 h-4 text-orange-500 shrink-0" />
+                <span className="truncate">พิมพ์บิล</span>
               </button>
 
               <button
@@ -1552,17 +1555,17 @@ export default function CheckoutModal({
                 data-sound="success"
                 disabled={(paymentMethod === 'CASH' && change < 0) || isProcessingPay}
                 onClick={handleProcessPayment}
-                className="sm:col-span-2 py-3.5 min-h-[52px] rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white font-black text-base sm:text-sm shadow-lg shadow-emerald-500/25 active:shadow-sm transition-all duration-75 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center space-x-2 active:scale-95 cursor-pointer select-none ring-0 active:ring-2 active:ring-emerald-300"
+                className="col-span-2 py-3.5 min-h-[48px] sm:min-h-[52px] rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white font-black text-sm sm:text-sm shadow-lg shadow-emerald-500/25 active:shadow-sm transition-all duration-75 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center space-x-1.5 sm:space-x-2 active:scale-95 cursor-pointer select-none ring-0 active:ring-2 active:ring-emerald-300"
               >
                 {isProcessingPay ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>กำลังปิดบิล...</span>
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin shrink-0" />
+                    <span className="truncate">กำลังปิดบิล...</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span>ยืนยันชำระเงิน &amp; ปิดบิล</span>
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                    <span className="truncate">ยืนยันชำระเงิน &amp; ปิดบิล</span>
                   </>
                 )}
               </button>
@@ -1573,7 +1576,7 @@ export default function CheckoutModal({
 
       {/* Full Resolution Slip Preview Lightbox Modal */}
       {previewSlipModalOpen && slipPreview && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[70] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
           <div className="relative max-w-sm sm:max-w-md w-full bg-slate-900 rounded-3xl p-5 space-y-4 text-white border border-slate-800 shadow-2xl animate-fade-in">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center space-x-2">

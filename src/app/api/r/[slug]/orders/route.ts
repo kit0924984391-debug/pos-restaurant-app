@@ -255,7 +255,7 @@ export async function POST(
     let isStaffCaller = false;
     if (hasCustomItems) {
       try {
-        await requireStoreAccess(params.slug);
+        await requireStoreAccess(params.slug, request);
         isStaffCaller = true;
       } catch {
         return NextResponse.json(
@@ -361,7 +361,7 @@ export async function POST(
     } else if (discountAmount && Number(discountAmount) > 0) {
       let isStaff = false;
       try {
-        await requireStoreAccess(params.slug);
+        await requireStoreAccess(params.slug, request);
         isStaff = true;
       } catch {
         isStaff = false;
@@ -408,7 +408,7 @@ export async function POST(
       let gpIsStaff = isStaffCaller;
       if (!gpIsStaff) {
         try {
-          await requireStoreAccess(params.slug);
+          await requireStoreAccess(params.slug, request);
           gpIsStaff = true;
         } catch {
           gpIsStaff = false;
@@ -585,6 +585,7 @@ export async function POST(
       await prisma.$executeRaw`DELETE FROM "IdempotencyKey" WHERE "key" = ${idemKey} AND "status" = 102`.catch(() => {});
     }
     console.error('Error creating order:', error);
-    return NextResponse.json({ error: error.message || 'Failed to create order' }, { status: 500 });
+    const isDev = process.env.NODE_ENV !== 'production';
+    return NextResponse.json({ error: isDev ? (error.message || 'Failed to create order') : 'สร้างออเดอร์ไม่สำเร็จ กรุณาลองใหม่' }, { status: 500 });
   }
 }

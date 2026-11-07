@@ -36,6 +36,7 @@ import {
   UploadCloud,
   Users,
   Share2,
+  ClipboardCheck,
 } from 'lucide-react';
 import { formatPrice, formatTime, formatImageUrl } from '@/lib/utils';
 import { playSuccessChime, playOrderChime, speakThaiVoice } from '@/lib/sound';
@@ -81,6 +82,13 @@ export default function CustomerOrderingView({
   const [cart, setCart] = useState<any[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+
+  // Item Add Feedback & Anti-Double-Click States
+  const [isItemAddedJustNow, setIsItemAddedJustNow] = useState(false);
+  const [recentlyAddedIds, setRecentlyAddedIds] = useState<{ [id: string]: boolean }>({});
+
+  // Order Review & Confirmation Modal State (Anti-Duplicate Orders)
+  const [isOrderReviewOpen, setIsOrderReviewOpen] = useState(false);
   // Idempotency id for the current submission: kept across retries of the
   // same cart, cleared whenever the cart changes (or after success) so a new
   // submission always gets a fresh id.
@@ -612,7 +620,7 @@ export default function CustomerOrderingView({
   };
 
   const handleAddToCart = () => {
-    if (!selectedMenuItem) return;
+    if (!selectedMenuItem || isItemAddedJustNow) return;
 
     let extraPerUnit = 0;
     const flattenedOpts: any[] = [];
@@ -642,8 +650,15 @@ export default function CustomerOrderingView({
     const newCart = [...cart, cartItem];
     setCart(newCart);
     broadcastCartChange(newCart);
-    showSuccess('เพิ่มลงตะกร้าแล้ว 🛒', `${dishQuantity}x ${selectedMenuItem.name}`);
-    setSelectedMenuItem(null);
+
+    // Tactile button depressed feedback and prompt
+    setIsItemAddedJustNow(true);
+    showSuccess(`เพิ่มรายการ "${selectedMenuItem.name}" แล้ว 🛒`, `${dishQuantity} จาน • ใส่ในตะกร้าเรียบร้อย`);
+
+    setTimeout(() => {
+      setIsItemAddedJustNow(false);
+      setSelectedMenuItem(null);
+    }, 450);
   };
 
   const handleRemoveCartItem = (idx: number) => {
@@ -666,7 +681,19 @@ export default function CustomerOrderingView({
     const newCart = [...cart, cartItem];
     setCart(newCart);
     broadcastCartChange(newCart);
-    showSuccess(`เพิ่ม ${recItem.name} ลงตะกร้าแล้ว 🛒`, `+฿${itemPrice}`);
+
+    // Button visual feedback to prevent accidental double-tap
+    const itemId = recItem.id;
+    setRecentlyAddedIds((prev) => ({ ...prev, [itemId]: true }));
+    setTimeout(() => {
+      setRecentlyAddedIds((prev) => {
+        const next = { ...prev };
+        delete next[itemId];
+        return next;
+      });
+    }, 1500);
+
+    showSuccess(`เพิ่มรายการ "${recItem.name}" แล้ว 🛒`, `1 จาน • +฿${itemPrice}`);
   };
 
   const isAiUpsellEnabled = store?.enableAiUpsell !== false;
@@ -744,6 +771,7 @@ export default function CustomerOrderingView({
         // Clear shared table cart on server
         fetch(`/api/r/${slug}/tables/${tableId}/cart`, { method: 'DELETE' }).catch(() => {});
         setIsCartOpen(false);
+        setIsOrderReviewOpen(false);
         setActiveTab('status');
         playSuccessChime();
         confetti({
@@ -860,29 +888,40 @@ export default function CustomerOrderingView({
         {/* Category Filter Pills */}
         {activeTab === 'menu' && (
           <div className="p-2 sm:p-2.5 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 flex items-center space-x-2 overflow-x-auto scrollbar-none sticky top-[125px] sm:top-[132px] z-20 w-full max-w-full box-border touch-pan-x">
-            <button
-              onClick={() => setSelectedCategory('ALL')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex-shrink-0 ${
-                selectedCategory === 'ALL'
-                  ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
-                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
-              }`}
-            >
-              ทั้งหมด
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex-shrink-0 ${
-                  selectedCategory === cat.id
-                    ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
-                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
+            {loading && categories.length === 0 ? (
+              <div className="flex items-center space-x-2 animate-pulse" role="status" aria-label="กำลังโหลดหมวดหมู่อาหาร">
+                <div className="h-7 w-16 bg-slate-800 rounded-xl flex-shrink-0" />
+                <div className="h-7 w-20 bg-slate-800/80 rounded-xl flex-shrink-0" />
+                <div className="h-7 w-24 bg-slate-800/70 rounded-xl flex-shrink-0" />
+                <div className="h-7 w-20 bg-slate-800/60 rounded-xl flex-shrink-0" />
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => setSelectedCategory('ALL')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex-shrink-0 ${
+                    selectedCategory === 'ALL'
+                      ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                      : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                  }`}
+                >
+                  ทั้งหมด
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex-shrink-0 ${
+                      selectedCategory === cat.id
+                        ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                        : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         )}
 
@@ -890,7 +929,23 @@ export default function CustomerOrderingView({
         <main className="flex-1 p-3 sm:p-4 space-y-4 w-full max-w-full box-border overflow-x-hidden">
           {activeTab === 'menu' ? (
             /* Menu Items View */
-            filteredMenuItems.length === 0 ? (
+            loading ? (
+              <div className="space-y-3" role="status" aria-busy="true" aria-label="กำลังโหลดรายการอาหาร">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    key={i}
+                    className="p-3.5 rounded-3xl border border-slate-800/80 bg-slate-900/60 animate-pulse flex items-center justify-between gap-3"
+                  >
+                    <div className="flex-1 space-y-2.5">
+                      <div className="h-4 bg-slate-800 rounded-lg w-2/3" />
+                      <div className="h-3 bg-slate-800/60 rounded-md w-4/5" />
+                      <div className="h-4 bg-orange-500/20 rounded-md w-16" />
+                    </div>
+                    <div className="w-16 h-16 rounded-2xl bg-slate-800/60 flex-shrink-0" />
+                  </div>
+                ))}
+              </div>
+            ) : filteredMenuItems.length === 0 ? (
               <div className="text-center py-20 text-slate-500 text-xs font-semibold">
                 ไม่พบรายการอาหารในหมวดหมู่นี้
               </div>
@@ -900,9 +955,9 @@ export default function CustomerOrderingView({
                   <div
                     key={item.id}
                     onClick={() => handleOpenItem(item)}
-                    className={`p-3.5 rounded-3xl border transition-all flex items-center justify-between gap-3 ${
+                    className={`p-3.5 rounded-3xl border transition-all duration-75 flex items-center justify-between gap-3 ${
                       item.isAvailable
-                        ? 'bg-slate-900/90 border-slate-800 hover:border-orange-500/50 hover:shadow-lg cursor-pointer'
+                        ? 'bg-slate-900/90 border-slate-800 hover:border-orange-500/50 hover:shadow-lg active:scale-[0.98] active:translate-y-0.5 active:border-orange-500 cursor-pointer select-none'
                         : 'bg-slate-900/30 border-slate-800/40 opacity-40 cursor-not-allowed'
                     }`}
                   >
@@ -1246,7 +1301,12 @@ export default function CustomerOrderingView({
         {/* Item Customizer Pop-up */}
         {selectedMenuItem && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 rounded-3xl max-w-sm w-full p-5 sm:p-6 space-y-4 shadow-2xl border border-slate-800 text-white max-h-[90vh] overflow-y-auto">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="item-customizer-title"
+              className="bg-slate-900 rounded-3xl max-w-sm w-full p-5 sm:p-6 space-y-4 shadow-2xl border border-slate-800 text-white max-h-[90vh] overflow-y-auto"
+            >
               {selectedMenuItem.imageUrl && (
                 <div className="w-full h-40 rounded-2xl overflow-hidden relative border border-slate-800 bg-slate-950">
                   <img
@@ -1262,10 +1322,15 @@ export default function CustomerOrderingView({
 
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
-                  <h3 className="font-black text-base text-white">{selectedMenuItem.name}</h3>
+                  <h3 id="item-customizer-title" className="font-black text-base text-white">{selectedMenuItem.name}</h3>
                   <span className="text-xs font-bold text-orange-400">เริ่มต้น ฿{selectedMenuItem.basePrice}</span>
                 </div>
-                <button onClick={() => setSelectedMenuItem(null)} className="text-slate-400 hover:text-white p-1">
+                <button
+                  type="button"
+                  onClick={() => setSelectedMenuItem(null)}
+                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                  aria-label="ปิดหน้าต่างปรับแต่งเมนู"
+                >
                   ✕
                 </button>
               </div>
@@ -1373,9 +1438,20 @@ export default function CustomerOrderingView({
                         <button
                           type="button"
                           onClick={() => handleAddUpsellToCart(rec.item)}
-                          className="px-2.5 py-1 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-[10px] font-black shrink-0 transition-all cursor-pointer shadow-xs"
+                          className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black shrink-0 transition-all duration-75 cursor-pointer active:scale-80 active:translate-y-0.5 active:shadow-inner select-none shadow-xs flex items-center gap-1 ${
+                            recentlyAddedIds[rec.item?.id || rec.id]
+                              ? 'bg-emerald-600 text-white ring-2 ring-emerald-400'
+                              : 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white'
+                          }`}
                         >
-                          + เพิ่ม
+                          {recentlyAddedIds[rec.item?.id || rec.id] ? (
+                            <>
+                              <Check className="w-3 h-3" />
+                              <span>เพิ่มแล้ว</span>
+                            </>
+                          ) : (
+                            <span>+ เพิ่ม</span>
+                          )}
                         </button>
                       </div>
                     ))}
@@ -1388,7 +1464,7 @@ export default function CustomerOrderingView({
                   <button
                     type="button"
                     onClick={() => setDishQuantity(Math.max(1, dishQuantity - 1))}
-                    className="w-8 h-8 rounded-lg bg-slate-700 font-black text-sm text-white"
+                    className="w-8 h-8 rounded-lg bg-slate-700 font-black text-sm text-white active:scale-90 select-none"
                   >
                     -
                   </button>
@@ -1396,7 +1472,7 @@ export default function CustomerOrderingView({
                   <button
                     type="button"
                     onClick={() => setDishQuantity(dishQuantity + 1)}
-                    className="w-8 h-8 rounded-lg bg-slate-700 font-black text-sm text-white"
+                    className="w-8 h-8 rounded-lg bg-slate-700 font-black text-sm text-white active:scale-90 select-none"
                   >
                     +
                   </button>
@@ -1404,10 +1480,25 @@ export default function CustomerOrderingView({
 
                 <button
                   type="button"
+                  disabled={isItemAddedJustNow}
                   onClick={handleAddToCart}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:scale-105 text-white font-extrabold text-xs shadow-lg shadow-orange-500/25 transition-all"
+                  className={`px-5 py-3 rounded-2xl font-black text-xs shadow-lg transition-all duration-100 flex items-center justify-center gap-1.5 cursor-pointer select-none active:scale-90 active:translate-y-1 active:shadow-inner ${
+                    isItemAddedJustNow
+                      ? 'bg-emerald-600 text-white scale-95 shadow-emerald-600/30 ring-2 ring-emerald-400'
+                      : 'bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 active:from-orange-700 active:to-amber-700 text-white shadow-orange-500/25 ring-2 ring-orange-400/40'
+                  }`}
                 >
-                  เพิ่มลงตะกร้า (฿{calculateCustomizedPrice()})
+                  {isItemAddedJustNow ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 animate-bounce" />
+                      <span>เพิ่มลงตะกร้าแล้ว! ✔️</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      <span>เพิ่มลงตะกร้า (฿{calculateCustomizedPrice()})</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -1474,9 +1565,20 @@ export default function CustomerOrderingView({
                         <button
                           type="button"
                           onClick={() => handleAddUpsellToCart(rec.item)}
-                          className="mt-2 w-full py-1 rounded-lg bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-[10px] font-black transition-all cursor-pointer text-center shadow-xs"
+                          className={`mt-2 w-full py-1.5 rounded-lg text-[10px] font-black transition-all duration-75 cursor-pointer text-center shadow-xs active:scale-80 active:translate-y-0.5 active:shadow-inner select-none flex items-center justify-center gap-1 ${
+                            recentlyAddedIds[rec.item?.id || rec.id]
+                              ? 'bg-emerald-600 text-white ring-2 ring-emerald-400'
+                              : 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white'
+                          }`}
                         >
-                          + เพิ่ม ฿{rec.price ?? rec.item?.basePrice ?? 0}
+                          {recentlyAddedIds[rec.item?.id || rec.id] ? (
+                            <>
+                              <Check className="w-3 h-3" />
+                              <span>เพิ่มแล้ว</span>
+                            </>
+                          ) : (
+                            <span>+ เพิ่ม ฿{rec.price ?? rec.item?.basePrice ?? 0}</span>
+                          )}
                         </button>
                       </div>
                     ))}
@@ -1491,12 +1593,133 @@ export default function CustomerOrderingView({
                 </div>
 
                 <button
-                  disabled={isSubmittingOrder}
-                  onClick={handleSendOrderToKitchen}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:scale-105 text-white font-black text-sm shadow-xl shadow-orange-500/30 transition-all disabled:opacity-50 cursor-pointer"
+                  disabled={cart.length === 0 || isSubmittingOrder}
+                  onClick={() => setIsOrderReviewOpen(true)}
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:from-orange-700 active:to-amber-700 active:scale-95 active:translate-y-0.5 text-white font-black text-sm shadow-xl shadow-orange-500/30 transition-all duration-75 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 select-none ring-2 ring-orange-400/40"
                 >
-                  {isSubmittingOrder ? 'กำลังส่งเข้าครัว...' : 'ยืนยันส่งออเดอร์เข้าครัว 🍳'}
+                  <span>ตรวจสอบ &amp; สั่งอาหาร ({cart.reduce((sum, item) => sum + item.quantity, 0)} จาน)</span>
+                  <span>→</span>
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Order Review & Confirmation Modal (Prevent Accidental Duplicate Orders) */}
+        {isOrderReviewOpen && (
+          <div className="fixed inset-0 z-[80] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="order-review-title"
+              className="bg-slate-900 rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl border-2 border-orange-500/40 text-white flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-150"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800 shrink-0">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center shadow-inner">
+                    <ClipboardCheck className="w-5 h-5 text-orange-400" />
+                  </div>
+                  <div>
+                    <h3 id="order-review-title" className="text-base font-black text-white">ตรวจสอบรายการอาหาร</h3>
+                    <p className="text-[11px] text-slate-400 font-semibold">โต๊ะ {tableId} • ยืนยันก่อนส่งเข้าครัว</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsOrderReviewOpen(false)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Warning Notice Banner */}
+              <div className="my-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 shrink-0">
+                <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                <div className="text-xs text-amber-200">
+                  <span className="font-black block text-amber-300">กรุณาตรวจสอบรายการก่อนสั่ง</span>
+                  <span className="text-[11px]">เพื่อป้องกันการสั่งอาหารซ้ำซ้อนโดยไม่ตั้งใจ หากถูกต้องครบถ้วนแล้ว ให้กดปุ่มยืนยันด้านล่าง</span>
+                </div>
+              </div>
+
+              {/* Scrollable Items List */}
+              <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 divide-y divide-slate-800/80">
+                {cart.map((item, idx) => (
+                  <div key={idx} className="pt-2.5 first:pt-0 flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-md bg-orange-500/20 text-orange-400 text-xs font-black flex items-center justify-center shrink-0">
+                          {item.quantity}
+                        </span>
+                        <h4 className="font-extrabold text-sm text-white truncate">{item.name}</h4>
+                      </div>
+
+                      {/* Options & Notes */}
+                      {((item.selectedOptions && item.selectedOptions.length > 0) || item.specialNote) && (
+                        <div className="text-[11px] text-slate-400 mt-1 pl-7 space-y-0.5">
+                          {item.selectedOptions?.map((opt: any, oIdx: number) => (
+                            <span key={oIdx} className="inline-block bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 text-[10px]">
+                              +{opt.choice} {opt.extraPrice > 0 ? `(฿${opt.extraPrice})` : ''}
+                            </span>
+                          ))}
+                          {item.specialNote && (
+                            <div className="text-amber-300/90 italic">หมายเหตุ: "{item.specialNote}"</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className="font-black text-sm text-orange-400">฿{(item.price * item.quantity).toLocaleString()}</span>
+                      <span className="block text-[10px] text-slate-500">฿{item.price} / จาน</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Summary & Sticky Actions */}
+              <div className="pt-3 border-t border-slate-800 shrink-0 space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-xs font-bold text-slate-400">
+                    รวมทั้งสิ้น ({cart.reduce((sum, item) => sum + item.quantity, 0)} จาน):
+                  </span>
+                  <span className="text-lg font-black text-orange-400">
+                    ฿{cartTotalAmount.toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsOrderReviewOpen(false)}
+                    disabled={isSubmittingOrder}
+                    className="col-span-1 py-3 px-2 rounded-2xl border border-slate-700 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 text-xs font-bold transition-all duration-75 active:scale-90 active:translate-y-0.5 select-none cursor-pointer flex items-center justify-center truncate"
+                  >
+                    กลับไปแก้ไข
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isSubmittingOrder || cart.length === 0}
+                    onClick={async () => {
+                      await handleSendOrderToKitchen();
+                    }}
+                    className="col-span-2 py-3 px-3 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 active:from-orange-700 active:to-amber-700 active:scale-95 active:translate-y-0.5 text-white font-black text-sm shadow-xl shadow-orange-500/30 transition-all duration-75 disabled:opacity-50 cursor-pointer flex items-center justify-center space-x-1.5 select-none ring-2 ring-orange-400/50"
+                  >
+                    {isSubmittingOrder ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>กำลังส่งเข้าครัว...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-white" />
+                        <span>ยืนยันส่งเข้าครัวทันที 🍳</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

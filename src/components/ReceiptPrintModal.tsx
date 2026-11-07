@@ -131,7 +131,7 @@ export default function ReceiptPrintModal({ isOpen, onClose, order, store, autoP
   const eReceiptPath = order?.id ? `/r/${tenantSlug}/receipt/${order.id}` : null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm">
       {/* Thermal Slip Printer Scoped CSS */}
       <style
         dangerouslySetInnerHTML={{
@@ -485,11 +485,14 @@ export default function ReceiptPrintModal({ isOpen, onClose, order, store, autoP
         </div>
 
         {/* Action Buttons (No Print) */}
-        <div className="p-3 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-2 no-print">
+        <div
+          className="p-3 bg-slate-50 border-t border-slate-100 flex items-center gap-2 no-print shrink-0"
+          style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}
+        >
           <button
             type="button"
             onClick={onClose}
-            className="sm:w-24 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 transition-colors cursor-pointer"
+            className="w-20 sm:w-24 shrink-0 py-2.5 min-h-[42px] rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 active:bg-slate-200 transition-colors cursor-pointer flex items-center justify-center active:scale-95 select-none"
           >
             ปิด
           </button>
@@ -500,17 +503,17 @@ export default function ReceiptPrintModal({ isOpen, onClose, order, store, autoP
               type="button"
               onClick={handleDirectEscPosPrint}
               disabled={directPrinting}
-              className={`flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs shadow-md transition-all duration-75 flex items-center justify-center space-x-1.5 active:scale-95 cursor-pointer select-none ring-2 ring-emerald-400/50 ${
+              className={`flex-1 py-2.5 min-h-[42px] rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs shadow-md transition-all duration-75 flex items-center justify-center space-x-1.5 active:scale-95 cursor-pointer select-none ring-2 ring-emerald-400/50 ${
                 directPrinting ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
               }`}
             >
-              <Zap className="w-4 h-4 text-amber-300" />
-              <span>
+              <Zap className="w-4 h-4 text-amber-300 shrink-0" />
+              <span className="truncate">
                 {directPrinting
-                  ? 'กำลังส่งพิมพ์ตรง...'
+                  ? 'กำลังส่ง...'
                   : copies === 2
-                  ? 'พิมพ์ตรงบลูทูธ/USB (2 ใบ)'
-                  : '⚡ พิมพ์ตรงบลูทูธ/USB (ESC/POS)'}
+                  ? 'พิมพ์ตรง (2 ใบ)'
+                  : '⚡ พิมพ์ตรง (ESC/POS)'}
               </span>
             </button>
           )}
@@ -521,7 +524,7 @@ export default function ReceiptPrintModal({ isOpen, onClose, order, store, autoP
             data-sound="pop"
             onClick={handlePrint}
             disabled={isPrinting}
-            className={`flex-1 py-2.5 rounded-xl ${
+            className={`flex-1 py-2.5 min-h-[42px] rounded-xl ${
               printerStatus.connected
                 ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
                 : 'bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white ring-2 active:ring-amber-400/50'
@@ -529,12 +532,12 @@ export default function ReceiptPrintModal({ isOpen, onClose, order, store, autoP
               isPrinting ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
             }`}
           >
-            <Printer className="w-4 h-4 text-amber-400" />
-            <span>
+            <Printer className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="truncate">
               {isPrinting
                 ? 'กำลังส่งพิมพ์...'
                 : printerStatus.connected
-                ? 'พิมพ์ผ่านระบบเบราว์เซอร์'
+                ? 'พิมพ์ผ่านเบราว์เซอร์'
                 : copies === 2
                 ? 'พิมพ์บิล (2 ใบ)'
                 : 'พิมพ์บิล / ใบเสร็จ'}

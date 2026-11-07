@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "posttooluse-70ed4bf6ab421679423d413f80439172",
+  "runId": null,
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "PostToolUse"
+  },
+  "revision": null,
+  "diffHash": null,
+  "rulesVersion": null,
+  "sessionHash": "fc2f37becebf38d4c4f24eadcb4f3c9091fd712398fa4c3ae806927b8c3ecdad",
+  "reportRef": null,
+  "events": [
+    {
+      "eventId": "hook-d3e3e66bc42fd51867a4798dd0a08952",
+      "findingId": "mimosa-dc264ef45f30a8c909816b7b",
+      "type": "static_fix_verified",
+      "at": "2026-10-09T11:37:23.999Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/google-drive-storage.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "24b176777b29fc81c8e31ac96bc98452c6202671efb0a9774fc4a4a056fe4987",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 126,
+      "endLine": 126,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "24b176777b29fc81c8e31ac96bc98452c6202671efb0a9774fc4a4a056fe4987"
+      },
+      "sequence": 0
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-10-09T11:37:24.849Z"
+}

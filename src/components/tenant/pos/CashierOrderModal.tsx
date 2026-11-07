@@ -207,7 +207,7 @@ export default function CashierOrderModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4">
+      <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4">
         <div className="bg-white rounded-t-3xl md:rounded-3xl max-w-5xl w-full h-[95vh] md:h-[88vh] shadow-2xl border border-slate-200 overflow-hidden flex flex-col relative">
           <div className="p-4 sm:p-6 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -476,7 +476,7 @@ export default function CashierOrderModal({
 
           {/* Mobile Bottom Sheet Cart Modal (Rule 19, 24, 50) */}
           {isMobileCartOpen && (
-            <div className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end">
+            <div className="md:hidden fixed inset-0 z-[65] bg-black/60 backdrop-blur-xs flex flex-col justify-end">
               <div className="bg-white rounded-t-3xl max-h-[85vh] flex flex-col p-4 pb-8 space-y-4 shadow-2xl border-t border-slate-200 animate-fade-in">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
@@ -547,7 +547,7 @@ export default function CashierOrderModal({
 
       {/* Item Customizer Pop-up (when clicking item) */}
       {selectedMenuItem && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between">
               <h4 className="font-black text-base text-slate-900">{selectedMenuItem.name}</h4>

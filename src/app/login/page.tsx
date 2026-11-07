@@ -3,25 +3,41 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Store, Lock, Phone, ArrowRight, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Store, Lock, Phone, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { loginSchema, LoginFormData } from '@/lib/validations/auth';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [serverError, setServerError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      phone: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async (values: LoginFormData) => {
+    setServerError('');
 
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, identifier: phone, email: phone, password }),
+        body: JSON.stringify({
+          phone: values.phone,
+          identifier: values.phone,
+          email: values.phone,
+          password: values.password,
+        }),
       });
 
       let data: any;
@@ -43,15 +59,14 @@ export default function LoginPage() {
         router.push('/store/dashboard');
       }
     } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      setServerError(err.message);
     }
   };
 
   const handleDemoLogin = (demoPhoneOrEmail: string, demoPass: string) => {
-    setPhone(demoPhoneOrEmail);
-    setPassword(demoPass);
+    setValue('phone', demoPhoneOrEmail, { shouldValidate: true });
+    setValue('password', demoPass, { shouldValidate: true });
+    setServerError('');
   };
 
   return (
@@ -86,15 +101,16 @@ export default function LoginPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
         <div className="bg-slate-900/80 backdrop-blur-xl py-8 px-6 sm:px-10 shadow-2xl rounded-3xl border border-slate-800">
-          {error && (
-            <div className="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-semibold">
-              ⚠️ {error}
+          {serverError && (
+            <div className="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+              <span>{serverError}</span>
             </div>
           )}
 
-          <form className="space-y-5" onSubmit={handleLogin}>
+          <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
+              <label htmlFor="login-phone" className="block text-xs font-bold text-slate-300 mb-1.5">
                 เบอร์โทรศัพท์มือถือ (Phone Number)
               </label>
               <div className="relative">
@@ -102,22 +118,32 @@ export default function LoginPage() {
                   <Phone className="w-4 h-4" />
                 </div>
                 <input
+                  id="login-phone"
                   type="tel"
-                  required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  {...register('phone')}
+                  autoComplete="tel username"
                   placeholder="เช่น 089-123-4567 หรือ 0812345678"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-slate-500 transition-all font-mono"
+                  aria-invalid={errors.phone ? 'true' : 'false'}
+                  className={`w-full pl-10 pr-4 py-3 bg-slate-800/80 border rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-slate-500 transition-all font-mono ${
+                    errors.phone ? 'border-rose-500/50 focus:ring-rose-500' : 'border-slate-700'
+                  }`}
                 />
               </div>
-              <p className="mt-1 text-[11px] text-slate-400">
-                สามารถใช้เบอร์โทรศัพท์ที่ลงทะเบียนไว้ หรืออีเมลเดิมได้
-              </p>
+              {errors.phone ? (
+                <p role="alert" className="mt-1.5 text-[11px] text-rose-400 font-semibold flex items-center gap-1">
+                  <span>⚠️</span>
+                  <span>{errors.phone.message}</span>
+                </p>
+              ) : (
+                <p className="mt-1 text-[11px] text-slate-400">
+                  สามารถใช้เบอร์โทรศัพท์ที่ลงทะเบียนไว้ หรืออีเมลเดิมได้
+                </p>
+              )}
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold text-slate-300">
+                <label htmlFor="login-password" className="text-xs font-bold text-slate-300">
                   รหัสผ่าน (Password)
                 </label>
                 <Link
@@ -132,22 +158,31 @@ export default function LoginPage() {
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
+                  id="login-password"
                   type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register('password')}
+                  autoComplete="current-password"
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-slate-500 transition-all"
+                  aria-invalid={errors.password ? 'true' : 'false'}
+                  className={`w-full pl-10 pr-4 py-3 bg-slate-800/80 border rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-slate-500 transition-all ${
+                    errors.password ? 'border-rose-500/50 focus:ring-rose-500' : 'border-slate-700'
+                  }`}
                 />
               </div>
+              {errors.password && (
+                <p role="alert" className="mt-1.5 text-[11px] text-rose-400 font-semibold flex items-center gap-1">
+                  <span>⚠️</span>
+                  <span>{errors.password.message}</span>
+                </p>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3.5 px-4 rounded-xl text-white text-sm font-extrabold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg shadow-orange-500/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+              disabled={isSubmitting}
+              className="w-full py-3.5 px-4 rounded-xl text-white text-sm font-extrabold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg shadow-orange-500/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer active:scale-95"
             >
-              {loading ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>กำลังตรวจสอบ...</span>
@@ -170,7 +205,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => handleDemoLogin('089-123-4567', 'pos1234')}
-                className="w-full p-3 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-left border border-slate-700/80 hover:border-emerald-500/50 transition-all flex items-center justify-between px-4"
+                className="w-full p-3 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-left border border-slate-700/80 hover:border-emerald-500/50 transition-all flex items-center justify-between px-4 cursor-pointer active:scale-95"
               >
                 <span className="text-xs font-extrabold text-emerald-400 flex items-center space-x-2">
                   <span>👨‍🍳</span>

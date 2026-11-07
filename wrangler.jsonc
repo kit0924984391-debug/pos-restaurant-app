@@ -42,5 +42,10 @@
         "RealtimeHub"
       ]
     }
-  ]
+  ],
+  "vars": {
+    "RESEND_API_KEY": "",
+    "EMAIL_FROM": "Order Pos <onboarding@resend.dev>"
+  }
 }
+

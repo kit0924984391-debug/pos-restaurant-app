@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
 
     const ingredients = await prisma.ingredient.findMany({
       where: { storeId: store.id },
@@ -39,7 +39,7 @@ export async function POST(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const body = await request.json();
     const { action, name, unit, costPerUnit, currentStock, minStockAlert, ingredientId, changeQty, reason, note } = body;
 
@@ -118,7 +118,7 @@ export async function PUT(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const body = await request.json();
     const { id, name, unit, costPerUnit, currentStock, minStockAlert } = body;
 
@@ -179,7 +179,7 @@ export async function DELETE(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useSearch, resetPasswordSearchSchema } from '@/lib/router';
 import { Store, Lock, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertTriangle, ArrowLeft } from 'lucide-react';
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token') || '';
+  const { search } = useSearch(resetPasswordSearchSchema);
+  const token = search.token;
 
   const [checking, setChecking] = useState(true);
   const [tokenValid, setTokenValid] = useState(false);

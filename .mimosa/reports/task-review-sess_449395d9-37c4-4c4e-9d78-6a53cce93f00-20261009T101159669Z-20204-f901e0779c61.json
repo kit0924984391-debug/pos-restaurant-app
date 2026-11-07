@@ -1,0 +1,682 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261009T101159669Z-20204-f901e0779c61",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/4433-5ecb50ba08e56551.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/pos/page-f235e2a5a1b7e747.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-022df4e3311adc14.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-fb3300fe84fcb028.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-c94c268f03157c4a.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-bced559070ec7c86.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-2ef79cefa0a95274.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-e8c62421150b1b85.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_buildManifest.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "baseline-read",
+      "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_ssgManifest.js",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/cloudflare/init.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/chunks/4433-5ecb50ba08e56551.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/chunks/app/pos/page-f235e2a5a1b7e747.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-022df4e3311adc14.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-fb3300fe84fcb028.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-c94c268f03157c4a.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-bced559070ec7c86.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-2ef79cefa0a95274.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-e8c62421150b1b85.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_buildManifest.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_ssgManifest.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": ".open-next/.build/durable-objects/queue.js",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 268,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 2
+    },
+    "change_tracking": {
+      "touched_observed": 0,
+      "touched_retained": 0,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 12,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 12,
+      "selected_files": 12,
+      "limit": 20,
+      "truncated": false
+    },
+    "scanning": {
+      "required_files": 12,
+      "scanned_files": 0,
+      "skipped_files": 0,
+      "failed_files": 12,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "baseline_snapshot_unreadable": 10,
+      "scanner_failed": 12,
+      "project_check_failed": 22
+    },
+    "reasons": [
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/4433-5ecb50ba08e56551.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/pos/page-f235e2a5a1b7e747.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-022df4e3311adc14.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-fb3300fe84fcb028.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-c94c268f03157c4a.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-bced559070ec7c86.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-2ef79cefa0a95274.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-e8c62421150b1b85.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_buildManifest.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_ssgManifest.js",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/cloudflare/init.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/4433-5ecb50ba08e56551.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/pos/page-f235e2a5a1b7e747.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-022df4e3311adc14.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-fb3300fe84fcb028.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-c94c268f03157c4a.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-bced559070ec7c86.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-2ef79cefa0a95274.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-e8c62421150b1b85.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_buildManifest.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_ssgManifest.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": ".open-next/.build/durable-objects/queue.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/4433-5ecb50ba08e56551.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/pos/page-f235e2a5a1b7e747.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-022df4e3311adc14.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-fb3300fe84fcb028.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-c94c268f03157c4a.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-bced559070ec7c86.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-2ef79cefa0a95274.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-e8c62421150b1b85.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_buildManifest.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_ssgManifest.js",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/cloudflare/init.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/4433-5ecb50ba08e56551.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/pos/page-f235e2a5a1b7e747.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/kitchen/page-022df4e3311adc14.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/tables/page-fb3300fe84fcb028.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/settings/page-c94c268f03157c4a.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/reports/page-bced559070ec7c86.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-2ef79cefa0a95274.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/chunks/app/admin/menu/page-e8c62421150b1b85.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_buildManifest.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_ssgManifest.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": ".open-next/.build/durable-objects/queue.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-10-09T10:11:59.669Z",
+  "session_id": "sess_449395d9-37c4-4c4e-9d78-6a53cce93f00",
+  "target": ".",
+  "revision": "851157d5f9509c598d0be6e24998c8a0d563a09c",
+  "rules_version": "unavailable",
+  "diff_hash": "eeeee19a0a166555198ad9f53722787522df5431251ad96b0eaa71417a0f1500",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 12,
+    "changed_files": [
+      {
+        "file": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_buildManifest.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "1817e9c01e6f654f88886cef971a82605f42a0537c513a2e00d04260082e7904"
+      },
+      {
+        "file": ".open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_ssgManifest.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "678f6ce2cb80b1fe72fc67e7412be6e2ab6ada083111b64f7c40d35e3cba5e00"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/4433-5ecb50ba08e56551.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "11043f093231d29b4fd7fe2170ba2f1c84bb01919fcb8f0176d8636b61975320"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/menu/page-e8c62421150b1b85.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "6d52d924a2423854ca8d783a943e9be413fffc657c59c2c2a0dccefe8a1e9b5d"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/qr-codes/page-2ef79cefa0a95274.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "cf56197cadd2d3526d5e0af597ecf7882610e9d072c2de13e47c65c79290cd8e"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/reports/page-bced559070ec7c86.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "2c226c58a81f192b3b740ec241002c1396871685ffe379c9b7428a0f811b2e81"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/settings/page-c94c268f03157c4a.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "667f321c90325a21403a90d40cbbac2c8d556175fc7f7d258cc08da4c41f7eeb"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/admin/tables/page-fb3300fe84fcb028.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "8bb20eff15136491d1df40e8cd27e390f31cd46c9ed91e0f3aefde059ac836ba"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/kitchen/page-022df4e3311adc14.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "bb40c279d8771465e337d4f2e00bf8bb431c8fda4cf9f2dc61b4ced032e65f31"
+      },
+      {
+        "file": ".open-next/assets/_next/static/chunks/app/pos/page-f235e2a5a1b7e747.js",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "b5496234a136c17a43f81d50c2668b3affafdae45047c7081617ffde9111af7c"
+      },
+      {
+        "file": ".open-next/.build/durable-objects/queue.js",
+        "ranges": [
+          {
+            "start": 159,
+            "end": 159
+          },
+          {
+            "start": 183,
+            "end": 183
+          },
+          {
+            "start": 235,
+            "end": 235
+          },
+          {
+            "start": 259,
+            "end": 260
+          }
+        ],
+        "before_hash": "fb70a448cb843e8e5124c8dd1df3d17b3c8f3cb60b5a80e7ac737aedbf9aac31",
+        "after_hash": "9cdf4cec273c2be4edc40a4cbb61bf05274b9f81c7cf721599510fc8a106f394"
+      },
+      {
+        "file": ".open-next/cloudflare/init.js",
+        "ranges": [
+          {
+            "start": 50,
+            "end": 50
+          }
+        ],
+        "before_hash": "d8e9e9610caeb2ffeea1ad269914e7d30ab113e79cbbab06614a3208682a6cfe",
+        "after_hash": "874a9d8e104c3a780b62c8913db4d91dc0bbbca30034ea2d60aac1f255e22b5d"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-10-09T10:11:56.548Z",
+    "completed_at": "2026-10-09T10:11:59.669Z",
+    "duration_ms": 3121,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 3121,
+    "peakMemoryBytes": 101056512,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 0,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00-20261009T101159669Z-20204-f901e0779c61.json",
+    "latest_report": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00.json",
+    "history_summary": ".mimosa/history/run-20261009T101159669Z-20204-f901e0779c61.json"
+  }
+}

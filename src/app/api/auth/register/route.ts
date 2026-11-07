@@ -7,6 +7,15 @@ import { cleanBankAccount, checkRegistrationEligibility } from '@/lib/bank-valid
 export const dynamic = 'force-dynamic';
 
 function generateSlug(storeName: string): string {
+  const rand4 = (min: number, max: number): number => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { randomInt } = require('crypto') as typeof import('crypto');
+      return randomInt(min, max + 1);
+    } catch {
+      return Math.floor(min + Math.random() * (max - min + 1));
+    }
+  };
   const clean = storeName
     .toLowerCase()
     .trim()
@@ -15,9 +24,9 @@ function generateSlug(storeName: string): string {
     .replace(/^-+|-+$/g, '');
 
   if (clean.length >= 3) {
-    return `${clean}-${Math.floor(1000 + Math.random() * 9000)}`;
+    return `${clean}-${rand4(1000, 9999)}`;
   }
-  return `store-${Date.now().toString(36)}-${Math.floor(100 + Math.random() * 900)}`;
+  return `store-${Date.now().toString(36)}-${rand4(100, 999)}`;
 }
 
 // Signup throttle: max 3 registration attempts per phone/email per 24h, counted in
@@ -49,7 +58,20 @@ async function recordRegisterAttempt(key: string, nowMs: number): Promise<void> 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, password, storeName, phone, otp, refCode, bankName, bankAccountNo, bankAccountName } = body;
+    const {
+      name,
+      email,
+      password,
+      storeName,
+      phone,
+      otp,
+      refCode,
+      bankName,
+      bankAccountNo,
+      bankAccountName,
+      promptPayId,
+      promptPayName,
+    } = body;
 
     if (!name || !storeName || !phone || !password || !otp) {
       return NextResponse.json(
@@ -77,9 +99,13 @@ export async function POST(request: Request) {
     }
     await recordRegisterAttempt(signupKey, signupNow);
 
-    // 1. Anti-abuse & deduplication check for phone, bank account, and email
+    // 1. Anti-abuse & deduplication check for phone, bank account, email, and promptpay
     const cleanAccount = bankAccountNo ? cleanBankAccount(bankAccountNo) : '';
-    const eligibility = await checkRegistrationEligibility(cleanPhone, cleanAccount, email);
+    const cleanPromptPay = promptPayId && String(promptPayId).trim()
+      ? String(promptPayId).replace(/\D/g, '')
+      : cleanPhone;
+
+    const eligibility = await checkRegistrationEligibility(cleanPhone, cleanAccount, email, cleanPromptPay);
     if (!eligibility.eligible) {
       return NextResponse.json(
         { error: eligibility.message, code: eligibility.code },
@@ -131,11 +157,17 @@ export async function POST(request: Request) {
     let store: any = null;
     let result: { user: any; store: any };
     try {
+      const effectivePromptPayName = promptPayName && String(promptPayName).trim()
+        ? String(promptPayName).trim()
+        : (bankAccountName && String(bankAccountName).trim() ? String(bankAccountName).trim() : (name ? name.trim() : storeName.trim()));
+
       store = await prisma.store.create({
         data: {
           slug,
           name: storeName.trim(),
           phone: cleanPhone,
+          promptPayId: cleanPromptPay,
+          promptPayName: effectivePromptPayName,
           bankName: bankName ? String(bankName).trim() : '',
           bankAccountNo: cleanAccount,
           bankAccountName: bankAccountName ? String(bankAccountName).trim() : name.trim(),
@@ -297,8 +329,9 @@ export async function POST(request: Request) {
     return response;
   } catch (error: any) {
     console.error('Error in registration:', error);
+    const isDev = process.env.NODE_ENV !== 'production';
     return NextResponse.json(
-      { error: error.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก' },
+      { error: isDev ? (error.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก') : 'เกิดข้อผิดพลาดในการสมัครสมาชิก กรุณาลองใหม่' },
       { status: 500 }
     );
   }

@@ -53,27 +53,28 @@ export default function BoardLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-orange-500 selection:text-white">
       {/* Board Sticky Navigation */}
       <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80 w-full">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-14 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo & Community Title */}
-          <div className="flex items-center space-x-3 min-w-0">
+          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
             <Link
               href="/"
-              className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
+              className="p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
               title="กลับหน้าหลักเว็บ Order Pos"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
 
-            <Link href="/board" className="flex items-center space-x-2.5 group min-w-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform shrink-0">
-                <MessageSquare className="w-5 h-5" />
+            <Link href="/board" className="flex items-center space-x-2 sm:space-x-2.5 group min-w-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform shrink-0">
+                <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="flex flex-col min-w-0">
-                <div className="flex items-center space-x-1.5">
-                  <span className="text-base sm:text-lg font-black text-white tracking-tight whitespace-nowrap">
-                    Order Pos Board
+                <div className="flex items-center space-x-1.5 min-w-0">
+                  <span className="text-sm sm:text-lg font-black text-white tracking-tight truncate">
+                    <span className="hidden sm:inline">Order Pos Board</span>
+                    <span className="sm:hidden">Order POS</span>
                   </span>
-                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                  <span className="hidden md:inline-flex px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-500/20 text-orange-400 border border-orange-500/30 shrink-0">
                     Community &amp; Feedback
                   </span>
                 </div>
@@ -85,17 +86,18 @@ export default function BoardLayout({ children }: { children: React.ReactNode })
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center space-x-2 shrink-0">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
             <Link
               href="/board/new"
-              className="py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-sm shadow-md shadow-orange-500/20 flex items-center space-x-1.5 transition-all cursor-pointer active:scale-95"
+              className="py-1.5 sm:py-2.5 px-2.5 sm:px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-sm shadow-md shadow-orange-500/20 flex items-center space-x-1 sm:space-x-1.5 transition-all cursor-pointer active:scale-95 shrink-0"
             >
-              <PlusCircle className="w-4 h-4" />
-              <span>ตั้งกระทู้ใหม่</span>
+              <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="hidden sm:inline">ตั้งกระทู้ใหม่</span>
+              <span className="sm:hidden">ตั้งกระทู้</span>
             </Link>
 
             {currentUser ? (
-              <div className="flex items-center space-x-2 pl-1 border-l border-slate-800">
+              <div className="flex items-center space-x-1.5 sm:space-x-2 pl-1 border-l border-slate-800">
                 <div className="hidden sm:flex flex-col text-right">
                   <span className="text-xs font-bold text-white truncate max-w-[120px]">
                     {currentUser.name}
@@ -108,19 +110,20 @@ export default function BoardLayout({ children }: { children: React.ReactNode })
                   type="button"
                   onClick={handleLogout}
                   title="ออกจากระบบ"
-                  className="p-2 sm:p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:bg-rose-500/20 hover:border-rose-500/30 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+                  className="p-1.5 sm:p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:bg-rose-500/20 hover:border-rose-500/30 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer shrink-0"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => setAuthModalOpen(true)}
-                className="py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 font-bold text-xs sm:text-sm flex items-center space-x-1.5 transition-colors cursor-pointer"
+                title="เข้าสู่ระบบ"
+                className="py-1.5 sm:py-2.5 px-2.5 sm:px-4 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 font-bold text-xs sm:text-sm flex items-center space-x-1 sm:space-x-1.5 transition-colors cursor-pointer shrink-0"
               >
-                <LogIn className="w-4 h-4" />
-                <span>เข้าสู่ระบบ</span>
+                <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-orange-400" />
+                <span className="hidden sm:inline">เข้าสู่ระบบ</span>
               </button>
             )}
           </div>

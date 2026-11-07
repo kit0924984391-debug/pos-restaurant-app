@@ -21,7 +21,13 @@ import {
   EyeOff,
   ArrowRight,
   ArrowLeft,
+  ShieldCheck,
+  CreditCard,
+  Mail,
+  Copy,
+  Check,
 } from 'lucide-react';
+import { THAI_BANKS } from '@/lib/bank-constants';
 
 export default function PlatformAdminStoresPage() {
   const [stores, setStores] = useState<any[]>([]);
@@ -45,6 +51,59 @@ export default function PlatformAdminStoresPage() {
 
   // Cancel Delete / Restore State
   const [restoringStoreId, setRestoringStoreId] = useState<string | null>(null);
+
+  // Send Store Security Edit Link State
+  const [securityModalStore, setSecurityModalStore] = useState<any>(null);
+  const [targetOwnerEmail, setTargetOwnerEmail] = useState('');
+  const [sendingLink, setSendingLink] = useState(false);
+  const [sendLinkSuccess, setSendLinkSuccess] = useState<string | null>(null);
+  const [sendLinkError, setSendLinkError] = useState<string | null>(null);
+  const [devLinkUrl, setDevLinkUrl] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const handleOpenSecurityModal = (store: any) => {
+    const owner = store.users?.find((u: any) => u.role === 'STORE_OWNER') || store.users?.[0];
+    const ownerEmail = owner?.email && !owner.email.endsWith('@ordeopos.com') ? owner.email : '';
+    setSecurityModalStore(store);
+    setTargetOwnerEmail(ownerEmail || (store as any).email || '');
+    setSendingLink(false);
+    setSendLinkSuccess(null);
+    setSendLinkError(null);
+    setDevLinkUrl(null);
+    setCopiedLink(false);
+  };
+
+  const handleSendSecurityEditLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!securityModalStore) return;
+    setSendingLink(true);
+    setSendLinkError(null);
+    setSendLinkSuccess(null);
+
+    try {
+      const res = await fetch(`/api/platform-admin/stores/${securityModalStore.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'SEND_SECURITY_EDIT_LINK',
+          ownerEmail: targetOwnerEmail.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'ไม่สามารถส่งลิงก์แก้ไขข้อมูลได้');
+      }
+      setSendLinkSuccess(data.message || 'ส่งลิงก์ไปยังอีเมลเรียบร้อยแล้ว');
+      if (data.devLink) {
+        setDevLinkUrl(data.devLink);
+      }
+      fetchStores();
+    } catch (err: any) {
+      setSendLinkError(err.message);
+    } finally {
+      setSendingLink(false);
+    }
+  };
 
   const fetchStores = async () => {
     try {
@@ -405,6 +464,16 @@ export default function PlatformAdminStoresPage() {
                               <span>รายงาน</span>
                             </Link>
 
+                            {/* Send Security Edit Link button */}
+                            <button
+                              onClick={() => handleOpenSecurityModal(s)}
+                              className="inline-flex items-center px-2 py-1.5 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 font-bold text-[11px] border border-orange-500/20 transition-all"
+                              title="ส่งลิงก์ให้เจ้าของร้านเปิดอีเมลแก้ไขข้อมูลสำคัญด้วยตนเอง (เบอร์โทร, อีเมล, บัญชีรับเงิน)"
+                            >
+                              <Mail className="w-3 h-3 mr-1" />
+                              <span>ส่งลิงก์แก้ไข</span>
+                            </button>
+
                             {/* Extend Days Button */}
                             <button
                               onClick={() => setSelectedStore(s)}
@@ -704,6 +773,162 @@ export default function PlatformAdminStoresPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Send Security Edit Link to Store Owner */}
+      {securityModalStore && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 rounded-3xl p-6 sm:p-7 max-w-lg w-full border border-orange-500/30 shadow-2xl space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">ส่งลิงก์แก้ไขข้อมูลสำคัญให้เจ้าของร้าน</h3>
+                  <p className="text-xs text-slate-400 font-mono">ร้าน: {securityModalStore.name} (/r/{securityModalStore.slug})</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSecurityModalStore(null)}
+                className="text-slate-400 hover:text-white text-lg font-bold p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Security Policy Alert Banner */}
+            <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-amber-500/30 text-amber-300 text-xs space-y-1.5">
+              <div className="flex items-center space-x-1.5 font-extrabold text-amber-400">
+                <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>นโยบายความปลอดภัยและป้องกันการทุจริตบัญชีรับเงิน</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                ผู้ดูแลระบบ (Admin) ไม่สามารถแก้ไขเบอร์โทรศัพท์, บัญชีธนาคาร หรือพร้อมเพย์ของร้านค้าได้โดยตรง เพื่อป้องกันการแอบใส่บัญชีตนเอง ระบบจะสร้างลิงก์แก้ไขแบบใช้ครั้งเดียว (อายุ 24 ชม.) ส่งไปยังอีเมลของเจ้าของร้าน เพื่อให้เจ้าของร้านเปิดอีเมลและยืนยันตัวตนด้วย SMS OTP ด้วยตนเอง
+              </p>
+            </div>
+
+            {/* Current Financial & Security Details (Read-only Preview) */}
+            <div className="bg-slate-800/50 rounded-2xl p-3 border border-slate-700/60 space-y-2 text-xs">
+              <div className="text-[11px] font-bold text-slate-400 flex items-center justify-between">
+                <span>ข้อมูลความปลอดภัยปัจจุบันของร้าน</span>
+                <span className="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-mono">🔒 ล็อกห้ามแอดมินแก้ตรง</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="bg-slate-900/60 p-2 rounded-xl">
+                  <span className="text-slate-400 block text-[10px]">เบอร์โทรร้าน (Login):</span>
+                  <span className="font-mono font-bold text-white">{securityModalStore.phone || '-'}</span>
+                </div>
+                <div className="bg-slate-900/60 p-2 rounded-xl">
+                  <span className="text-slate-400 block text-[10px]">พร้อมเพย์รับเงิน:</span>
+                  <span className="font-mono font-bold text-emerald-400">{securityModalStore.promptPayId || 'ยังไม่ระบุ'}</span>
+                </div>
+                <div className="bg-slate-900/60 p-2 rounded-xl col-span-2">
+                  <span className="text-slate-400 block text-[10px]">บัญชีธนาคาร:</span>
+                  <span className="font-mono font-bold text-sky-400">
+                    {securityModalStore.bankName || '-'} {securityModalStore.bankAccountNo || 'ยังไม่ระบุ'}
+                    {securityModalStore.bankAccountName ? ` (${securityModalStore.bankAccountName})` : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Errors / Success Feedback */}
+            {sendLinkError && (
+              <div className="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold">
+                ⚠️ {sendLinkError}
+              </div>
+            )}
+
+            {sendLinkSuccess && (
+              <div className="p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs space-y-2">
+                <div className="flex items-center space-x-1.5 font-extrabold text-emerald-400">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{sendLinkSuccess}</span>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  ระบบได้ส่งอีเมลพร้อมลิงก์แก้ไขข้อมูลที่มีอายุ 24 ชั่วโมง และสามารถเปิดใช้งานได้เพียง 1 ครั้งให้เจ้าของร้านแล้ว
+                </p>
+                {devLinkUrl && (
+                  <div className="mt-2 p-2 bg-slate-900/80 rounded-xl border border-emerald-500/30 text-[11px] space-y-1">
+                    <div className="text-slate-400 font-bold flex items-center justify-between">
+                      <span>ลิงก์แก้ไขข้อมูล (โหมดทดสอบ / Local Dev Link):</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(devLinkUrl);
+                          setCopiedLink(true);
+                          setTimeout(() => setCopiedLink(false), 2000);
+                        }}
+                        className="text-emerald-400 hover:text-emerald-300 flex items-center space-x-1"
+                      >
+                        {copiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedLink ? 'คัดลอกแล้ว!' : 'คัดลอกลิงก์'}</span>
+                      </button>
+                    </div>
+                    <a
+                      href={devLinkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-orange-400 underline break-all font-mono text-[10px] block hover:text-orange-300"
+                    >
+                      {devLinkUrl}
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Email Dispatch Form */}
+            <form onSubmit={handleSendSecurityEditLink} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">
+                  อีเมลเจ้าของร้าน (ปลายทางที่จะรับลิงก์แก้ไข) <span className="text-rose-400">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    required
+                    value={targetOwnerEmail}
+                    onChange={(e) => setTargetOwnerEmail(e.target.value)}
+                    placeholder="owner@example.com"
+                    className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white font-mono focus:ring-2 focus:ring-orange-500"
+                  />
+                  <Mail className="w-4 h-4 text-slate-500 absolute right-3 top-3 pointer-events-none" />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  * เมื่อกดส่ง ระบบจะส่งอีเมลแจ้งเตือนความปลอดภัยพร้อมปุ่มยืนยันและลิงก์ความปลอดภัยไปยังอีเมลนี้
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-3 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setSecurityModalStore(null)}
+                  className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all"
+                >
+                  ปิดหน้าต่าง
+                </button>
+                <button
+                  type="submit"
+                  disabled={sendingLink || !targetOwnerEmail.trim()}
+                  className="flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-extrabold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-orange-600/30 transition-all disabled:opacity-50"
+                >
+                  {sendingLink ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4 mr-1" />
+                      <span>{sendLinkSuccess ? 'ส่งลิงก์ซ้ำอีกครั้ง' : 'ส่งลิงก์แก้ไขให้เจ้าของร้าน'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

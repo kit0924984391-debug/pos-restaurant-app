@@ -43,7 +43,7 @@ export default function ServeConfirmModal({
   const totalCount = items.reduce((sum: number, it: any) => sum + (it.quantity || 1), 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
       <div className="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-150 flex flex-col space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">

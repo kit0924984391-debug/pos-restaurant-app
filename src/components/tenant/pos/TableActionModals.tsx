@@ -107,7 +107,7 @@ export default function TableActionModals({
     <>
       {/* Move Table Modal */}
       {isMoveModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-slate-200">
             <h4 className="font-black text-base text-slate-900">ย้ายจาก {selectedTable?.name} ไปโต๊ะอื่น</h4>
             <div className="space-y-2">
@@ -153,7 +153,7 @@ export default function TableActionModals({
 
       {/* Quick Add Table Modal */}
       {isAddTableModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-slate-200">
             <h4 className="font-black text-base text-slate-900">+ เพิ่มโต๊ะใหม่</h4>
             <form onSubmit={handleCreateNewTable} className="space-y-3 text-xs">

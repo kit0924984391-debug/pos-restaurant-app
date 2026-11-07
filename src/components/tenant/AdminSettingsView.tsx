@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   Printer,
   Sparkles,
+  Lock,
+  Building2,
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 import PrintProxySettingsCard from './settings/PrintProxySettingsCard';
@@ -45,6 +47,9 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
     storeName: string;
     promptPayId: string;
     promptPayName: string;
+    bankName: string;
+    bankAccountNo: string;
+    bankAccountName: string;
     address: string;
     phone: string;
     receiptFooter: string;
@@ -72,6 +77,9 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
     ownerEmail: '',
     promptPayId: '',
     promptPayName: '',
+    bankName: '',
+    bankAccountNo: '',
+    bankAccountName: '',
     address: '',
     phone: '',
     receiptFooter: '',
@@ -111,6 +119,9 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
             ownerEmail: data.ownerEmail || '',
             promptPayId: data.promptPayId || '',
             promptPayName: data.promptPayName || '',
+            bankName: data.bankName || '',
+            bankAccountNo: data.bankAccountNo || '',
+            bankAccountName: data.bankAccountName || '',
             address: data.address || '',
             phone: data.phone || '',
             receiptFooter: data.receiptFooter || '',
@@ -467,28 +478,45 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
             </div>
 
             <div>
-              <label className="block text-slate-700 font-bold mb-1">เบอร์โทรศัพท์ร้าน</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-slate-700 font-bold">เบอร์โทรศัพท์ร้าน</label>
+                <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full flex items-center space-x-1">
+                  <Lock className="w-2.5 h-2.5" />
+                  <span>ล็อกความปลอดภัย</span>
+                </span>
+              </div>
               <input
                 type="text"
+                readOnly
+                disabled
                 value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-700 font-bold font-mono cursor-not-allowed select-all"
               />
+              <p className="mt-1 text-[11px] text-slate-400">
+                🔒 เบอร์โทรศัพท์ที่ใช้ Login และสร้างพร้อมเพย์ถูกล็อกห้ามแก้ไขด้วยตนเอง
+              </p>
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-slate-700 font-bold mb-1">
-                อีเมลเจ้าของร้าน (สำหรับกู้คืนรหัสผ่าน)
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-slate-700 font-bold">
+                  อีเมลเจ้าของร้าน (สำหรับกู้คืนรหัสผ่าน)
+                </label>
+                <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full flex items-center space-x-1">
+                  <Lock className="w-2.5 h-2.5" />
+                  <span>ล็อกความปลอดภัย</span>
+                </span>
+              </div>
               <input
                 type="email"
+                readOnly
+                disabled
                 placeholder="เช่น yourname@gmail.com"
                 value={form.ownerEmail}
-                onChange={(e) => setForm({ ...form, ownerEmail: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono"
+                className="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-700 font-bold font-mono cursor-not-allowed select-all"
               />
               <p className="mt-1 text-[11px] text-slate-400">
-                ใช้สำหรับรับลิงก์ตั้งรหัสผ่านใหม่เมื่อกด &ldquo;ลืมรหัสผ่าน&rdquo;
+                🔒 อีเมลหลักสำหรับกู้คืนรหัสผ่านถูกล็อก หากต้องการเปลี่ยนกรุณาติดต่อผู้ดูแลระบบ
               </p>
             </div>
 
@@ -504,37 +532,120 @@ export default function AdminSettingsView({ slug = 'lung-pa' }: { slug?: string 
           </div>
         </div>
 
-        {/* Section 2: PromptPay Receiving Account */}
+        {/* Section 2: PromptPay Receiving Account & Bank Security */}
         <div className="space-y-4">
-          <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2 border-b border-slate-100 pb-2">
-            <CreditCard className="w-4 h-4 text-emerald-500" />
-            <span>บัญชีพร้อมเพย์รับเงิน (PromptPay) ของร้าน</span>
-          </h3>
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
+              <CreditCard className="w-4 h-4 text-emerald-500" />
+              <span>บัญชีพร้อมเพย์รับเงิน (PromptPay) &amp; บัญชีธนาคารของร้าน</span>
+            </h3>
+            <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full flex items-center space-x-1 border border-amber-200">
+              <Lock className="w-2.5 h-2.5" />
+              <span>ล็อกห้ามแก้ไขด้วยตนเอง</span>
+            </span>
+          </div>
 
+          {/* Security Locked Notice Card */}
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-950 space-y-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0" />
+                <h4 className="text-xs sm:text-sm font-black text-amber-900">
+                  🔒 ข้อมูลบัญชีรับเงินของร้านค้าได้รับการยืนยันและล็อกความปลอดภัยแล้ว
+                </h4>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-200/80 text-amber-900 border border-amber-300 w-fit">
+                ป้องกันการสวมรอยบัญชี 100%
+              </span>
+            </div>
+            <p className="text-xs text-amber-800 leading-relaxed">
+              เพื่อความปลอดภัยสูงสุดของร้านค้า ป้องกันการแก้ไขหรือสลับบัญชีรับเงินโดยไม่ได้รับอนุญาต ระบบจะไม่อนุญาตให้แก้ไขหมายเลขพร้อมเพย์ เบอร์โทร และเลขบัญชีธนาคารด้วยตนเอง หากต้องการเปลี่ยนแปลงข้อมูล กรุณาแจ้งผู้ดูแลระบบ (Platform Admin) เพื่อขอรับลิงก์แก้ไขทางอีเมล (Admin ไม่สามารถแก้ไขข้อมูลได้เอง เพื่อป้องกันการแอบใส่บัญชีตนเอง เจ้าของร้านจะต้องเปิดอีเมลและยืนยันผ่าน SMS OTP ด้วยตนเอง)
+            </p>
+            <div className="pt-1.5 flex flex-wrap items-center gap-2">
+              <a
+                href="https://line.me/R/ti/p/@ordeopos"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-all"
+              >
+                <span>💬 ติดต่อ Admin ผ่าน LINE Official</span>
+              </a>
+              <a
+                href="tel:0812345678"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs shadow-sm transition-all"
+              >
+                <span>📞 โทรติดต่อ Admin (081-234-5678)</span>
+              </a>
+            </div>
+          </div>
+
+          {/* PromptPay Fields (Read-Only) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="block text-slate-700 font-bold mb-1">
-                หมายเลขพร้อมเพย์ (เบอร์โทร 10 หลัก หรือ Tax ID 13 หลัก) *
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-slate-700 font-bold">
+                  หมายเลขพร้อมเพย์รับเงิน (PromptPay ID)
+                </label>
+                <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-mono">
+                  🔒 ล็อก
+                </span>
+              </div>
               <input
                 type="text"
-                required
-                placeholder="0812345678"
+                readOnly
+                disabled
                 value={form.promptPayId}
-                onChange={(e) => setForm({ ...form, promptPayId: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl font-bold font-mono text-slate-700 cursor-not-allowed select-all"
               />
+              <p className="mt-1 text-[11px] text-slate-400">
+                หมายเลขที่ใช้สร้าง QR Code รับเงินประจำโต๊ะและแคชเชียร์
+              </p>
             </div>
 
             <div>
-              <label className="block text-slate-700 font-bold mb-1">ชื่อบัญชีพร้อมเพย์ที่แสดง</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-slate-700 font-bold">ชื่อบัญชีพร้อมเพย์ที่แสดง</label>
+                <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-mono">
+                  🔒 ล็อก
+                </span>
+              </div>
               <input
                 type="text"
-                placeholder="เช่น ร้านตามสั่ง ลุง-ป้า"
+                readOnly
+                disabled
                 value={form.promptPayName}
-                onChange={(e) => setForm({ ...form, promptPayName: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl font-bold text-slate-700 cursor-not-allowed select-all"
               />
+              <p className="mt-1 text-[11px] text-slate-400">
+                ชื่อบัญชีที่ปรากฏบนหน้าสแกนจ่ายเงินของลูกค้า
+              </p>
+            </div>
+          </div>
+
+          {/* Bank Account Details Card (Read-Only) */}
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+              <div className="flex items-center space-x-1.5 text-slate-800">
+                <Building2 className="w-4 h-4 text-orange-500" />
+                <span>บัญชีธนาคารของร้านที่ลงทะเบียนไว้</span>
+              </div>
+              <span className="text-[10px] text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full font-bold flex items-center space-x-1">
+                <span>✓ ยืนยันแล้ว</span>
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1 border-t border-slate-200/60">
+              <div>
+                <span className="text-[11px] text-slate-400 block font-medium">ธนาคาร:</span>
+                <span className="font-extrabold text-slate-800">{form.bankName || '-'}</span>
+              </div>
+              <div>
+                <span className="text-[11px] text-slate-400 block font-medium">เลขที่บัญชี:</span>
+                <span className="font-extrabold font-mono text-slate-800">{form.bankAccountNo || '-'}</span>
+              </div>
+              <div>
+                <span className="text-[11px] text-slate-400 block font-medium">ชื่อบัญชี:</span>
+                <span className="font-extrabold text-slate-800">{form.bankAccountName || '-'}</span>
+              </div>
             </div>
           </div>
         </div>

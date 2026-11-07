@@ -413,7 +413,7 @@ export default function AdminTablesView({ slug = 'lung-pa' }: { slug?: string })
 
       {/* Add Single Table Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-base text-slate-900">+ เพิ่มโต๊ะใหม่</h3>
@@ -476,7 +476,7 @@ export default function AdminTablesView({ slug = 'lung-pa' }: { slug?: string })
 
       {/* Batch Add Modal */}
       {isBatchModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-base text-slate-900">+ เพิ่มหลายโต๊ะด่วน</h3>
@@ -523,7 +523,7 @@ export default function AdminTablesView({ slug = 'lung-pa' }: { slug?: string })
 
       {/* Edit Table Modal */}
       {isEditModalOpen && editingTable && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-base text-slate-900">แก้ไขชื่อ {editingTable.name}</h3>
@@ -574,7 +574,7 @@ export default function AdminTablesView({ slug = 'lung-pa' }: { slug?: string })
 
       {/* QR Code Pop-up Modal */}
       {isQrModalOpen && selectedQrTable && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-xs w-full p-6 space-y-4 shadow-2xl border border-slate-200 text-center animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-base text-slate-900">{selectedQrTable.name}</h3>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { TypedLink } from '@/lib/router';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -323,13 +324,14 @@ export default function ThreadDetailPage() {
         <AlertCircle className="w-12 h-12 text-rose-500 mx-auto" />
         <h3 className="text-lg font-bold text-white">ไม่พบกระทู้นี้</h3>
         <p className="text-xs text-slate-400">{error || 'กระทู้อาจถูกลบไปแล้ว'}</p>
-        <Link
-          href="/board"
+        <TypedLink
+          to="/board"
+          preload="intent"
           className="inline-flex items-center space-x-2 py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>กลับไปหน้ารวมกระทู้</span>
-        </Link>
+        </TypedLink>
       </div>
     );
   }
@@ -345,13 +347,14 @@ export default function ThreadDetailPage() {
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-12">
       {/* Top Back Navigation */}
       <div className="flex items-center justify-between">
-        <Link
-          href="/board"
+        <TypedLink
+          to="/board"
+          preload="intent"
           className="inline-flex items-center space-x-2 text-xs font-bold text-slate-400 hover:text-white transition-colors cursor-pointer py-1"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>กลับไปยังรายการกระทู้ทั้งหมด</span>
-        </Link>
+        </TypedLink>
 
         {/* Share Button */}
         <button

@@ -938,7 +938,7 @@ export default function AdminLoyaltyView({ slug }: { slug: string }) {
 
       {/* MODAL: Create / Edit Reward Milestone */}
       {isRewardModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">
@@ -1056,7 +1056,7 @@ export default function AdminLoyaltyView({ slug }: { slug: string }) {
 
       {/* MODAL: Adjust Points */}
       {isAdjustModalOpen && selectedMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-slate-900 text-base">ปรับแต้มสะสม</h3>
@@ -1120,7 +1120,7 @@ export default function AdminLoyaltyView({ slug }: { slug: string }) {
 
       {/* MODAL: Create / Edit Member */}
       {isMemberModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">
@@ -1217,7 +1217,7 @@ export default function AdminLoyaltyView({ slug }: { slug: string }) {
 
       {/* MODAL: Create / Edit Promo */}
       {isPromoModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">

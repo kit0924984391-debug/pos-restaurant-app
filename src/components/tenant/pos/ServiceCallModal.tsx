@@ -56,7 +56,7 @@ export default function ServiceCallModal({
   return (
     <>
       {isOpen && currentServiceCall && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[60] bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border-2 border-amber-500/60 overflow-hidden text-slate-900 animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="p-5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white relative">

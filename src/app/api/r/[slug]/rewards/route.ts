@@ -47,7 +47,7 @@ export async function POST(
 ) {
   try {
     try {
-      await requireStoreAccess(params.slug);
+      await requireStoreAccess(params.slug, request);
     } catch {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -101,7 +101,7 @@ export async function PUT(
 ) {
   try {
     try {
-      await requireStoreAccess(params.slug);
+      await requireStoreAccess(params.slug, request);
     } catch {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -164,7 +164,7 @@ export async function DELETE(
 ) {
   try {
     try {
-      await requireStoreAccess(params.slug);
+      await requireStoreAccess(params.slug, request);
     } catch {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

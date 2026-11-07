@@ -1,0 +1,399 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261009T073115374Z-7548-091bc85b2ae6",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "scan",
+      "target": "src/app/api/auth/login/route.ts",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "src/app/api/auth/register/route.ts",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "src/app/api/r/[slug]/members/route.ts",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "src/app/api/platform-admin/subscriptions/route.ts",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "src/app/api/platform-admin/stores/route.ts",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "src/app/api/r/[slug]/orders/route.ts",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "src/components/tenant/CustomerOrderingView.tsx",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    },
+    {
+      "stage": "scan",
+      "target": "tests/integration/mobileRegister.test.ts",
+      "reason": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 268,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 8
+    },
+    "change_tracking": {
+      "touched_observed": 8,
+      "touched_retained": 8,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 8,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 8,
+      "selected_files": 8,
+      "limit": 20,
+      "truncated": false
+    },
+    "scanning": {
+      "required_files": 8,
+      "scanned_files": 0,
+      "skipped_files": 0,
+      "failed_files": 8,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "scanner_failed": 8,
+      "project_check_failed": 8
+    },
+    "reasons": [
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "src/app/api/auth/login/route.ts",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "src/app/api/auth/register/route.ts",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "src/app/api/r/[slug]/members/route.ts",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "src/app/api/platform-admin/subscriptions/route.ts",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "src/app/api/platform-admin/stores/route.ts",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "src/app/api/r/[slug]/orders/route.ts",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "src/components/tenant/CustomerOrderingView.tsx",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "tests/integration/mobileRegister.test.ts",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "src/app/api/auth/login/route.ts",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "src/app/api/auth/register/route.ts",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "src/app/api/r/[slug]/members/route.ts",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "src/app/api/platform-admin/subscriptions/route.ts",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "src/app/api/platform-admin/stores/route.ts",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "src/app/api/r/[slug]/orders/route.ts",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "src/components/tenant/CustomerOrderingView.tsx",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "tests/integration/mobileRegister.test.ts",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-10-09T07:31:15.374Z",
+  "session_id": "sess_449395d9-37c4-4c4e-9d78-6a53cce93f00",
+  "target": ".",
+  "revision": "851157d5f9509c598d0be6e24998c8a0d563a09c",
+  "rules_version": "unavailable",
+  "diff_hash": "c033803151de708cbc60390a6bb28a86705d06960e427ccb0c6218e3afc055e7",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 8,
+    "changed_files": [
+      {
+        "file": "src/app/api/auth/login/route.ts",
+        "ranges": [
+          {
+            "start": 55,
+            "end": 59
+          }
+        ],
+        "before_hash": "7dd7314dc63bb976e96510f2e32c882c73104723645a71b8a9bd487f389f8752",
+        "after_hash": "331656a37553f14b7c92574d6edab8bf03e0323f13593a6cbf9644399109ce82"
+      },
+      {
+        "file": "src/app/api/auth/register/route.ts",
+        "ranges": [
+          {
+            "start": 73,
+            "end": 74
+          },
+          {
+            "start": 91,
+            "end": 92
+          },
+          {
+            "start": 116,
+            "end": 117
+          }
+        ],
+        "before_hash": "5393e068934e2d1573e13c5c60650a63c59ca4522c376f1818a4dc7a901e52a9",
+        "after_hash": "61dd59cba3caff592a84e7ed96e8d45f1639a3758cb7187b9e996962fbb730f7"
+      },
+      {
+        "file": "src/app/api/platform-admin/stores/route.ts",
+        "ranges": [
+          {
+            "start": 39,
+            "end": 40
+          }
+        ],
+        "before_hash": "6e313ef702268a510ea8b07949711737976a2e29b69466d539669943702bf98f",
+        "after_hash": "c7bf56a5e9a6119c7312ccd854f9c46ee15c9064cd3b9122a7e842e0093ad74e"
+      },
+      {
+        "file": "src/app/api/platform-admin/subscriptions/route.ts",
+        "ranges": [
+          {
+            "start": 26,
+            "end": 27
+          }
+        ],
+        "before_hash": "78b6e947c960584d16f226209e4cfca99a8d7558870672917090d7d3e801687b",
+        "after_hash": "0f94a5f318a1a8688edb29bcb3086d7e478a6c2b4bca94ad981e9581b6eb5979"
+      },
+      {
+        "file": "src/app/api/r/[slug]/members/route.ts",
+        "ranges": [
+          {
+            "start": 123,
+            "end": 126
+          },
+          {
+            "start": 258,
+            "end": 261
+          }
+        ],
+        "before_hash": "3462bdb5cac3d3fff080a07f9e87b24e9c76d87fbf09f9d9bdb37b895e44e93a",
+        "after_hash": "d76074701778cc41454138de220bb569996ff66851b84a01a0aebe73b87e4475"
+      },
+      {
+        "file": "src/app/api/r/[slug]/orders/route.ts",
+        "ranges": [
+          {
+            "start": 43,
+            "end": 43
+          },
+          {
+            "start": 98,
+            "end": 98
+          },
+          {
+            "start": 109,
+            "end": 143
+          },
+          {
+            "start": 504,
+            "end": 523
+          }
+        ],
+        "before_hash": "3d4c19fb00405a3dc69ef6fe594573bb805d3c19e07479c1d999d13a7617400b",
+        "after_hash": "b48ea9ee3a959998d8a7a0c53ba2fd167a6206b3c0f6776ec40fb48fded09bb1"
+      },
+      {
+        "file": "src/components/tenant/CustomerOrderingView.tsx",
+        "ranges": [
+          {
+            "start": 3,
+            "end": 3
+          },
+          {
+            "start": 84,
+            "end": 90
+          },
+          {
+            "start": 720,
+            "end": 727
+          },
+          {
+            "start": 735,
+            "end": 735
+          },
+          {
+            "start": 740,
+            "end": 740
+          }
+        ],
+        "before_hash": "4d91ef97df1b5a1312cfa0c106dfc26364e969a2e3e793935ca81c6935568476",
+        "after_hash": "6a39f5cf0c0e70487deb48d66ac863aea130f81164bc643435114a3a9447d641"
+      },
+      {
+        "file": "tests/integration/mobileRegister.test.ts",
+        "ranges": [
+          {
+            "start": 215,
+            "end": 216
+          }
+        ],
+        "before_hash": "968688bd0f212ee5a8e7f3d9e4e94e119db3fc2e7f0c9dec2c83e047c16a2fed",
+        "after_hash": "8d396c61da139932ac1921852cadc1bed0901202d64363254de2eb283555864b"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-10-09T07:31:12.109Z",
+    "completed_at": "2026-10-09T07:31:15.374Z",
+    "duration_ms": 3265,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 3265,
+    "peakMemoryBytes": 105570304,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 0,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00-20261009T073115374Z-7548-091bc85b2ae6.json",
+    "latest_report": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00.json",
+    "history_summary": ".mimosa/history/run-20261009T073115374Z-7548-091bc85b2ae6.json"
+  }
+}

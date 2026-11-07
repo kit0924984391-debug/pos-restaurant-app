@@ -23,6 +23,7 @@ import {
   Columns2,
 } from 'lucide-react';
 import { playOrderChime } from '@/lib/sound';
+import { usePosAudioStore } from '@/stores/usePosAudioStore';
 
 const PosTerminal = dynamic(() => import('@/components/tenant/PosTerminal'), {
   ssr: false,
@@ -51,23 +52,8 @@ export default function TenantStoreLayout({
   const params = useParams();
   const slug = (params?.slug as string) || 'lung-pa';
 
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('pos_voice_enabled');
-      return saved !== null ? saved === 'true' : true;
-    }
-    return true;
-  });
-
-  useEffect(() => {
-    const handleVoiceChange = (e: any) => {
-      if (typeof e.detail?.enabled === 'boolean') {
-        setSoundEnabled(e.detail.enabled);
-      }
-    };
-    window.addEventListener('pos-voice-changed', handleVoiceChange);
-    return () => window.removeEventListener('pos-voice-changed', handleVoiceChange);
-  }, []);
+  const voiceEnabled = usePosAudioStore((state) => state.voiceEnabled);
+  const toggleVoice = usePosAudioStore((state) => state.toggleVoice);
 
   const [storeInfo, setStoreInfo] = useState<any>(null);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
@@ -212,24 +198,18 @@ export default function TenantStoreLayout({
                 type="button"
                 data-sound="tap"
                 onClick={() => {
-                  const next = !soundEnabled;
-                  setSoundEnabled(next);
-                  if (typeof window !== 'undefined') {
-                    localStorage.setItem('pos_voice_enabled', next ? 'true' : 'false');
-                    localStorage.setItem('pos_audio_unlocked', 'true');
-                    window.dispatchEvent(new CustomEvent('pos-voice-changed', { detail: { enabled: next } }));
-                  }
-                  if (next) playOrderChime();
+                  toggleVoice();
+                  if (!voiceEnabled) playOrderChime();
                 }}
-                title={soundEnabled ? 'ปิดเสียงเตือน' : 'เปิดเสียงเตือน'}
+                title={voiceEnabled ? 'ปิดเสียงเตือน' : 'เปิดเสียงเตือน'}
                 className={`p-2 sm:p-2.5 rounded-xl text-xs transition-all border flex-shrink-0 flex items-center space-x-1.5 duration-75 active:scale-95 cursor-pointer select-none ${
-                  soundEnabled
+                  voiceEnabled
                     ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold'
                     : 'border-slate-200 bg-slate-50 text-slate-400 hover:bg-slate-100 font-bold'
                 }`}
               >
-                {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-600" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
-                <span className="text-[11px] hidden sm:inline">{soundEnabled ? 'เสียงเปิด' : 'เสียงปิด'}</span>
+                {voiceEnabled ? <Volume2 className="w-4 h-4 text-emerald-600" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
+                <span className="text-[11px] hidden sm:inline">{voiceEnabled ? 'เสียงเปิด' : 'เสียงปิด'}</span>
               </button>
 
               {/* Owner Hub link */}
@@ -339,7 +319,7 @@ export default function TenantStoreLayout({
 
       {/* Mobile Slide-up Drawer for Extra Menus */}
       {isMoreMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="lg:hidden fixed inset-0 z-[60] flex flex-col justify-end bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div
             className="flex-1"
             onClick={() => setIsMoreMenuOpen(false)}

@@ -1,5 +1,19 @@
-import { PrismaClient } from '@prisma/client/wasm';
+import type { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
+
+function getPrismaClientClass(): any {
+  const env = getCloudflareEnv();
+  if (env?.DB) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      return require('@prisma/client/wasm').PrismaClient;
+    } catch {
+      // fallback to standard client
+    }
+  }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require('@prisma/client').PrismaClient;
+}
 
 // Cloudflare D1 is accessed through a native binding — no sockets, no
 // connection pooling, no per-request lifecycle. One client per worker isolate
@@ -109,21 +123,22 @@ function getLocalD1(): any {
 }
 
 function getPrisma(): PrismaClient {
+  const ClientClass = getPrismaClientClass();
   const env = getCloudflareEnv();
   if (env?.DB) {
     if (!workerClient) {
-      workerClient = new PrismaClient({ adapter: new PrismaD1(env.DB) });
+      workerClient = new ClientClass({ adapter: new PrismaD1(env.DB) });
     }
-    return workerClient;
+    return workerClient!;
   }
 
   // Local development, testing, and scripts in Node.js
   const localD1 = getLocalD1();
   if (localD1) {
     if (!localClient) {
-      localClient = new PrismaClient({ adapter: new PrismaD1(localD1) });
+      localClient = new ClientClass({ adapter: new PrismaD1(localD1) });
     }
-    return localClient;
+    return localClient!;
   }
 
   // Build time / fallback when neither Cloudflare binding nor local sqlite is available
@@ -133,9 +148,9 @@ function getPrisma(): PrismaClient {
         throw new Error('D1 database is only available inside Cloudflare Workers or local Node.js environment');
       },
     };
-    stubClient = new PrismaClient({ adapter: new PrismaD1(stub as any) });
+    stubClient = new ClientClass({ adapter: new PrismaD1(stub as any) });
   }
-  return stubClient;
+  return stubClient!;
 }
 
 

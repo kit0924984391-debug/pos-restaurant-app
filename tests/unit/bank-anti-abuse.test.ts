@@ -150,4 +150,36 @@ describe('Bank Account Validation & Anti-Abuse Free Trial Prevention', () => {
     expect(retryBank.eligible).toBe(false);
     expect(retryBank.code).toBe('bank_taken');
   });
+
+  it('7. PromptPay ID validation correctly verifies 10-digit mobile and 13-digit citizen/tax IDs', async () => {
+    const { cleanPromptPayId, isValidThaiPromptPay } = await import('@/lib/bank-validation');
+    expect(cleanPromptPayId('081-234-5678')).toBe('0812345678');
+    expect(isValidThaiPromptPay('0812345678')).toBe(true);
+    expect(isValidThaiPromptPay('1234567890123')).toBe(true);
+    expect(isValidThaiPromptPay('12345')).toBe(false);
+    expect(isValidThaiPromptPay('abc0812345678')).toBe(true); // cleaned to 10 digits starting with 0
+  });
+
+  it('8. Rejects registration when PromptPay ID is already registered to another store', async () => {
+    // Create dummy store with a promptpay
+    const promptPayStore = await prisma.store.create({
+      data: {
+        slug: `test-promptpay-${Date.now()}`,
+        name: 'ร้านทดสอบพร้อมเพย์',
+        phone: '0855554433',
+        promptPayId: '0855554433',
+        status: 'TRIAL',
+        trialEndsAt: new Date(),
+        subscriptionEnd: new Date(),
+      },
+    });
+
+    const checkRes = await checkRegistrationEligibility('0866667788', '5555555555', 'testpp@example.com', '0855554433');
+    expect(checkRes.eligible).toBe(false);
+    expect(checkRes.code).toBe('promptpay_taken');
+    expect(checkRes.message).toContain('หมายเลขพร้อมเพย์นี้ถูกใช้งานในระบบแล้ว');
+
+    // Clean up
+    await prisma.store.delete({ where: { id: promptPayStore.id } });
+  });
 });

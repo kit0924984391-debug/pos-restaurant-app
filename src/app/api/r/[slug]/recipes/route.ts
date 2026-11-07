@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const { searchParams } = new URL(request.url);
     const menuItemId = searchParams.get('menuItemId');
 
@@ -43,7 +43,7 @@ export async function POST(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const body = await request.json();
     const { menuItemId, ingredients } = body; // ingredients: [{ ingredientId: string, quantity: number }]
 
@@ -108,7 +108,7 @@ export async function DELETE(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const { searchParams } = new URL(request.url);
     const menuItemId = searchParams.get('menuItemId');
 

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { TypedLink, useSearch, boardSearchSchema } from '@/lib/router';
 import {
   ChevronUp,
   MessageSquare,
@@ -22,14 +23,15 @@ import {
 import { UserRoleBadge, FeatureStatusBadge } from '@/components/board/Badge';
 import AuthModal from '@/components/board/AuthModal';
 
-export default function BoardHomePage() {
+function BoardContent() {
+  const { search, setSearch } = useSearch(boardSearchSchema);
   const [categories, setCategories] = useState<any[]>([]);
   const [threads, setThreads] = useState<any[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortBy, setSortBy] = useState<'recent' | 'top'>('top');
+  const [selectedCategory, setSelectedCategory] = useState<string>(search.category || 'all');
+  const [searchQuery, setSearchQuery] = useState<string>(search.q || '');
+  const [sortBy, setSortBy] = useState<'recent' | 'top'>((search.sort as 'recent' | 'top') || 'top');
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(search.page || 1);
   const [totalPages, setTotalPages] = useState(1);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMessage, setAuthModalMessage] = useState({ title: '', subtitle: '' });
@@ -40,6 +42,12 @@ export default function BoardHomePage() {
 
   useEffect(() => {
     fetchThreads();
+    setSearch({
+      category: selectedCategory,
+      sort: sortBy,
+      page,
+      q: searchQuery.trim() || undefined,
+    });
   }, [selectedCategory, sortBy, page]);
 
   async function fetchCategories() {
@@ -331,12 +339,14 @@ export default function BoardHomePage() {
                 </div>
 
                 {/* Title */}
-                <Link
-                  href={`/board/thread/${thread.id}`}
+                <TypedLink
+                  to="/board/thread/[id]"
+                  params={{ id: thread.id }}
+                  preload="intent"
                   className="block text-base sm:text-lg font-black text-white group-hover:text-orange-400 transition-colors leading-snug"
                 >
                   {thread.title}
-                </Link>
+                </TypedLink>
 
                 {/* Body Snippet */}
                 <p className="text-xs text-slate-400 line-clamp-2 mt-1.5 leading-relaxed">
@@ -415,5 +425,20 @@ export default function BoardHomePage() {
         subtitle={authModalMessage.subtitle}
       />
     </div>
+  );
+}
+
+export default function BoardHomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-20 text-center flex flex-col items-center justify-center space-y-3">
+          <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+          <p className="text-xs text-slate-400 font-bold">กำลังโหลดกระดานสนทนา...</p>
+        </div>
+      }
+    >
+      <BoardContent />
+    </Suspense>
   );
 }

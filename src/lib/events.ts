@@ -72,7 +72,12 @@ export class CompositeBroadcaster implements IRealtimeBroadcaster {
   }
 }
 
-export const defaultBroadcaster = new CompositeBroadcaster([new LocalEventEmitterBroadcaster()]);
+import { defaultWebSocketBroadcaster } from './websocket/broadcaster';
+
+export const defaultBroadcaster = new CompositeBroadcaster([
+  new LocalEventEmitterBroadcaster(),
+  defaultWebSocketBroadcaster,
+]);
 
 // Cross-isolate fan-out: forward the event to the store's Durable Object hub,
 // which broadcasts it to every connected SSE client (POS/Kitchen/customer

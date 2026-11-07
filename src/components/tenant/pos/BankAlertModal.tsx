@@ -64,7 +64,7 @@ export default function BankAlertModal({
   return (
     <>
       {isOpen && bankAlertModal && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[60] bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in">
           <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 animate-scale-up flex flex-col">
             {/* Multi-table Queue Tabs / Pills Bar */}
             {bankAlertQueue.length > 1 && (

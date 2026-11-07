@@ -1,14 +1,14 @@
 {
   "schemaVersion": "mimosa-hook-status/v1",
-  "recordedAt": "2026-10-01T12:28:35.080Z",
+  "recordedAt": "2026-10-09T11:38:46.578Z",
   "sessionId": "sess_449395d9-37c4-4c4e-9d78-6a53cce93f00",
   "event": "PostToolUse",
   "toolName": "Edit",
-  "file": "src/lib/deliveryEngine.ts",
-  "outcome": "clear",
+  "file": "src/lib/prisma.ts",
+  "outcome": "static_verified",
   "coverage": "complete",
-  "findingCount": 0,
-  "durationMs": 24,
+  "findingCount": 1,
+  "durationMs": 1733,
   "hostState": "hook_complete",
   "reportHint": ".mimosa/reports/"
 }

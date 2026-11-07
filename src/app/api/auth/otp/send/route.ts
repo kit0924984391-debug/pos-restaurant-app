@@ -8,7 +8,17 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { phone, bankAccountNo, email, purpose = 'REGISTER' } = body;
+    const { phone, bankAccountNo, email, promptPayId, purpose = 'REGISTER' } = body;
+
+    // Allowlist purpose to prevent bypassing REGISTER eligibility checks.
+    // Existing callers use REGISTER / RESET_PASSWORD / SECURITY_EDIT only.
+    const ALLOWED_PURPOSES = ['REGISTER', 'RESET_PASSWORD', 'SECURITY_EDIT'];
+    if (!ALLOWED_PURPOSES.includes(String(purpose))) {
+      return NextResponse.json(
+        { error: 'purpose ไม่รองรับ' },
+        { status: 400 }
+      );
+    }
 
     if (!phone) {
       return NextResponse.json(
@@ -25,9 +35,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // If purpose is REGISTER, check if phone, bank account, or email is already registered
+    // If purpose is REGISTER, check if phone, bank account, email, or promptpay is already registered
     if (purpose === 'REGISTER') {
-      const eligibility = await checkRegistrationEligibility(clean, bankAccountNo, email);
+      const eligibility = await checkRegistrationEligibility(clean, bankAccountNo, email, promptPayId);
       if (!eligibility.eligible) {
         return NextResponse.json(
           { error: eligibility.message, code: eligibility.code },
@@ -41,8 +51,9 @@ export async function POST(request: Request) {
     return NextResponse.json(result);
   } catch (error: any) {
     console.error('Error sending SMS OTP:', error);
+    const isDev = process.env.NODE_ENV !== 'production';
     return NextResponse.json(
-      { error: error.message || 'ไม่สามารถส่งรหัส OTP ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง' },
+      { error: isDev ? (error.message || 'ไม่สามารถส่งรหัส OTP ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง') : 'ไม่สามารถส่งรหัส OTP ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง' },
       { status: 400 }
     );
   }

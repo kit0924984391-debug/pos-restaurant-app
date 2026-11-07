@@ -11,7 +11,15 @@ export type DeviceMode = 'mobile' | 'tablet' | 'desktop';
  * - desktop: >= 1024px
  */
 export function useDeviceMode(): DeviceMode {
-  const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
+  const [deviceMode, setDeviceMode] = useState<DeviceMode>(() => {
+    if (typeof window !== 'undefined') {
+      const width = window.innerWidth;
+      if (width < 768) return 'mobile';
+      if (width < 1024) return 'tablet';
+      return 'desktop';
+    }
+    return 'desktop';
+  });
 
   useEffect(() => {
     const updateMode = () => {

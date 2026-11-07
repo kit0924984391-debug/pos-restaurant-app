@@ -115,7 +115,7 @@ export default function KitchenTicketPrintModal({
   const totalQty = items.reduce((sum: number, it: any) => sum + (it.quantity || 1), 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
       {/* Scoped Thermal Slip Print CSS */}
       <style
         dangerouslySetInnerHTML={{
@@ -343,12 +343,15 @@ export default function KitchenTicketPrintModal({
         </div>
 
         {/* Action Buttons (No Print) */}
-        <div className="p-3 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-2 no-print">
+        <div
+          className="p-3 bg-slate-50 border-t border-slate-100 flex items-center gap-2 no-print shrink-0"
+          style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}
+        >
           <button
             type="button"
             data-sound="tap"
             onClick={onClose}
-            className="sm:w-24 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-100 active:scale-90 sm:active:scale-95 active:translate-y-0.5 select-none duration-75 transition-all cursor-pointer"
+            className="w-20 sm:w-24 shrink-0 py-2.5 min-h-[42px] rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-100 active:scale-90 sm:active:scale-95 active:translate-y-0.5 select-none duration-75 transition-all cursor-pointer flex items-center justify-center"
           >
             ปิด
           </button>
@@ -359,12 +362,12 @@ export default function KitchenTicketPrintModal({
               type="button"
               onClick={handleDirectEscPosPrint}
               disabled={directPrinting}
-              className={`flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs shadow-md transition-all duration-75 flex items-center justify-center space-x-1.5 active:scale-95 cursor-pointer select-none ring-2 ring-emerald-400/50 ${
+              className={`flex-1 py-2.5 min-h-[42px] rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs shadow-md transition-all duration-75 flex items-center justify-center space-x-1.5 active:scale-95 cursor-pointer select-none ring-2 ring-emerald-400/50 ${
                 directPrinting ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
               }`}
             >
-              <Zap className="w-4 h-4 text-amber-300" />
-              <span>{directPrinting ? 'กำลังส่งพิมพ์ตรง...' : '⚡ พิมพ์ตรงสลิปครัว (ESC/POS)'}</span>
+              <Zap className="w-4 h-4 text-amber-300 shrink-0" />
+              <span className="truncate">{directPrinting ? 'กำลังส่ง...' : '⚡ พิมพ์ตรง (ESC/POS)'}</span>
             </button>
           )}
 
@@ -374,20 +377,20 @@ export default function KitchenTicketPrintModal({
             data-sound="tap"
             onClick={handlePrint}
             disabled={isPrinting}
-            className={`flex-1 py-2.5 rounded-xl ${
+            className={`flex-1 py-2.5 min-h-[42px] rounded-xl ${
               printerStatus.connected
                 ? 'bg-amber-600 hover:bg-amber-700 text-white'
                 : 'bg-amber-500 hover:bg-amber-600 active:scale-90 sm:active:scale-95 active:translate-y-0.5 text-white ring-2 ring-amber-400/40'
-            } font-black text-xs flex items-center justify-center space-x-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer ${
+            } font-black text-xs flex items-center justify-center space-x-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer select-none ${
               isPrinting ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
             }`}
           >
-            <Printer className="w-4 h-4" />
-            <span>
+            <Printer className="w-4 h-4 shrink-0" />
+            <span className="truncate">
               {isPrinting
                 ? 'กำลังส่งพิมพ์...'
                 : printerStatus.connected
-                ? 'พิมพ์ผ่านระบบเบราว์เซอร์'
+                ? 'พิมพ์ผ่านเบราว์เซอร์'
                 : 'พิมพ์สลิปครัว'}
             </span>
           </button>

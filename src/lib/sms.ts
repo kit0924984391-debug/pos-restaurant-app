@@ -36,22 +36,40 @@ export function isValidThaiMobile(phone: string): boolean {
 }
 
 /**
- * Generates a random 6-digit numeric OTP.
+ * Generates a random 6-digit numeric OTP using crypto-secure randomness.
+ * Output range preserved: 100000-999999 (same format as before).
  */
 function generateOtpCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { randomInt } = require('crypto') as typeof import('crypto');
+    return randomInt(100000, 1000000).toString();
+  } catch {
+    // Fallback preserves prior behavior if crypto unavailable (non-Node runtime)
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
 }
 
 /**
  * Generates a random 4-character uppercase alphanumeric reference code (e.g. "AB12").
+ * Charset preserved to avoid breaking existing refCode lookups.
  */
 function generateRefCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let ref = '';
-  for (let i = 0; i < 4; i++) {
-    ref += chars.charAt(Math.floor(Math.random() * chars.length));
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { randomInt } = require('crypto') as typeof import('crypto');
+    for (let i = 0; i < 4; i++) {
+      ref += chars.charAt(randomInt(0, chars.length));
+    }
+    return ref;
+  } catch {
+    for (let i = 0; i < 4; i++) {
+      ref += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return ref;
   }
-  return ref;
 }
 
 export interface SendOtpResult {
@@ -76,6 +94,20 @@ export async function sendSmsOtp(rawPhone: string): Promise<SendOtpResult> {
 
   if (!isValidThaiMobile(cleanPhone)) {
     throw new Error('เบอร์โทรศัพท์มือถือไม่ถูกต้อง กรุณากรอกเบอร์มือถือ 10 หลัก (เช่น 0812345678)');
+  }
+
+  // Fail-closed: production requires a live SMS gateway to deliver OTP.
+  // Without one, the request previously returned fake success with no way
+  // for the user to receive the code. Throw before any DB write so no
+  // orphan OTP row or cooldown pollution occurs. Working paths
+  // (dev+MOCK, dev+live, prod+live) are untouched.
+  const smsProvider = process.env.SMS_PROVIDER || 'MOCK';
+  const smsApiKey = process.env.SMS_API_KEY;
+  const smsApiSecret = process.env.SMS_API_SECRET;
+  const isLiveSms = smsProvider === 'THAIBULKSMS' && !!(smsApiKey && smsApiSecret);
+  const isDevEnv = process.env.NODE_ENV !== 'production';
+  if (!isLiveSms && !isDevEnv) {
+    throw new Error('ระบบส่ง SMS ยังไม่พร้อมใช้งาน กรุณาติดต่อผู้ดูแลระบบ');
   }
 
   const now = new Date();
@@ -126,10 +158,7 @@ export async function sendSmsOtp(rawPhone: string): Promise<SendOtpResult> {
   });
 
   // SMS Gateway Integration (ThaiBulkSMS, SMSMKT, Twilio or MOCK)
-  const smsProvider = process.env.SMS_PROVIDER || 'MOCK';
-  const smsApiKey = process.env.SMS_API_KEY;
-  const smsApiSecret = process.env.SMS_API_SECRET;
-
+  // (provider config computed at function top with fail-closed prod guard)
   if (smsProvider === 'THAIBULKSMS' && smsApiKey && smsApiSecret) {
     try {
       // Example call to ThaiBulkSMS API
@@ -162,9 +191,13 @@ export async function sendSmsOtp(rawPhone: string): Promise<SendOtpResult> {
     success: true,
     refCode,
     expiresInSeconds: 300,
-    // Return devOtp so the user can easily test in development or when no SMS credits are configured
-    devOtp: otpCode,
-    message: `ส่งรหัส OTP ไปยังเบอร์ ${formatPhoneNumber(cleanPhone)} สำเร็จ (Ref: ${refCode})`,
+    // Security: only expose OTP code in non-production for testing.
+    // In production never return devOtp even when SMS gateway is unconfigured,
+    // to prevent account-takeover via otp/send.
+    devOtp: !isLiveSms && isDevEnv ? otpCode : undefined,
+    message: isLiveSms
+      ? `ส่งรหัส OTP ไปยังเบอร์ ${formatPhoneNumber(cleanPhone)} สำเร็จ (Ref: ${refCode})`
+      : `[โหมดทดสอบ] สร้างรหัส OTP สำหรับเบอร์ ${formatPhoneNumber(cleanPhone)} เรียบร้อยแล้ว (รหัสแสดงอยู่บนหน้านี้)`,
   };
 }
 

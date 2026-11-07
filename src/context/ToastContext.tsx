@@ -170,27 +170,43 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           const typeConfig = {
             success: {
               icon: CheckCircle2,
-              bg: 'bg-emerald-950/90 border-emerald-500/40 text-emerald-100',
-              iconColor: 'text-emerald-400 bg-emerald-900/50',
-              accent: 'bg-emerald-400',
+              bg: 'bg-slate-900 border-2 border-emerald-500 text-white shadow-2xl shadow-emerald-950/40',
+              bgColor: '#0f172a',
+              borderColor: '#10b981',
+              iconColor: 'text-emerald-400 bg-emerald-500/20 border border-emerald-500/40',
+              titleColor: 'text-white',
+              messageColor: 'text-emerald-300',
+              closeColor: 'text-slate-400 hover:text-white hover:bg-slate-800',
             },
             error: {
               icon: AlertCircle,
-              bg: 'bg-rose-950/90 border-rose-500/40 text-rose-100',
-              iconColor: 'text-rose-400 bg-rose-900/50',
-              accent: 'bg-rose-400',
+              bg: 'bg-slate-900 border-2 border-rose-500 text-white shadow-2xl shadow-rose-950/40',
+              bgColor: '#0f172a',
+              borderColor: '#f43f5e',
+              iconColor: 'text-rose-400 bg-rose-500/20 border border-rose-500/40',
+              titleColor: 'text-white',
+              messageColor: 'text-rose-300',
+              closeColor: 'text-slate-400 hover:text-white hover:bg-slate-800',
             },
             warning: {
               icon: AlertTriangle,
-              bg: 'bg-amber-950/90 border-amber-500/40 text-amber-100',
-              iconColor: 'text-amber-400 bg-amber-900/50',
-              accent: 'bg-amber-400',
+              bg: 'bg-slate-900 border-2 border-amber-500 text-white shadow-2xl shadow-amber-950/40',
+              bgColor: '#0f172a',
+              borderColor: '#f59e0b',
+              iconColor: 'text-amber-400 bg-amber-500/20 border border-amber-500/40',
+              titleColor: 'text-white',
+              messageColor: 'text-amber-300',
+              closeColor: 'text-slate-400 hover:text-white hover:bg-slate-800',
             },
             info: {
               icon: Info,
-              bg: 'bg-slate-900/95 border-orange-500/40 text-slate-100',
-              iconColor: 'text-orange-400 bg-orange-950/50',
-              accent: 'bg-orange-400',
+              bg: 'bg-slate-900 border-2 border-orange-500 text-white shadow-2xl shadow-orange-950/40',
+              bgColor: '#0f172a',
+              borderColor: '#f97316',
+              iconColor: 'text-orange-400 bg-orange-500/20 border border-orange-500/40',
+              titleColor: 'text-white',
+              messageColor: 'text-orange-200',
+              closeColor: 'text-slate-400 hover:text-white hover:bg-slate-800',
             },
           }[toast.type];
 
@@ -199,7 +215,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           return (
             <div
               key={toast.id}
-              className={`pointer-events-auto w-full p-3.5 sm:p-4 rounded-2xl border shadow-2xl backdrop-blur-xl flex items-start gap-3 transition-all duration-300 transform animate-in slide-in-from-top-4 fade-in ${typeConfig.bg}`}
+              style={{
+                backgroundColor: typeConfig.bgColor,
+                borderColor: typeConfig.borderColor,
+              }}
+              className={`pointer-events-auto w-full p-4 rounded-2xl border-2 shadow-2xl backdrop-blur-xl flex items-start gap-3 transition-all duration-300 transform animate-in slide-in-from-top-4 fade-in ${typeConfig.bg}`}
             >
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner ${typeConfig.iconColor}`}
@@ -208,11 +228,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               </div>
 
               <div className="flex-1 min-w-0 pr-1">
-                <h4 className="font-extrabold text-sm text-white tracking-tight leading-snug truncate">
+                <h4 className={`font-black text-sm tracking-tight leading-snug truncate ${typeConfig.titleColor}`}>
                   {toast.title}
                 </h4>
                 {toast.message && (
-                  <p className="text-xs opacity-90 mt-0.5 leading-relaxed break-words font-medium">
+                  <p className={`text-xs mt-1 leading-relaxed break-words font-bold ${typeConfig.messageColor}`}>
                     {toast.message}
                   </p>
                 )}
@@ -220,7 +240,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
               <button
                 onClick={() => dismissToast(toast.id)}
-                className="p-1 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+                className={`p-1.5 rounded-lg transition-colors flex-shrink-0 cursor-pointer ${typeConfig.closeColor}`}
                 title="ปิด"
               >
                 <X className="w-4 h-4" />

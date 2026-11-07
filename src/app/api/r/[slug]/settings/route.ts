@@ -24,7 +24,7 @@ export async function GET(
   try {
     let sessionUser: any = null;
     try {
-      const access = await requireStoreAccess(params.slug);
+      const access = await requireStoreAccess(params.slug, request);
       sessionUser = access.user;
     } catch (authErr) {
       return NextResponse.json({ error: 'Unauthorized: Staff access required' }, { status: 401 });
@@ -69,6 +69,9 @@ export async function GET(
       ownerEmail: isOwner ? (ownerEmail || '') : '',
       promptPayId: store.promptPayId,
       promptPayName: store.promptPayName,
+      bankName: store.bankName || '',
+      bankAccountNo: store.bankAccountNo || '',
+      bankAccountName: store.bankAccountName || '',
       address: store.address,
       phone: store.phone,
       receiptFooter: store.receiptFooter,
@@ -97,7 +100,9 @@ export async function GET(
       _isOwner: isOwner,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('[settings GET] error:', error);
+    const isDev = process.env.NODE_ENV !== 'production';
+    return NextResponse.json({ error: isDev ? error.message : 'โหลดการตั้งค่าไม่สำเร็จ' }, { status: 500 });
   }
 }
 
@@ -108,13 +113,14 @@ export async function PUT(
   try {
     let sessionUser: any = null;
     try {
-      const access = await requireStoreAccess(params.slug);
+      const access = await requireStoreAccess(params.slug, request);
       sessionUser = access.user;
     } catch (authErr) {
       return NextResponse.json({ error: 'Unauthorized: Staff access required' }, { status: 401 });
     }
 
     const isOwner = sessionUser?.role === 'STORE_OWNER' || sessionUser?.role === 'SUPER_ADMIN';
+    const isSuperAdmin = sessionUser?.role === 'SUPER_ADMIN';
 
     const body = await request.json();
     const {
@@ -147,6 +153,43 @@ export async function PUT(
       enableAiUpsell,
     } = body;
 
+    const store = await prisma.store.findUnique({
+      where: { slug: params.slug },
+    });
+
+    if (!store) return NextResponse.json({ error: 'ไม่พบร้านค้า' }, { status: 404 });
+
+    const ownerUser = await prisma.user.findFirst({
+      where: { storeId: store.id, role: 'STORE_OWNER' },
+    });
+
+    // Enforce lock on security & payment fields: only SUPER_ADMIN can modify them
+    if (!isSuperAdmin) {
+      const normDigits = (v: any) => (v !== undefined && v !== null ? String(v).replace(/\D/g, '') : '');
+      const normStr = (v: any) => (v !== undefined && v !== null ? String(v).trim() : '');
+      const normEmail = (v: any) => (v !== undefined && v !== null ? String(v).trim().toLowerCase() : '');
+
+      const currentOwnerEmail = ownerUser?.email && !ownerUser.email.endsWith('@ordeopos.com') ? ownerUser.email.toLowerCase() : '';
+
+      const hasPhoneChange = phone !== undefined && normDigits(phone) !== normDigits(store.phone);
+      const hasPromptPayChange = promptPayId !== undefined && normDigits(promptPayId) !== normDigits(store.promptPayId);
+      const hasPromptPayNameChange = promptPayName !== undefined && normStr(promptPayName) !== normStr(store.promptPayName);
+      const hasBankAccChange = body.bankAccountNo !== undefined && normDigits(body.bankAccountNo) !== normDigits(store.bankAccountNo);
+      const hasBankNameChange = body.bankName !== undefined && normStr(body.bankName) !== normStr(store.bankName);
+      const hasBankAccNameChange = body.bankAccountName !== undefined && normStr(body.bankAccountName) !== normStr(store.bankAccountName);
+      const hasEmailChange = ownerEmail !== undefined && normEmail(ownerEmail) !== '' && normEmail(ownerEmail) !== currentOwnerEmail;
+
+      if (hasPhoneChange || hasPromptPayChange || hasPromptPayNameChange || hasBankAccChange || hasBankNameChange || hasBankAccNameChange || hasEmailChange) {
+        return NextResponse.json(
+          {
+            error: 'ข้อมูลบัญชีรับเงินและข้อมูลติดต่อความปลอดภัย (เบอร์โทรศัพท์, หมายเลขพร้อมเพย์, เลขที่บัญชีธนาคาร, อีเมล) ถูกล็อกห้ามแก้ไขด้วยตนเอง หากต้องการเปลี่ยนแปลงข้อมูล กรุณาติดต่อผู้ดูแลระบบ (Platform Admin)',
+            code: 'SECURITY_FIELDS_LOCKED',
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     // Payment-critical settings are owner-only: staff changing the PromptPay
     // number, slip provider keys or webhook secrets could redirect payments.
     const OWNER_ONLY_FIELDS: Array<[string, any]> = [
@@ -170,12 +213,6 @@ export async function PUT(
         );
       }
     }
-
-    const store = await prisma.store.findUnique({
-      where: { slug: params.slug },
-    });
-
-    if (!store) return NextResponse.json({ error: 'ไม่พบร้านค้า' }, { status: 404 });
 
     // ทดสอบการเชื่อมต่อ Google Drive Webhook
     if (testGoogleDrive) {
@@ -210,10 +247,13 @@ export async function PUT(
       where: { id: store.id },
       data: {
         name: storeName !== undefined ? storeName : store.name,
-        promptPayId: promptPayId !== undefined ? promptPayId : store.promptPayId,
-        promptPayName: promptPayName !== undefined ? promptPayName : store.promptPayName,
+        promptPayId: isSuperAdmin && promptPayId !== undefined ? (promptPayId ? String(promptPayId).replace(/\D/g, '') : '') : store.promptPayId,
+        promptPayName: isSuperAdmin && promptPayName !== undefined ? String(promptPayName).trim() : store.promptPayName,
+        bankName: isSuperAdmin && body.bankName !== undefined ? String(body.bankName).trim() : store.bankName,
+        bankAccountNo: isSuperAdmin && body.bankAccountNo !== undefined ? String(body.bankAccountNo).replace(/\D/g, '') : store.bankAccountNo,
+        bankAccountName: isSuperAdmin && body.bankAccountName !== undefined ? String(body.bankAccountName).trim() : store.bankAccountName,
         address: address !== undefined ? address : store.address,
-        phone: phone !== undefined ? phone : store.phone,
+        phone: isSuperAdmin && phone !== undefined ? phone : store.phone,
         receiptFooter: receiptFooter !== undefined ? receiptFooter : store.receiptFooter,
         tableCount: tableCount ? parseInt(tableCount) : store.tableCount,
         linemanGp: linemanGp !== undefined ? parseFloat(linemanGp) : store.linemanGp,
@@ -313,12 +353,21 @@ export async function PUT(
       enableAiUpsell: updated.enableAiUpsell ?? true,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('[settings PUT] error:', error);
+    const isDev = process.env.NODE_ENV !== 'production';
+    return NextResponse.json({ error: isDev ? error.message : 'บันทึกการตั้งค่าไม่สำเร็จ' }, { status: 500 });
   }
 }
 
 function generateRandomBankKey(): string {
-  return `bk_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 10)}`;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { randomBytes } = require('crypto') as typeof import('crypto');
+    return `bk_${Date.now().toString(36)}_${randomBytes(6).toString('hex')}`;
+  } catch {
+    // Fallback preserves prior format if crypto unavailable
+    return `bk_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 10)}`;
+  }
 }
 
 async function ensureStoreBankKey(storeId: string): Promise<string> {

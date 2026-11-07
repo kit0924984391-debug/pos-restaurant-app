@@ -1,0 +1,227 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261009T114233060Z-22052-3e8d158fa7e8",
+  "runId": "20261009T114233060Z-22052-3e8d158fa7e8",
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "6cb2222960b58050d3747d596277306d0785c4b1",
+  "diffHash": "e12d153b7a46fa2a8bfd8caa2ea322d9f3d53dc85285dd113125f45559e41219",
+  "rulesVersion": "unavailable",
+  "sessionHash": "fc2f37becebf38d4c4f24eadcb4f3c9091fd712398fa4c3ae806927b8c3ecdad",
+  "reportRef": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00-20261009T114233060Z-22052-3e8d158fa7e8.json",
+  "events": [
+    {
+      "eventId": "hook-327cf798280c35c94a512fb703d27302",
+      "findingId": "mimosa-dc264ef45f30a8c909816b7b",
+      "type": "finding_blocked",
+      "at": "2026-10-09T11:37:08.215Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/google-drive-storage.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "24b176777b29fc81c8e31ac96bc98452c6202671efb0a9774fc4a4a056fe4987",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 126,
+      "endLine": 126,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "24b176777b29fc81c8e31ac96bc98452c6202671efb0a9774fc4a4a056fe4987"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-d3e3e66bc42fd51867a4798dd0a08952",
+      "findingId": "mimosa-dc264ef45f30a8c909816b7b",
+      "type": "static_fix_verified",
+      "at": "2026-10-09T11:37:23.999Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/google-drive-storage.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "24b176777b29fc81c8e31ac96bc98452c6202671efb0a9774fc4a4a056fe4987",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 126,
+      "endLine": 126,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "24b176777b29fc81c8e31ac96bc98452c6202671efb0a9774fc4a4a056fe4987"
+      },
+      "sequence": 1
+    },
+    {
+      "eventId": "hook-3d992ad1796b1e981829d42cf2fe9066",
+      "findingId": "mimosa-06cb559d1388b5bf6780769a",
+      "type": "finding_blocked",
+      "at": "2026-10-09T11:37:37.313Z",
+      "identity": {
+        "projectRelativeFile": "scripts/seed-admin.js",
+        "ruleId": "security",
+        "codeEvidenceHash": "ecb181ea882f5b2a8903762f4948dca48f9d436fb918aa4b79acb8b60e8764d0",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 12,
+      "endLine": 12,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "ecb181ea882f5b2a8903762f4948dca48f9d436fb918aa4b79acb8b60e8764d0"
+      },
+      "sequence": 2
+    },
+    {
+      "eventId": "hook-91be6c9afa825f28e03b2ec60804d2d7",
+      "findingId": "mimosa-06cb559d1388b5bf6780769a",
+      "type": "static_fix_verified",
+      "at": "2026-10-09T11:37:52.661Z",
+      "identity": {
+        "projectRelativeFile": "scripts/seed-admin.js",
+        "ruleId": "security",
+        "codeEvidenceHash": "ecb181ea882f5b2a8903762f4948dca48f9d436fb918aa4b79acb8b60e8764d0",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 12,
+      "endLine": 12,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "ecb181ea882f5b2a8903762f4948dca48f9d436fb918aa4b79acb8b60e8764d0"
+      },
+      "sequence": 3
+    },
+    {
+      "eventId": "hook-2a88f91a98a8c34b56fbb676ab5a37f7",
+      "findingId": "mimosa-0ff460b85a0b68cc908e3420",
+      "type": "finding_observed",
+      "at": "2026-10-09T11:37:53.468Z",
+      "identity": {
+        "projectRelativeFile": "scripts/seed-admin.js",
+        "ruleId": "security",
+        "codeEvidenceHash": "fe80b7f0dd54429f2b23a0dbb4fcaa17acacc879d2583dfac8a138024305e04e",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 40,
+      "endLine": 40,
+      "reasonCode": "advisory",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "fe80b7f0dd54429f2b23a0dbb4fcaa17acacc879d2583dfac8a138024305e04e"
+      },
+      "sequence": 4
+    },
+    {
+      "eventId": "hook-801bdb9345eea08c2f6a8587b370dafe",
+      "findingId": "mimosa-bfee12447d7d0c94a75cd9b3",
+      "type": "finding_blocked",
+      "at": "2026-10-09T11:38:16.826Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/prisma.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "4f698f595ab4b219bf0705ade5bd5ae8adc53678fdf96daacfe03f42d5ef506c",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 87,
+      "endLine": 87,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "4f698f595ab4b219bf0705ade5bd5ae8adc53678fdf96daacfe03f42d5ef506c"
+      },
+      "sequence": 5
+    },
+    {
+      "eventId": "hook-9eabc6b9d0d04127e2c78df106c420db",
+      "findingId": "mimosa-bfee12447d7d0c94a75cd9b3",
+      "type": "static_fix_verified",
+      "at": "2026-10-09T11:38:45.755Z",
+      "identity": {
+        "projectRelativeFile": "src/lib/prisma.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "4f698f595ab4b219bf0705ade5bd5ae8adc53678fdf96daacfe03f42d5ef506c",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 87,
+      "endLine": 87,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "4f698f595ab4b219bf0705ade5bd5ae8adc53678fdf96daacfe03f42d5ef506c"
+      },
+      "sequence": 6
+    }
+  ],
+  "observedFindingIds": [
+    "mimosa-d75f2992437e2e6f771b2c79",
+    "mimosa-0ff460b85a0b68cc908e3420",
+    "mimosa-d2c30e4d3d3460cda2171d13"
+  ],
+  "verifiedFiles": [
+    {
+      "file": "src/lib/google-drive-storage.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "scripts/seed-admin.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "src/lib/prisma.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "test-conn.js",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/integration/mobileRegister.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/integration/storeDeletionSafety.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-10-09T11:42:33.832Z"
+}

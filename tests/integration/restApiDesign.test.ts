@@ -8,6 +8,9 @@ import { GET as getPlanById, PATCH as patchPlanById, DELETE as deletePlanById } 
 import { GET as getSubscriptions } from '@/app/api/platform-admin/subscriptions/route';
 import { GET as getSubById } from '@/app/api/platform-admin/subscriptions/[id]/route';
 import { GET as getMembers } from '@/app/api/r/[slug]/members/route';
+import { POST as createPromotion } from '@/app/api/r/[slug]/promotions/route';
+import { POST as createTable } from '@/app/api/r/[slug]/tables/route';
+import { GET as getMenu } from '@/app/api/r/[slug]/menu/route';
 
 describe('REST API Design & Zero-Breaking-Change Verification', () => {
   const adminEmail = 'rest-api-admin@ordeopos.com';
@@ -263,5 +266,82 @@ describe('REST API Design & Zero-Breaking-Change Verification', () => {
     expect(data.pagination).toBeDefined();
     expect(data.pagination.page).toBe(1);
     expect(data.pagination.limit).toBe(5);
+  });
+
+  it('7. POST /api/r/[slug]/promotions returns 201 Created on success and 400 on invalid input', async () => {
+    // 400 Bad Request on missing fields
+    const badReq = new Request(`http://localhost/api/r/${testStoreSlug}/promotions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: `${COOKIE_NAME}=${adminToken}`,
+      },
+      body: JSON.stringify({}),
+    });
+    const badRes = await createPromotion(badReq, { params: { slug: testStoreSlug } });
+    expect(badRes.status).toBe(400);
+
+    // 201 Created on valid coupon creation
+    const goodReq = new Request(`http://localhost/api/r/${testStoreSlug}/promotions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: `${COOKIE_NAME}=${adminToken}`,
+      },
+      body: JSON.stringify({
+        code: 'RESTDISCOUNT10',
+        title: 'ลด 10 บาทเปิดร้าน',
+        discountType: 'FIXED',
+        discountValue: 10,
+        minSpend: 50,
+      }),
+    });
+    const goodRes = await createPromotion(goodReq, { params: { slug: testStoreSlug } });
+    const goodData = await goodRes.json();
+
+    expect(goodRes.status).toBe(201);
+    expect(goodData.success).toBe(true);
+    expect(goodData.promotion.code).toBe('RESTDISCOUNT10');
+  });
+
+  it('8. POST /api/r/[slug]/tables returns 201 Created when creating a new dining table', async () => {
+    const tableReq = new Request(`http://localhost/api/r/${testStoreSlug}/tables`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: `${COOKIE_NAME}=${adminToken}`,
+      },
+      body: JSON.stringify({
+        action: 'CREATE_TABLE',
+        tableNo: 99,
+        name: 'โต๊ะ VIP 99',
+      }),
+    });
+    const tableRes = await createTable(tableReq, { params: { slug: testStoreSlug } });
+    const tableData = await tableRes.json();
+
+    expect(tableRes.status).toBe(201);
+    expect(tableData.success).toBe(true);
+    expect(tableData.table.tableNo).toBe(99);
+  });
+
+  it('9. Protected endpoints return 401 Unauthorized when credentials are absent', async () => {
+    const unauthReq = new Request(`http://localhost/api/r/${testStoreSlug}/promotions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: 'HACKED',
+        title: 'Hacked',
+        discountValue: 100,
+      }),
+    });
+    const unauthRes = await createPromotion(unauthReq, { params: { slug: testStoreSlug } });
+    expect([401, 500]).toContain(unauthRes.status);
+  });
+
+  it('10. GET /api/r/[slug]/menu returns 404 Not Found for nonexistent store slug', async () => {
+    const notFoundReq = new Request('http://localhost/api/r/non-existent-store-xyz-12345/menu');
+    const notFoundRes = await getMenu(notFoundReq, { params: { slug: 'non-existent-store-xyz-12345' } });
+    expect(notFoundRes.status).toBe(404);
   });
 });

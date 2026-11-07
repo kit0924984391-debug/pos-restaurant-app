@@ -83,7 +83,7 @@ export async function POST(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const body = await request.json();
     const { code, title, discountType, discountValue, minSpend, expiryDate } = body;
 
@@ -128,7 +128,7 @@ export async function PUT(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const body = await request.json();
     const { id, code, title, discountType, discountValue, minSpend, expiryDate, isActive } = body;
 
@@ -182,7 +182,7 @@ export async function DELETE(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { store } = await requireStoreAccess(params.slug);
+    const { store } = await requireStoreAccess(params.slug, request);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

@@ -1,6 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  flexRender,
+  ColumnDef,
+  SortingState,
+} from '@tanstack/react-table';
 import {
   Package,
   Plus,
@@ -21,6 +30,9 @@ import {
   Edit2,
   Copy,
   RotateCcw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 
@@ -357,9 +369,148 @@ export default function AdminInventoryView({ slug }: { slug: string }) {
   const lowStockCount = ingredients.filter((i) => i.currentStock <= i.minStockAlert).length;
   const totalStockValue = ingredients.reduce((sum, i) => sum + i.currentStock * i.costPerUnit, 0);
 
-  const filteredIngredients = ingredients.filter((i) =>
-    i.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredIngredients = useMemo(
+    () => ingredients.filter((i) => i.name.toLowerCase().includes(searchTerm.toLowerCase())),
+    [ingredients, searchTerm]
   );
+
+  const [tableSorting, setTableSorting] = useState<SortingState>([]);
+  const [tablePagination, setTablePagination] = useState({ pageIndex: 0, pageSize: 20 });
+
+  const tableColumns = useMemo<ColumnDef<any>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'วัตถุดิบ',
+        cell: ({ row }) => (
+          <span className="font-extrabold text-slate-900">{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: 'currentStock',
+        header: 'คงเหลือ',
+        cell: ({ row }) => {
+          const ing = row.original;
+          const isLow = ing.currentStock <= ing.minStockAlert;
+          const isOut = ing.currentStock <= 0;
+          return (
+            <div className="font-black text-sm sm:text-base">
+              <span className={isOut ? 'text-red-600' : isLow ? 'text-amber-600' : 'text-slate-900'}>
+                {ing.currentStock.toLocaleString()}
+              </span>{' '}
+              <span className="text-[11px] sm:text-xs text-slate-400 font-normal">{ing.unit}</span>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: 'minStockAlert',
+        header: 'เกณฑ์เตือน',
+        cell: ({ row }) => (
+          <span className="text-slate-500">
+            {row.original.minStockAlert.toLocaleString()} {row.original.unit}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'costPerUnit',
+        header: 'ต้นทุน/หน่วย',
+        cell: ({ row }) => (
+          <span className="text-slate-700">
+            ฿{row.original.costPerUnit.toFixed(2)} / {row.original.unit}
+          </span>
+        ),
+      },
+      {
+        id: 'totalValue',
+        header: 'มูลค่าคงเหลือ',
+        accessorFn: (row) => row.currentStock * row.costPerUnit,
+        cell: ({ row }) => (
+          <span className="font-bold text-emerald-600">
+            ฿{(row.original.currentStock * row.original.costPerUnit).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </span>
+        ),
+      },
+      {
+        id: 'status',
+        header: 'สถานะ',
+        accessorFn: (row) => (row.currentStock <= 0 ? 0 : row.currentStock <= row.minStockAlert ? 1 : 2),
+        cell: ({ row }) => {
+          const ing = row.original;
+          const isLow = ing.currentStock <= ing.minStockAlert;
+          const isOut = ing.currentStock <= 0;
+          return isOut ? (
+            <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold bg-red-100 text-red-700">
+              หมดสต็อก
+            </span>
+          ) : isLow ? (
+            <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold bg-amber-100 text-amber-700">
+              ใกล้หมด
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold bg-emerald-100 text-emerald-700">
+              ปกติ
+            </span>
+          );
+        },
+      },
+      {
+        id: 'actions',
+        header: () => <div className="text-right">การจัดการ</div>,
+        enableSorting: false,
+        cell: ({ row }) => {
+          const ing = row.original;
+          return (
+            <div className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap">
+              <button
+                onClick={() => {
+                  setSelectedIng(ing);
+                  setIsStockInModalOpen(true);
+                }}
+                title="รับเข้าสต็อกวัตถุดิบ"
+                className="px-2.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-black border border-orange-200/80 transition-all inline-flex items-center gap-1 shadow-xs active:scale-95 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>รับเข้า</span>
+              </button>
+              <button
+                onClick={() => openEditIngModal(ing)}
+                title="แก้ไขข้อมูลวัตถุดิบ"
+                className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 border border-slate-200 transition-all flex items-center justify-center active:scale-95 cursor-pointer shadow-xs"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => openDeleteIngModal(ing)}
+                title="ลบวัตถุดิบนี้"
+                className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200 transition-all flex items-center justify-center active:scale-95 cursor-pointer shadow-xs"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  const inventoryTable = useReactTable({
+    data: filteredIngredients,
+    columns: tableColumns,
+    state: {
+      sorting: tableSorting,
+      pagination: tablePagination,
+    },
+    onSortingChange: setTableSorting,
+    onPaginationChange: setTablePagination,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
   // Calculate cost of selected menu item
   const selectedItemCost = recipeIngredients.reduce((sum, r) => {
@@ -491,100 +642,92 @@ export default function AdminInventoryView({ slug }: { slug: string }) {
             </div>
           </div>
 
-          {/* Isolated Horizontal Scroll Container for Table */}
+          {/* Isolated Horizontal Scroll Container for Table (TanStack Table v8) */}
           <div className="overflow-x-auto w-full max-w-full">
             <table className="w-full text-left text-xs sm:text-sm min-w-[650px]">
               <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-100">
-                <tr className="whitespace-nowrap">
-                  <th className="py-3 sm:py-4 px-4 sm:px-6">วัตถุดิบ</th>
-                  <th className="py-3 sm:py-4 px-4 sm:px-6">คงเหลือ</th>
-                  <th className="py-3 sm:py-4 px-4 sm:px-6">เกณฑ์เตือน</th>
-                  <th className="py-3 sm:py-4 px-4 sm:px-6">ต้นทุน/หน่วย</th>
-                  <th className="py-3 sm:py-4 px-4 sm:px-6">มูลค่าคงเหลือ</th>
-                  <th className="py-3 sm:py-4 px-4 sm:px-6">สถานะ</th>
-                  <th className="py-3 sm:py-4 px-4 sm:px-6 text-right">การจัดการ</th>
-                </tr>
+                {inventoryTable.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id} className="whitespace-nowrap">
+                    {headerGroup.headers.map((header) => {
+                      const canSort = header.column.getCanSort();
+                      const isSorted = header.column.getIsSorted();
+
+                      return (
+                        <th key={header.id} className="py-3 sm:py-4 px-4 sm:px-6 select-none">
+                          {header.isPlaceholder ? null : canSort ? (
+                            <button
+                              type="button"
+                              onClick={header.column.getToggleSortingHandler()}
+                              className="flex items-center space-x-1.5 font-bold hover:text-slate-900 group cursor-pointer"
+                            >
+                              <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                              <span className="text-slate-400 group-hover:text-slate-600">
+                                {isSorted === 'asc' ? (
+                                  <ArrowUp className="w-3.5 h-3.5 text-orange-600" />
+                                ) : isSorted === 'desc' ? (
+                                  <ArrowDown className="w-3.5 h-3.5 text-orange-600" />
+                                ) : (
+                                  <ArrowUpDown className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100" />
+                                )}
+                              </span>
+                            </button>
+                          ) : (
+                            <div>{flexRender(header.column.columnDef.header, header.getContext())}</div>
+                          )}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                ))}
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
-                {filteredIngredients.map((ing) => {
-                  const isLow = ing.currentStock <= ing.minStockAlert;
-                  const isOut = ing.currentStock <= 0;
-
-                  return (
-                    <tr key={ing.id} className="hover:bg-slate-50/80 transition-colors whitespace-nowrap">
-                      <td className="py-3 sm:py-4 px-4 sm:px-6 font-extrabold text-slate-900">
-                        {ing.name}
-                      </td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6 font-black text-sm sm:text-base">
-                        <span className={isOut ? 'text-red-600' : isLow ? 'text-amber-600' : 'text-slate-900'}>
-                          {ing.currentStock.toLocaleString()}
-                        </span>{' '}
-                        <span className="text-[11px] sm:text-xs text-slate-400 font-normal">{ing.unit}</span>
-                      </td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6 text-slate-500">
-                        {ing.minStockAlert.toLocaleString()} {ing.unit}
-                      </td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6 text-slate-700">
-                        ฿{ing.costPerUnit.toFixed(2)} / {ing.unit}
-                      </td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6 font-bold text-emerald-600">
-                        ฿{(ing.currentStock * ing.costPerUnit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6">
-                        {isOut ? (
-                          <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold bg-red-100 text-red-700">
-                            หมดสต็อก
-                          </span>
-                        ) : isLow ? (
-                          <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold bg-amber-100 text-amber-700">
-                            ใกล้หมด
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold bg-emerald-100 text-emerald-700">
-                            ปกติ
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6 text-right">
-                        <div className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap">
-                          {/* 1. Stock In Button */}
-                          <button
-                            onClick={() => {
-                              setSelectedIng(ing);
-                              setIsStockInModalOpen(true);
-                            }}
-                            title="รับเข้าสต็อกวัตถุดิบ"
-                            className="px-2.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-black border border-orange-200/80 transition-all inline-flex items-center gap-1 shadow-xs active:scale-95 cursor-pointer"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>รับเข้า</span>
-                          </button>
-
-                          {/* 2. Edit Button */}
-                          <button
-                            onClick={() => openEditIngModal(ing)}
-                            title="แก้ไขข้อมูลวัตถุดิบ"
-                            className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 border border-slate-200 transition-all flex items-center justify-center active:scale-95 cursor-pointer shadow-xs"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-
-                          {/* 3. Delete Button */}
-                          <button
-                            onClick={() => openDeleteIngModal(ing)}
-                            title="ลบวัตถุดิบนี้"
-                            className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200 transition-all flex items-center justify-center active:scale-95 cursor-pointer shadow-xs"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
+                {inventoryTable.getRowModel().rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={tableColumns.length} className="py-12 text-center text-slate-400 text-xs font-semibold">
+                      ไม่พบวัตถุดิบที่ตรงกับการค้นหา
+                    </td>
+                  </tr>
+                ) : (
+                  inventoryTable.getRowModel().rows.map((row) => (
+                    <tr key={row.id} className="hover:bg-slate-50/80 transition-colors whitespace-nowrap">
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id} className={`py-3 sm:py-4 px-4 sm:px-6 ${cell.column.id === 'actions' ? 'text-right' : ''}`}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
                     </tr>
-                  );
-                })}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
+
+          {/* TanStack Table Pagination */}
+          {inventoryTable.getPageCount() > 1 && (
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-slate-100 text-xs">
+              <span className="text-slate-500 font-semibold">
+                หน้า {inventoryTable.getState().pagination.pageIndex + 1} จาก {inventoryTable.getPageCount()} (ทั้งหมด {filteredIngredients.length} วัตถุดิบ)
+              </span>
+              <div className="flex items-center space-x-1.5">
+                <button
+                  type="button"
+                  disabled={!inventoryTable.getCanPreviousPage()}
+                  onClick={() => inventoryTable.previousPage()}
+                  className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold transition-colors"
+                >
+                  ก่อนหน้า
+                </button>
+                <button
+                  type="button"
+                  disabled={!inventoryTable.getCanNextPage()}
+                  onClick={() => inventoryTable.nextPage()}
+                  className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold transition-colors"
+                >
+                  ถัดไป
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -874,7 +1017,7 @@ export default function AdminInventoryView({ slug }: { slug: string }) {
 
       {/* MODAL: Stock In */}
       {isStockInModalOpen && selectedIng && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-slate-900 text-lg">รับเข้าสต็อก: {selectedIng.name}</h3>
@@ -938,7 +1081,7 @@ export default function AdminInventoryView({ slug }: { slug: string }) {
 
       {/* MODAL: New Ingredient */}
       {isNewIngModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-slate-900 text-lg">เพิ่มรายการวัตถุดิบใหม่</h3>
@@ -1039,7 +1182,7 @@ export default function AdminInventoryView({ slug }: { slug: string }) {
 
       {/* MODAL: Edit Ingredient */}
       {isEditIngModalOpen && editingIng && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-slate-900 text-lg">แก้ไขข้อมูลวัตถุดิบ</h3>
@@ -1163,7 +1306,7 @@ export default function AdminInventoryView({ slug }: { slug: string }) {
         );
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-2">
                 <Trash2 className="w-6 h-6" />
@@ -1222,7 +1365,7 @@ export default function AdminInventoryView({ slug }: { slug: string }) {
 
       {/* MODAL: Clear Recipe Confirmation */}
       {isClearRecipeConfirmOpen && selectedMenuItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
             <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-2">
               <Trash2 className="w-6 h-6" />

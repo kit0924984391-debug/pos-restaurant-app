@@ -91,16 +91,17 @@ export default function PosMobileView({
           </div>
 
           {/* Quick Header Buttons */}
-          <div className="flex items-center space-x-1 flex-shrink-0">
+          <div className="flex items-center space-x-1.5 flex-shrink-0">
             <button
               type="button"
               onClick={toggleVoice}
-              className={`p-1.5 rounded-lg border flex items-center justify-center active:scale-90 transition-all ${
+              className={`min-h-[38px] min-w-[38px] p-2 rounded-xl border flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
                 voiceEnabled
                   ? 'bg-amber-50 text-amber-700 border-amber-300'
                   : 'bg-slate-100 text-slate-400 border-slate-200'
               }`}
               title={voiceEnabled ? 'เสียงเปิด' : 'เสียงปิด'}
+              aria-label={voiceEnabled ? 'คลิกเพื่อปิดเสียงพูดเงินเข้า' : 'คลิกเพื่อเปิดเสียงพูดเงินเข้า'}
             >
               {voiceEnabled ? <Volume2 className="w-4 h-4 text-amber-600" /> : <VolumeX className="w-4 h-4" />}
             </button>
@@ -108,7 +109,7 @@ export default function PosMobileView({
             <button
               type="button"
               onClick={() => handleOpenDeliveryModal('LINEMAN')}
-              className="px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center space-x-1 active:scale-90 shadow-2xs"
+              className="min-h-[38px] px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-black text-xs flex items-center space-x-1.5 active:scale-90 shadow-2xs cursor-pointer select-none"
             >
               <span>🛵</span>
               <span>เดลิเวอรี</span>
@@ -117,8 +118,9 @@ export default function PosMobileView({
             <button
               type="button"
               onClick={() => setIsAddTableModalOpen(true)}
-              className="p-1.5 rounded-lg bg-orange-500 text-white font-black text-xs flex items-center justify-center active:scale-90 shadow-2xs"
+              className="min-h-[38px] min-w-[38px] p-2 rounded-xl bg-orange-500 text-white font-black text-xs flex items-center justify-center active:scale-90 shadow-2xs cursor-pointer select-none"
               title="เพิ่มโต๊ะ"
+              aria-label="เพิ่มโต๊ะใหม่"
             >
               <Plus className="w-4 h-4" />
             </button>

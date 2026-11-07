@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans, Prompt } from 'next/font/google';
 import './globals.css';
+import QueryProvider from '@/providers/QueryProvider';
 import { ToastProvider } from '@/context/ToastContext';
 import PwaRegister from '@/components/PwaRegister';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 import GlobalButtonSound from '@/components/GlobalButtonSound';
+import MotionConfigProvider from '@/components/motion/MotionConfigProvider';
 
 const prompt = Prompt({
   subsets: ['thai', 'latin'],
@@ -24,8 +26,8 @@ export const viewport: Viewport = {
   themeColor: '#ea580c',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  userScalable: true,
   viewportFit: 'cover',
 };
 
@@ -67,12 +69,16 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body className="antialiased font-sans text-slate-900 bg-[#F8FAFC] selection:bg-orange-500 selection:text-white overflow-x-hidden max-w-[100vw] w-full">
-        <ToastProvider>
-          <GlobalButtonSound />
-          {children}
-          <PwaRegister />
-          <PwaInstallPrompt />
-        </ToastProvider>
+        <QueryProvider>
+          <ToastProvider>
+            <MotionConfigProvider>
+              <GlobalButtonSound />
+              {children}
+              <PwaRegister />
+              <PwaInstallPrompt />
+            </MotionConfigProvider>
+          </ToastProvider>
+        </QueryProvider>
       </body>
     </html>
   );

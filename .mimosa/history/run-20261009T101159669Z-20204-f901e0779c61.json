@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mimosa-finding-history/v1",
+  "runId": "20261009T101159669Z-20204-f901e0779c61",
+  "runStatus": "inconclusive",
+  "errors": [
+    "baseline-read:.open-next/assets/_next/static/chunks/4433-5ecb50ba08e56551.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/pos/page-f235e2a5a1b7e747.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/kitchen/page-022df4e3311adc14.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/tables/page-fb3300fe84fcb028.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/settings/page-c94c268f03157c4a.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/reports/page-bced559070ec7c86.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/qr-codes/page-2ef79cefa0a95274.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/chunks/app/admin/menu/page-e8c62421150b1b85.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_buildManifest.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "baseline-read:.open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_ssgManifest.js: baseline_snapshot_unreadable: file is missing from task baseline",
+    "scan:.open-next/cloudflare/init.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/4433-5ecb50ba08e56551.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/pos/page-f235e2a5a1b7e747.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/kitchen/page-022df4e3311adc14.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/tables/page-fb3300fe84fcb028.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/settings/page-c94c268f03157c4a.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/reports/page-bced559070ec7c86.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/qr-codes/page-2ef79cefa0a95274.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/chunks/app/admin/menu/page-e8c62421150b1b85.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_buildManifest.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/assets/_next/static/ah8TF8PjOmjXhq2l_qrG8/_ssgManifest.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+    "scan:.open-next/.build/durable-objects/queue.js: scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT"
+  ],
+  "target": ".",
+  "revision": "851157d5f9509c598d0be6e24998c8a0d563a09c",
+  "diffHash": "eeeee19a0a166555198ad9f53722787522df5431251ad96b0eaa71417a0f1500",
+  "rulesVersion": "unavailable",
+  "recordedAt": "2026-10-09T10:11:59.669Z",
+  "timing": {
+    "startedAt": "2026-10-09T10:11:56.548Z",
+    "completedAt": "2026-10-09T10:11:59.669Z",
+    "durationMs": 3121
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "modelCalls": 0,
+    "measurement": "known-zero"
+  },
+  "findings": {
+    "total": 0,
+    "bySeverity": {},
+    "byStatus": {}
+  },
+  "coverage": {
+    "status": "partial",
+    "reasonCounts": {
+      "baseline_snapshot_unreadable": 10,
+      "scanner_failed": 12,
+      "project_check_failed": 22
+    }
+  },
+  "evidenceBoundary": "static_only",
+  "immutableReport": ".mimosa/reports/task-review-sess_449395d9-37c4-4c4e-9d78-6a53cce93f00-20261009T101159669Z-20204-f901e0779c61.json"
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "posttooluse-9065b1a3415f821a3441584a57e42ddf",
+  "runId": null,
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "PostToolUse"
+  },
+  "revision": null,
+  "diffHash": null,
+  "rulesVersion": null,
+  "sessionHash": "fc2f37becebf38d4c4f24eadcb4f3c9091fd712398fa4c3ae806927b8c3ecdad",
+  "reportRef": null,
+  "events": [
+    {
+      "eventId": "hook-2a88f91a98a8c34b56fbb676ab5a37f7",
+      "findingId": "mimosa-0ff460b85a0b68cc908e3420",
+      "type": "finding_observed",
+      "at": "2026-10-09T11:37:53.468Z",
+      "identity": {
+        "projectRelativeFile": "scripts/seed-admin.js",
+        "ruleId": "security",
+        "codeEvidenceHash": "fe80b7f0dd54429f2b23a0dbb4fcaa17acacc879d2583dfac8a138024305e04e",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 40,
+      "endLine": 40,
+      "reasonCode": "advisory",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "fe80b7f0dd54429f2b23a0dbb4fcaa17acacc879d2583dfac8a138024305e04e"
+      },
+      "sequence": 0
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-10-09T11:37:54.327Z"
+}
